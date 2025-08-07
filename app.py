@@ -1,10 +1,10 @@
 import streamlit as st 
 
 paginas = {
-    "Páginas": [ st.Page("paginas/inicial.py", title="Início", icon='🚓', default=True)],
+    "Home": [ st.Page("paginas/home.py", title="Home", icon='🏠', default=True)],
     
-    "Exemplo": [ st.Page("paginas/pagina1.py", title="Banco de Dados", icon='🚙'), 
-                st.Page("paginas/pagina2.py", title="Exemplo", icon='⚡')]
+    #"Exemplo": [ st.Page("paginas/pagina1.py", title="Banco de Dados", icon='🚙'), 
+     #           st.Page("paginas/pagina2.py", title="Exemplo", icon='⚡')]
     ]
 }
 
