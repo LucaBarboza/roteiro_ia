@@ -3,8 +3,7 @@ import streamlit as st
 paginas = {
     "Home": [ st.Page("paginas/home.py", title="Home", icon='🏠', default=True)],
     
-    #"Exemplo": [ st.Page("paginas/pagina1.py", title="Banco de Dados", icon='🚙'), 
-     #           st.Page("paginas/pagina2.py", title="Exemplo", icon='⚡')]
+    "Criar Roteiros": [ st.Page("paginas/Criar.py", title="Criar Roteiros", icon='📝')]
 }
 
 # Usa a estrutura de páginas final (com ou sem Admin)
