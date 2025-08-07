@@ -4,11 +4,8 @@ paginas = {
     "Home": [st.Page("paginas/home.py", title="Home", icon='🏠', default=True)]
 }
 
-if st.session_state.get("logged_in", False):
+if st.user.is_logged_in:
     paginas["Criar Roteiros"] = [st.Page("paginas/Criar.py", title="Criar Roteiros", icon='📝')]
-    st.rerun()
 
 pg = st.navigation(paginas)
 pg.run()
-
-# comentario
