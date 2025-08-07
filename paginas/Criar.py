@@ -77,11 +77,12 @@ PROMPT_PLANEJADOR = """
     ## **Roteiro Detalhado**
     ### **Dia [1]: Chegada em [Cidade A] e Primeira Exploração**
     - **Foco do Dia:** Aclimatação e imersão no bairro [Nome do Bairro].
-    - **Manhã (09:00 - 12:00):** [Atividade 1]. **Dica do Arquiteto:** "Compre ingressos online com antecedência para evitar filas de 1-2 horas."
-    - **Almoço (12:30):** **Sugestão:** [Tipo de culinária local ou restaurante específico]. "Experimente o prato [Nome do Prato], um clássico da região."
-    - **Tarde (14:00 - 17:00):** [Atividade 2]. **Dica do Arquiteto:** "A melhor luz para fotos neste local é por volta das 16:00."
-    - **Noite (19:00+):** [Sugestão de jantar ou atividade noturna, alinhada ao perfil do viajante].
-
+    - ** [Atividade 1]. ** Dica: **"Compre ingressos online com antecedência para evitar filas de 1-2 horas."
+    - **Sugestão:** [Tipo de culinária local]. "Experimente o prato [Nome do Prato], um clássico da região."
+    - **[Atividade 2]. ** Dica: ** "A melhor luz para fotos neste local é por volta das 16:00."
+    - ** [Sugestão de comida e/ou atividade noturna, alinhada ao perfil do viajante].
+    - ** continue...
+    
     *(Repita essa estrutura detalhada para todos os dias da viagem)*
     ---
     ### **Dicas Essenciais para sua Viagem**
