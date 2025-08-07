@@ -7,7 +7,7 @@ paginas = {
 if st.session_state.get("logged_in", False):
     paginas["Criar Roteiros"] = [st.Page("paginas/Criar.py", title="Criar Roteiros", icon='📝')]
 
-pg = st.navigation(paginas)
-pg.run()
+    pg = st.navigation(paginas)
+    pg.run()
 
 # comentario
