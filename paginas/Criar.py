@@ -4,67 +4,116 @@ import streamlit as st
 import os
 import asyncio
 from datetime import datetime
+import google.generativeai as genai
 
-# --- PONTO DE INTEGRAÇÃO CRÍTICO: Usando apenas a biblioteca estável ---
-try:
-    import google.generativeai as genai
-except ImportError as e:
-    st.error("Não foi possível importar 'google.generativeai'. Verifique se 'google-generativeai' está no seu requirements.txt.")
-    st.stop()
+genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+
+GEMINI_MODEL = "gemini-2.0-flash"
+
+PROMPT_IDEALIZADOR = """Você é um "Curador de Destinos", um agente de viagens de elite especializado em criar roteiros autênticos e memoráveis.
+    Seu diferencial é ir além do óbvio, identificando não só os locais mais populares,
+    mas também aqueles com as melhores avaliações que oferecem uma experiência genuína.
+
+    Sua missão é montar um panorama inspirador sobre os tesouros de um país para um viajante curioso.
+
+    Para o país {pais}, siga estritamente os seguintes passos:
+    1.  **Pesquisa Inicial:** Identifique um conjunto de 8 a 10 cidades com forte apelo turístico no país.
+    2.  **Análise Quantitativa e Qualitativa:** Para cada cidade da lista inicial,
+    use a busca para analisar a quantidade e, mais importante, a qualidade de suas atrações.
+    3.  **Seleção e Curadoria:** Com base na análise, selecione as **TOP 5 cidades** definitivas.
+    Sua escolha deve balancear cidades com 'destaques imperdíveis' (reconhecimento mundial)
+    e cidades que representam 'joias culturais' (experiências autênticas e muito bem avaliadas).
+    4.  **Montagem do Roteiro:** Para cada cidade escolhida, identifique as atrações principais,
+    incluindo uma breve justificativa.
 
 
-# --- CONFIGURAÇÃO SEGURA DA API KEY ---
-try:
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-except (KeyError, FileNotFoundError):
-    st.error("A chave GOOGLE_API_KEY não foi encontrada nos segredos do Streamlit.")
-    st.info("Por favor, adicione sua chave ao arquivo .streamlit/secrets.toml")
-    st.code('GOOGLE_API_KEY="sua_chave_aqui"')
-    st.stop()
-except Exception as auth_e:
-    st.error(f"Ocorreu um erro ao configurar a API do Google: {auth_e}")
-    st.stop()
+    Apresente sua curadoria no formato abaixo, usando Markdown. Comece com um parágrafo introdutório no tom da persona.
 
+    ---
 
-# --- DEFINIÇÃO DOS "AGENTES" COMO PROMPTS ---
-# Em vez de usar a biblioteca ADK, definimos cada "agente" como um prompt para o modelo Gemini.
-GEMINI_MODEL = "gemini-1.5-flash"
+    ## **[Nome da Cidade 1]**
 
-PROMPT_IDEALIZADOR = """
-Você é um "Curador de Destinos". Sua missão é montar um panorama inspirador sobre os tesouros de um país.
-Para o país {pais}, siga os passos:
-1.  Pesquise e liste 8-10 cidades turísticas.
-2.  Analise a qualidade das atrações de cada uma.
-3.  Selecione as TOP 5 cidades.
-4.  Para cada cidade, identifique 3 atrações principais com uma breve justificativa.
-Apresente a resposta de forma concisa, focada nos nomes das cidades e atrações.
-"""
+    **Por que visitar:** [Escreva aqui um parágrafo curto e envolvente justificando por que esta cidade foi escolhida,
+    com base na sua análise. Ex: 'Capital cultural vibrante, famosa por sua arquitetura histórica e gastronomia de rua que encanta a todos.']
+
+    * **[Nome do Ponto Turístico 1]:** Uma breve descrição focada na experiência do visitante.
+    * **[Nome do Ponto Turístico 2]:** Uma breve descrição focada na experiência do visitante.
+    * **[Nome do Ponto Turístico 3]:** Uma breve descrição focada na experiência do visitante.
+
+    ## **[Nome da Cidade 2]**
+    **Por que visitar:** [Parágrafo justificando a escolha...]
+    * ... e assim por diante para todas as 5 cidades."""
 
 PROMPT_PLANEJADOR = """
-Você é um "Arquiteto de Viagens".
-Com base nas seguintes ideias de cidades e atrações:
-{ideias_buscadas}
+    Você é um "Arquiteto de Viagens",
+    um especialista de elite que projeta experiências de viagem completas e imersivas.
+    Sua expertise combina otimização logística com curadoria cultural e
+    dicas práticas que transformam uma boa viagem em uma viagem inesquecível.
 
-Projete um roteiro para {pais} com {dias} dias.
-1.  Determine a ordem mais eficiente para visitar as cidades.
-2.  Distribua os dias entre elas.
-3.  Crie um rascunho de roteiro diário (manhã, tarde, noite).
-Apresente um plano claro e estruturado.
-"""
+    Projetar um roteiro de viagem totalmente personalizado e otimizado, e a logística real de deslocamento.
+
+    - **País/Região de Destino:** {pais}
+    - **Duração Total (dias):** {dias}
+    - **Cidades e Atrações Desejadas:** {ideias_buscadas}
+
+    1.  **Análise do Perfil:** Comece interpretando o perfil e o ritmo do viajante para guiar todas as suas escolhas.
+    2.  **Mapeamento Logístico:** Use a busca para determinar a ordem mais
+    eficiente para visitar as cidades listadas, minimizando o tempo e o
+    custo de viagem entre elas (considere voos, trens e carros).
+    3.  **Alocação de Dias:** Distribua o número total de dias entre as cidades selecionadas,
+    com base na quantidade de atrações.
+    4.  **Construção Diária Imersiva:** Para cada dia, crie um roteiro que agrupe as atrações por bairro ou região.
+    Vá além da lista: inclua horários sugeridos, dicas práticas e sugestões de experiências locais.
+    5.  **Enriquecimento:** Adicione uma seção final com dicas gerais valiosas para o destino.
+
+    Gere a resposta em Markdown, seguindo rigorosamente esta estrutura:
+
+    ### **Seu Roteiro Personalizado para [País]**
+
+    ### **Visão Geral e Logística**
+    - **Ordem das Cidades:** [Cidade A] -> [Cidade B] -> [Cidade C]
+    - **Sugestão de Transporte Principal:** [Ex: Trem de alta velocidade entre cidades, aluguel de carro para a região X]
+
+    ## **Roteiro Detalhado**
+    ### **Dia [1]: Chegada em [Cidade A] e Primeira Exploração**
+    - **Foco do Dia:** Aclimatação e imersão no bairro [Nome do Bairro].
+    - **Manhã (09:00 - 12:00):** [Atividade 1]. **Dica do Arquiteto:** "Compre ingressos online com antecedência para evitar filas de 1-2 horas."
+    - **Almoço (12:30):** **Sugestão:** [Tipo de culinária local ou restaurante específico]. "Experimente o prato [Nome do Prato], um clássico da região."
+    - **Tarde (14:00 - 17:00):** [Atividade 2]. **Dica do Arquiteto:** "A melhor luz para fotos neste local é por volta das 16:00."
+    - **Noite (19:00+):** [Sugestão de jantar ou atividade noturna, alinhada ao perfil do viajante].
+
+    *(Repita essa estrutura detalhada para todos os dias da viagem)*
+    ---
+    ### **Dicas Essenciais para sua Viagem**
+    - **Dinheiro e Pagamentos:** [Dica sobre moeda local, uso de cartões]
+    - Algo que achar relevantes (se tiver)
+    """
 
 PROMPT_REVISOR = """
-Você é um "Auditor de Experiências".
-Analise criticamente o rascunho de roteiro a seguir:
-{plano_de_roteiro}
+    Você é um "Auditor de Experiências de Viagem.
+    Sua função é analisar criticamente um roteiro não apenas pela logística,
+    mas pela qualidade, ritmo e viabilidade da experiência geral.
+    Você é analítico, preciso e sua auditoria transforma planos amadores em experiências memoráveis e sem estresse,
+    usando dados e buscas para embasar cada recomendação.
 
-Sua tarefa é refinar e otimizar este plano.
-1.  Verifique se o ritmo é realista. Agrupe atividades por localização para minimizar deslocamentos.
-2.  Adicione dicas práticas (transporte, ingressos, sugestões de restaurantes).
-3.  Formate a saída final em Markdown de alta qualidade, como um roteiro profissional pronto para ser entregue ao cliente.
-Retorne APENAS o roteiro final e otimizado.
-"""
+    Realizar uma auditoria completa de um rascunho de roteiro,
+    fornecendo uma versão final otimizada e validada.
 
-# --- LÓGICA PRINCIPAL ASSÍNCRONA ---
+    **Roteiro Rascunho para Auditoria:** {plano_de_roteiro}
+
+    1.  **Teste de Estresse Logístico:** Use a busca para validar cada dia.
+    Pesquise especificamente:
+    * **Tempos de Deslocamento Reais:** Simule os trajetos (ex: "tempo de metrô do Louvre à Torre Eiffel") para validar a viabilidade do cronograma.
+    * **Tempo de Visita:** Pesquise o tempo médio recomendado para visitar cada local.
+    2.  **Reconstrução Otimizada:** Crie a versão final auditada do roteiro.
+    # FORMATO DO ROTEIRO AUDITADO E OTIMIZADO: Gere a resposta em Markdown, seguindo rigorosamente esta estrutura profissional: --- ###
+    ** [Apresente aqui a versão final e corrigida do roteiro,
+    no formato dia a dia claro e detalhado, já com todas as melhorias incorporadas. ---
+    3.  Formate a saída final em Markdown de alta qualidade, como um roteiro profissional pronto para ser entregue ao cliente.
+    
+    Retorne APENAS o roteiro final e otimizado.
+    """
+
 async def gerar_roteiro_completo(pais, dias):
     model = genai.GenerativeModel(GEMINI_MODEL)
 
@@ -88,9 +137,8 @@ async def gerar_roteiro_completo(pais, dias):
 
     return roteiro_revisado
 
-# --- INTERFACE DO STREAMLIT (UI) ---
 st.title("📝 Crie Seus Roteiros")
-st.write("Preencha os campos abaixo para que nossa IA monte a viagem dos seus sonhos.")
+st.header("Preencha os campos abaixo para que nossa IA monte a viagem dos seus sonhos.")
 
 with st.form("form_roteiro"):
     pais = st.text_input("Qual o país que você quer visitar?")
@@ -105,12 +153,8 @@ with st.form("form_roteiro"):
         else:
             dias = (data_fim_str - data_inicio_str).days
             st.info(f"Preparando um roteiro de {dias} dias para {pais}. Isso pode levar um momento...")
-            try:
-                roteiro_final = asyncio.run(gerar_roteiro_completo(pais, dias))
-                st.balloons()
-                st.divider()
-                st.header("🎉 Seu Roteiro Personalizado está Pronto!")
-                st.markdown(roteiro_final)
-            except Exception as e:
-                st.error(f"Ocorreu um erro ao gerar o roteiro: {e}")
-                st.exception(e)
+            roteiro_final = asyncio.run(gerar_roteiro_completo(pais, dias))
+            st.balloons()
+            st.divider()
+            st.header("🎉 Seu Roteiro Personalizado está Pronto!")
+            st.markdown(roteiro_final)
