@@ -4,7 +4,7 @@ import asyncio
 import textwrap
 from datetime import datetime 
 
-import google.genai as genai
+import google.generativeai as genai
 from google.colab import userdata
 from google.adk.agents import Agent
 from google.adk.sessions import InMemorySessionService
