@@ -14,8 +14,7 @@ from google.adk.tools import google_search
 
 os.environ['GOOGLE_API_KEY'] = st.secrets["GOOGLE_API_KEY"]
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "False"
-genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-Client()
+genai.Client()
 
 async def call_agent_final_response(
     agent_under_test: Agent,
