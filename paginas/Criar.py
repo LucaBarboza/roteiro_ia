@@ -3,7 +3,6 @@ import os
 import asyncio
 import textwrap
 from datetime import datetime 
-from IPython.display import display, Markdown
 
 import google.genai as genai
 from google.colab import userdata
