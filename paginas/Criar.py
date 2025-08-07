@@ -1,15 +1,16 @@
 import streamlit as st
 import os
 import asyncio
-from datetime import datetime
+import textwrap
+from datetime import datetime 
+from IPython.display import display, Markdown
 
-import google.generativeai as genai
-from google.generativeai import types as genai_types
-from google.generativeai.client import Client
-
+import google.genai as genai
+from google.colab import userdata
 from google.adk.agents import Agent
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
+from google.genai import types as genai_types
 from google.adk.tools import google_search
 
 os.environ['GOOGLE_API_KEY'] = st.secrets["GOOGLE_API_KEY"]
