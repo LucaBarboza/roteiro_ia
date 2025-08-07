@@ -1,10 +1,10 @@
 import streamlit as st
 import os
 import sys
-import pkgutil
+import importlib.util
 
 st.set_page_config(layout="wide")
-st.title("🔬 Diagnóstico Profundo do Ambiente")
+st.title("🔬 Diagnóstico Profundo do Ambiente v2")
 st.info("Tentando importar 'google.genai'...")
 
 try:
@@ -24,35 +24,51 @@ except ImportError as e:
     st.json(sys.path)
 
     st.divider()
-    st.subheader("2. Localizando o pacote 'google'")
+    st.subheader("2. Inspecionando o Pacote de Namespace 'google'")
+    
     try:
-        # Tenta encontrar o caminho para o pacote 'google'
-        spec = pkgutil.get_loader("google")
-        if spec:
-            # Pega o caminho do diretório pai do arquivo do pacote
-            google_path = os.path.dirname(spec.get_filename("google"))
-            st.success(f"O pacote 'google' foi encontrado em: {google_path}")
+        # Usa importlib.util para inspecionar o pacote
+        spec = importlib.util.find_spec("google")
+        
+        if spec is None:
+            st.error("Falha Crítica: Não foi possível encontrar nenhuma especificação para o pacote 'google'.")
+        
+        elif spec.submodule_search_locations:
+            st.success("O pacote 'google' foi identificado como um Pacote de Namespace.")
+            st.write("Ele é composto pelos seguintes diretórios:")
+            st.json(spec.submodule_search_locations)
 
-            st.subheader("3. Listando o conteúdo da pasta 'google'")
-            st.write("Se 'genai' não estiver nesta lista, outra biblioteca está a criar um pacote 'google' incompleto, confirmando o conflito.")
+            st.subheader("3. Listando o conteúdo dos diretórios do Namespace")
+            st.write("Vamos verificar se 'genai' existe em algum desses locais.")
+
+            found_genai = False
+            for path in spec.submodule_search_locations:
+                st.write(f"--- Verificando: `{path}`")
+                try:
+                    contents = os.listdir(path)
+                    st.json(contents)
+                    if "genai" in contents:
+                        st.success(f"✅ 'genai' foi encontrado dentro de: {path}")
+                        found_genai = True
+                except Exception as list_e:
+                    st.warning(f"Não foi possível listar o conteúdo de '{path}': {list_e}")
             
-            try:
-                # Lista todos os arquivos e pastas dentro do diretório 'google'
-                contents = os.listdir(google_path)
-                st.write(f"Conteúdo de '{google_path}':")
-                st.json(contents)
-
-                if "genai" in contents:
-                    st.warning("MISTÉRIO: 'genai' está na pasta, mas a importação falha. Isso pode ser um problema de permissões ou um arquivo `__init__.py` corrompido.")
-                else:
-                    st.error("🎯 CAUSA PROVÁVEL ENCONTRADA: A pasta 'google' existe, mas não contém 'genai'.")
-                    st.info("Isso confirma um conflito de namespace. Outra biblioteca (provavelmente uma dependência do Streamlit) está a criar esta pasta 'google'.")
-
-            except Exception as list_e:
-                st.error(f"Não foi possível listar o conteúdo da pasta 'google': {list_e}")
+            st.divider()
+            if found_genai:
+                st.warning("MISTÉRIO FINAL: O diretório 'genai' existe, mas a importação falha. Isso sugere um problema raro de permissões ou um arquivo `__init__.py` corrompido dentro da pasta 'genai'.")
+            else:
+                st.error("🎯 CAUSA CONFIRMADA: Nenhum dos diretórios que compõem o pacote 'google' contém o submódulo 'genai'.")
+                st.info("Isso significa que a instalação do 'google-generativeai' falhou em adicionar sua parte ao namespace, provavelmente devido a um conflito com outra biblioteca que também usa o namespace 'google'.")
 
         else:
-            st.error("Falha Crítica: Não foi possível localizar o pacote 'google' usando pkgutil. O problema é ainda mais fundamental.")
+            st.warning("O pacote 'google' não é um namespace. Tentando método antigo...")
+            st.write(f"Local do arquivo __init__.py: {spec.origin}")
+            # Código de fallback se não for namespace, improvável de ser executado
+            google_path = os.path.dirname(spec.origin)
+            st.write(f"Conteúdo de '{google_path}':")
+            st.json(os.listdir(google_path))
+
 
     except Exception as spec_e:
-        st.error(f"Ocorreu um erro ao tentar localizar o pacote 'google': {spec_e}")
+        st.error(f"Ocorreu um erro ao tentar inspecionar o pacote 'google': {spec_e}")
+
