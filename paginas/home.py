@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("✈️ Gerador de Roteiros de Viagem Mágico")
+st.title("✈️ Gerador de Roteiros de Viagem")
 
 if not st.user.is_logged_in:
     st.write("Faça o login para continuar.")
