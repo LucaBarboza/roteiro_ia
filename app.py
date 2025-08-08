@@ -5,8 +5,7 @@ paginas = {
 }
 
 if st.user.is_logged_in:
-    paginas["Criar Roteiros"] = [st.Page("paginas/Criar.py", title="Criar Roteiros", icon='📝')]
-    paginas["Seus Roteiros"] = [st.Page("paginas/ver.py", title="Seus Roteiros", icon='🗺')]
+    paginas["Roteiros"] = [st.Page("paginas/Criar.py", title="Criar Roteiros", icon='📝'), st.Page("paginas/ver.py", title="Seus Roteiros", icon='🗺')]
 
 pg = st.navigation(paginas)
 pg.run()
