@@ -21,7 +21,7 @@ doc = db.collection(colecao).document(st.user.email).get()
 dados = doc.to_dict() if doc.exists else {}
 roteiros = dados.get('roteiros', [])
     
-if notas:
+if roteiros:
     for roteiro in roteiros:  
         st.write(f"📝 {nota['texto']}")
 else:
