@@ -1,10 +1,10 @@
-# paginas/Criar.py
-
 import streamlit as st
 import os
 import asyncio
 from datetime import datetime
 import google.generativeai as genai
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
@@ -138,6 +138,20 @@ async def gerar_roteiro_completo(pais, dias):
 
     return roteiro_revisado
 
+###################
+@st.cache_resource
+def conectar_firebase():
+    try:
+        firebase_admin.get_app()
+    except ValueError:
+        cred = credentials.Certificate(dict(st.secrets["firebase"]))
+        firebase_admin.initialize_app(cred)
+    return firestore.client()
+
+db = conectar_firebase()
+colecao = 'usuarios2'
+##############
+
 st.title("📝 Crie Seus Roteiros")
 st.header("Preencha os campos abaixo para que nossa IA monte a viagem dos seus sonhos.")
 
@@ -159,3 +173,17 @@ with st.form("form_roteiro"):
             st.divider()
             st.header("🎉 Seu Roteiro Personalizado está Pronto!")
             st.markdown(roteiro_final)
+
+            novo_roteiro = roteiro_final
+            user_ref = db.collection(colecao).document(st.user.email)
+            doc = user_ref.get()
+            dados = doc.to_dict() if doc.exists else {}
+    
+            if 'roteiros' not in dados:
+                dados['roteiros'] = []
+    
+            dados['roteiros'].append({
+            'texto': novo_roteiro,
+            })
+            user_ref.set(dados)
+            st.success("Roteiro salvo!")
