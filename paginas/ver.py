@@ -23,6 +23,6 @@ roteiros = dados.get('roteiros', [])
     
 if roteiros:
     for roteiro in roteiros:  
-        st.write(f"📝 {nota['texto']}")
+        st.write(f"📝 {roteiro['texto']}")
 else:
-    st.info("Nenhuma nota ainda")
+    st.info("Nenhum roteiro ainda")
