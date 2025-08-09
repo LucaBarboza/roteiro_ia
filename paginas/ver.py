@@ -22,7 +22,9 @@ dados = doc.to_dict() if doc.exists else {}
 roteiros = dados.get('roteiros', [])
     
 if roteiros:
-    for roteiro in roteiros:  
-        st.write(f"📝 {roteiro['texto']}")
+    for roteiro in roteiros:
+        titulo = roteiro['pais']  
+        with st.expander(f"📝 {titulo}"):
+            st.markdown(roteiro.get('texto'))
 else:
     st.info("Nenhum roteiro ainda")

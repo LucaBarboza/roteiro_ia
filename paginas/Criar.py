@@ -184,6 +184,7 @@ with st.form("form_roteiro"):
     
             dados['roteiros'].append({
             'texto': novo_roteiro,
+            'pais': pais
             })
             user_ref.set(dados)
             st.success("Roteiro salvo!")
