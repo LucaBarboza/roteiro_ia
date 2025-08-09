@@ -23,7 +23,6 @@ roteiros = dados.get('roteiros', [])
     
 if roteiros:
     with st.container(border=True):
-        st.caption(f"Destino: {roteiro['pais']}")                
         if st.button(f"Ver Roteiro", key=roteiro['pais'], use_container_width=True):
             with st.expander(f"Roteiro: {roteiro['pais']}"):
                 st.header(f"📍 {roteiro['pais']}")
