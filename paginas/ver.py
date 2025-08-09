@@ -22,15 +22,19 @@ dados = doc.to_dict() if doc.exists else {}
 roteiros = dados.get('roteiros', [])
     
 if roteiros:
-    for roteiro in roteiros:
-        if st.button(f"📝 {roteiro['pais']}", key=roteiro['pais'], use_container_width=True):
-            with st.dialog(f"Roteiro: {roteiro['pais']}"):
-                st.header(f"📍 {roteiro['pais']}")
-                st.markdown(roteiro['texto'])
-                st.divider()
-                if st.button("Fechar", key=f"close_{roteiro['pais']}"):
-                    st.rerun()
-
-    st.divider()
+    colunas = st.columns(3)
+    for i, roteiro in enumerate(roteiros):
+        coluna_atual = colunas[i % 3]
+        with coluna_atual:
+            with st.container(border=True):
+                st.subheader(roteiro['pais'])
+                st.caption(f"Destino: {roteiro['pais']}")                
+                if st.button(f"Ver Roteiro", key=roteiro['pais'], use_container_width=True):
+                    with st.dialog(f"Roteiro: {roteiro['pais']}"):
+                        st.header(f"📍 {roteiro['pais']}")
+                        st.markdown(roteiro['texto'])
+                        st.divider()
+                        if st.button("Fechar", key=f"close_{roteiro['id']}"):
+                            st.rerun()
 else:
     st.info("Nenhum roteiro ainda")
