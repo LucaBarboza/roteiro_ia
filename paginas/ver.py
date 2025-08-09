@@ -34,8 +34,8 @@ if roteiros:
                     doc_ref.update({
                         'roteiros': firestore.ArrayRemove([roteiro])
                         })                        
-                        st.session_state.roteiros.remove(roteiro)
-                        st.success(f"Roteiro para {roteiro['pais']} deletado!")
-                        st.rerun()
+                    st.session_state.roteiros.remove(roteiro)
+                    st.success(f"Roteiro para {roteiro['pais']} deletado!")
+                    st.rerun()
 else:
     st.info("Nenhum roteiro ainda")
