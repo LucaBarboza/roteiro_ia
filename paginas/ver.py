@@ -30,11 +30,10 @@ if roteiros:
                 st.subheader(roteiro['pais'])
                 st.caption(f"Destino: {roteiro['pais']}")                
                 if st.button(f"Ver Roteiro", key=roteiro['pais'], use_container_width=True):
-                    with st.expander(f"Roteiro: {roteiro['pais']}"):
-                        st.header(f"📍 {roteiro['pais']}")
-                        st.markdown(roteiro['texto'])
-                        st.divider()
-                        if st.button("Fechar", key=f"close_{roteiro['pais']}"):
-                            st.rerun()
+                    st.header(f"📍 {roteiro['pais']}")
+                    st.markdown(roteiro['texto'])
+                    st.divider()
+                    if st.button("Fechar", key=f"close_{roteiro['pais']}"):
+                        st.rerun()
 else:
     st.info("Nenhum roteiro ainda")
