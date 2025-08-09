@@ -112,7 +112,7 @@ PROMPT_REVISOR = """
     no formato dia a dia claro e detalhado, já com todas as melhorias incorporadas. ---
     3.  Formate a saída final em Markdown de alta qualidade, como um roteiro profissional pronto para ser entregue ao cliente.
     
-    Retorne APENAS o roteiro final, sem título.
+    Retorne APENAS o roteiro final e otimizado.
     """
 
 async def gerar_roteiro_completo(pais, dias):
