@@ -36,6 +36,7 @@ if roteiros:
                         st.markdown(roteiro['texto'])
                         st.divider()
                         st.rerun()
+                        aberto = False
                 else:    
                     if st.button("Fechar", key=f"close_{roteiro['pais']}", use_container_width=True):
                             st.rerun()
