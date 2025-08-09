@@ -21,8 +21,6 @@ doc = db.collection(colecao).document(st.user.email).get()
 dados = doc.to_dict() if doc.exists else {}
 roteiros = dados.get('roteiros', [])
     
-aberto = True
-
 if roteiros:
     colunas = st.columns(1)
     for i, roteiro in enumerate(roteiros):
@@ -30,15 +28,11 @@ if roteiros:
         with coluna_atual:
             with st.container(border=True):
                 st.subheader(roteiro['pais'])
-                if aberto:
-                    if st.button("Ver Roteiro", key=roteiro['pais'], use_container_width=True):
+                if st.button(f"Ver Roteiro", key=roteiro['pais'], use_container_width=True):
                         st.header(f"📍 {roteiro['pais']}")
                         st.markdown(roteiro['texto'])
                         st.divider()
-                        aberto = False
-                        st.rerun()
-                else:    
-                    if st.button("Fechar", key=f"close_{roteiro['pais']}", use_container_width=True):
+                        if st.button("Fechar", key=f"close_{roteiro['pais']}", use_container_width=True):
                             st.rerun()
                 if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
                     doc_ref = db.collection(colecao).document(st.user.email)
