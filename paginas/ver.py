@@ -32,7 +32,7 @@ if roteiros:
                         st.header(f"📍 {roteiro['pais']}")
                         st.markdown(roteiro['texto'])
                         st.divider()
-                        if st.button("Fechar", key=f"close_{roteiro['pais']}"):
+                        if st.button("Fechar", key=f"close_{roteiro['pais']}", use_container_width=True):
                             st.rerun()
                 if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
                     doc_ref = db.collection(colecao).document(st.user.email)
