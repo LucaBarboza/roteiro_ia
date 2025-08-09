@@ -22,7 +22,7 @@ dados = doc.to_dict() if doc.exists else {}
 roteiros = dados.get('roteiros', [])
     
 if roteiros:
-    for roteiro in roteiros_salvos:
+    for roteiro in roteiros:
         if st.button(f"📝 {roteiro['pais']}", key=roteiro['pais'], use_container_width=True):
             with st.dialog(f"Roteiro: {roteiro['pais']}"):
                 st.header(f"📍 {roteiro['pais']}")
