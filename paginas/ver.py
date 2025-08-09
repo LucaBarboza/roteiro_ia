@@ -30,7 +30,7 @@ if roteiros:
                 st.subheader(roteiro['pais'])
                 st.caption(f"Destino: {roteiro['pais']}")                
                 if st.button(f"Ver Roteiro", key=roteiro['pais'], use_container_width=True):
-                    with st.dialog(f"Roteiro: {roteiro['pais']}"):
+                    with st.expander(f"Roteiro: {roteiro['pais']}"):
                         st.header(f"📍 {roteiro['pais']}")
                         st.markdown(roteiro['texto'])
                         st.divider()
