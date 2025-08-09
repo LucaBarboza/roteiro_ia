@@ -30,7 +30,7 @@ if roteiros:
         with coluna_atual:
             with st.container(border=True):
                 st.subheader(roteiro['pais'])
-                if not aberto:
+                if aberto:
                     if st.button("Ver Roteiro", key=roteiro['pais'], use_container_width=True):
                         st.header(f"📍 {roteiro['pais']}")
                         st.markdown(roteiro['texto'])
