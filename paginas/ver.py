@@ -28,7 +28,6 @@ if roteiros:
         with coluna_atual:
             with st.container(border=True):
                 st.subheader(roteiro['pais'])
-                st.caption(f"Destino: {roteiro['pais']}")                
                 if st.button(f"Ver Roteiro", key=roteiro['pais'], use_container_width=True):
                     with st.expander(f"Roteiro: {roteiro['pais']}"):
                         st.header(f"📍 {roteiro['pais']}")
@@ -36,5 +35,14 @@ if roteiros:
                         st.divider()
                         if st.button("Fechar", key=f"close_{roteiro['pais']}"):
                             st.rerun()
+                                # A chave usa o índice para garantir que seja única
+                if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
+                    doc_ref = db.collection(colecao).document(st.user.email)
+                    doc_ref.update({
+                        'roteiros': firestore.ArrayRemove([roteiro])
+                        })
+                        st.session_state.roteiros.remove(roteiro)
+                        st.success(f"Roteiro para {roteiro['pais']} deletado!")                        
+                        st.rerun()
 else:
     st.info("Nenhum roteiro ainda")
