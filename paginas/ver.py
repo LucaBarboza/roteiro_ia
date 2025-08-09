@@ -28,6 +28,12 @@ if roteiros:
             col_info, col_delete = st.columns([0.85, 0.15])
             with col_info:
                 st.subheader(roteiro.get('titulo', roteiro.get('pais')))
+                if st.button(f"Ver Roteiro", key=roteiro['pais'], use_container_width=True):
+                    st.header(f"📍 {roteiro['pais']}")
+                    st.markdown(roteiro['texto'])
+                    st.divider()
+                    if st.button("Fechar", key=f"close_{roteiro['pais']}"):
+                        st.rerun()
             with col_delete:
                 if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
                     doc_ref = db.collection(colecao).document(st.user.email)
@@ -37,5 +43,6 @@ if roteiros:
                     st.session_state.roteiros.remove(roteiro)
                     st.success(f"Roteiro para {roteiro['pais']} deletado!")
                     st.rerun()
+
 else:
     st.info("Nenhum roteiro ainda")
