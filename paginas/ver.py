@@ -34,7 +34,7 @@ if roteiros:
                         st.header(f"📍 {roteiro['pais']}")
                         st.markdown(roteiro['texto'])
                         st.divider()
-                        if st.button("Fechar", key=f"close_{roteiro['id']}"):
+                        if st.button("Fechar", key=f"close_{roteiro['pais']}"):
                             st.rerun()
 else:
     st.info("Nenhum roteiro ainda")
