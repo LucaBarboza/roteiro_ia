@@ -146,7 +146,7 @@ with st.form("form_roteiro"):
     pais = st.text_input("Qual o país que você quer visitar?")
     data_inicio_str = st.date_input("Data de início da viagem", format="DD/MM/YYYY")
     data_fim_str = st.date_input("Data de fim da viagem", format="DD/MM/YYYY")
-    submitted = st.form_submit_button("Gerar Roteiro Mágico ✨")
+    submitted = st.form_submit_button("Gerar Roteiro ✨")
     if submitted:
         if not pais or not data_inicio_str or not data_fim_str:
             st.error("Por favor, preencha todos os campos.")
