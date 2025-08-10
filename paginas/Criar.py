@@ -132,12 +132,13 @@ async def gerar_roteiro_completo(pais, dias):
         prompt = PROMPT_REVISOR.format(plano_de_roteiro=plano_de_roteiro)
         response_revisor = await model.generate_content_async(prompt)
         roteiro_revisado = response_revisor.text
-        prompt = PROMPT_EMOJIS.format(pais=pais)
-        emojis_pesquisa = await model.generate_content_async(prompt)
-        emojis = emojis_pesquisa.text
+        
+        prompt_emojis = PROMPT_EMOJIS.format(pais=pais)
+        emojis_pesquisa = await model.generate_content_async(prompt_emojis)
+        emojis_gerados = emojis_pesquisa.text.strip()
         status.update(label="Fase 3: Concluída!", state="complete")
 
-    return roteiro_revisado
+    return roteiro_revisado, emojis_gerados
 
 ###################
 @st.cache_resource
@@ -169,7 +170,7 @@ with st.form("form_roteiro"):
         else:
             dias = (data_fim_str - data_inicio_str).days
             st.info(f"Preparando um roteiro de {dias} dias para {pais}. Isso pode levar um momento...")
-            roteiro_final = asyncio.run(gerar_roteiro_completo(pais, dias))
+            roteiro_final, emojis_gerados = asyncio.run(gerar_roteiro_completo(pais, dias))
             st.balloons()
             st.divider()
             st.header("🎉 Seu Roteiro Personalizado está Pronto!")
@@ -186,7 +187,7 @@ with st.form("form_roteiro"):
             dados['roteiros'].append({
             'texto': novo_roteiro,
             'pais': pais
-            'emojis': emojis
+            'emojis': emojis_gerados
             })
             user_ref.set(dados)
             st.success("Roteiro salvo!")
