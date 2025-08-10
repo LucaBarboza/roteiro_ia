@@ -106,9 +106,10 @@ PROMPT_EMOJIS = """
 Você é um especialista em semântica visual e cultura global.
 Sua missão é selecionar de 2 a 3 emojis que representem de forma clara e culturalmente relevante o país: {pais}.
 A escolha deve considerar:
-- Símbolos nacionais, bandeiras, fauna, flora ou elementos culturais marcantes.
+- Símbolos nacionais, fauna, flora ou elementos culturais marcantes.
 - Emojis amplamente reconhecíveis e que façam sentido para um público internacional.
 - Evitar combinações ambíguas ou que possam gerar interpretações erradas.
+- Evitar usar bandeiras, usar emojis disponíveis para windows.
 
 Retorne apenas os emojis, separados por espaço, sem explicações adicionais.
 """
