@@ -27,7 +27,9 @@ if 'roteiro_aberto' not in st.session_state:
 if roteiros:
     for i, roteiro in enumerate(roteiros):
         with st.container(border=True):
-            st.subheader(f"{roteiro['pais']} {roteiro['emojis']}")
+            pais = roteiro.get('pais', 'País Desconhecido')
+            emojis = roteiro.get('emojis', '') # Retorna '' (vazio) se a chave não existir
+            st.subheader(f"{pais} {emojis}")
             is_open = (st.session_state.roteiro_aberto == roteiro['pais'])
             button_label = "Fechar" if is_open else "Ver Roteiro"
             if st.button(button_label, key=f"toggle_{roteiro['pais']}", use_container_width=True):
@@ -37,7 +39,7 @@ if roteiros:
                     st.session_state.roteiro_aberto = roteiro['pais']
                 st.rerun()
             if is_open:
-                st.header(f"📍 {roteiro['pais']} {roteiro['emojis']}")
+                st.header(f"📍  {pais} {emojis}")
                 st.markdown(roteiro['texto'])
                 st.divider()
             if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
@@ -45,7 +47,7 @@ if roteiros:
                 doc_ref.update({
                     'roteiros': firestore.ArrayRemove([roteiro])
                 })
-                st.success(f"Roteiro para {roteiro['pais']} deletado!")
+                st.success(f"Roteiro para {pais} deletado!")
                 if st.session_state.roteiro_aberto == roteiro['pais']:
                     st.session_state.roteiro_aberto = None
                 st.rerun()
