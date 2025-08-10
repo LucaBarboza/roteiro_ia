@@ -102,6 +102,17 @@ Apresente o resultado **sem título geral de roteiro** e em Markdown, seguindo o
 - [Outras dicas relevantes]
 """
 
+PROMPT_EMOJIS = """
+Você é um especialista em semântica visual e cultura global.
+Sua missão é selecionar de 2 a 3 emojis que representem de forma clara e culturalmente relevante o país: {pais}.
+A escolha deve considerar:
+- Símbolos nacionais, bandeiras, fauna, flora ou elementos culturais marcantes.
+- Emojis amplamente reconhecíveis e que façam sentido para um público internacional.
+- Evitar combinações ambíguas ou que possam gerar interpretações erradas.
+
+Retorne apenas os emojis, separados por espaço, sem explicações adicionais.
+"""
+
 async def gerar_roteiro_completo(pais, dias):
     model = genai.GenerativeModel(GEMINI_MODEL)
 
@@ -121,6 +132,9 @@ async def gerar_roteiro_completo(pais, dias):
         prompt = PROMPT_REVISOR.format(plano_de_roteiro=plano_de_roteiro)
         response_revisor = await model.generate_content_async(prompt)
         roteiro_revisado = response_revisor.text
+        prompt = PROMPT_EMOJIS.format(pais=pais)
+        emojis_pesquisa = await model.generate_content_async(prompt)
+        emojis = emojis_pesquisa.text
         status.update(label="Fase 3: Concluída!", state="complete")
 
     return roteiro_revisado
@@ -172,6 +186,7 @@ with st.form("form_roteiro"):
             dados['roteiros'].append({
             'texto': novo_roteiro,
             'pais': pais
+            'emojis': emojis
             })
             user_ref.set(dados)
             st.success("Roteiro salvo!")

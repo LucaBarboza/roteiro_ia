@@ -27,7 +27,7 @@ if 'roteiro_aberto' not in st.session_state:
 if roteiros:
     for i, roteiro in enumerate(roteiros):
         with st.container(border=True):
-            st.subheader(roteiro['pais'])
+            st.subheader(f"{roteiro['pais']} {roteiro['emojis']}")
             is_open = (st.session_state.roteiro_aberto == roteiro['pais'])
             button_label = "Fechar" if is_open else "Ver Roteiro"
             if st.button(button_label, key=f"toggle_{roteiro['pais']}", use_container_width=True):
@@ -37,7 +37,7 @@ if roteiros:
                     st.session_state.roteiro_aberto = roteiro['pais']
                 st.rerun()
             if is_open:
-                st.header(f"📍 {roteiro['pais']}")
+                st.header(f"📍 {roteiro['pais']} {roteiro['emojis']}")
                 st.markdown(roteiro['texto'])
                 st.divider()
             if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
