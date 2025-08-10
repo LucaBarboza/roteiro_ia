@@ -186,7 +186,7 @@ with st.form("form_roteiro"):
     
             dados['roteiros'].append({
             'texto': novo_roteiro,
-            'pais': pais
+            'pais': pais,
             'emojis': emojis_gerados
             })
             user_ref.set(dados)
