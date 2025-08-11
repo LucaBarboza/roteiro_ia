@@ -51,5 +51,7 @@ if roteiros:
                 if st.session_state.roteiro_aberto == roteiro['pais']:
                     st.session_state.roteiro_aberto = None
                 st.rerun()
+            if st.button("Fechar", key=f"close_{roteiro['pais']}", use_container_width=True):
+                            st.rerun()
 else:
     st.info("Nenhum roteiro ainda")
