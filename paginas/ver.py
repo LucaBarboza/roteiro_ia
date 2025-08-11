@@ -45,7 +45,7 @@ def gerar_pdf(pais, emojis, texto_roteiro):
     conteudo.append(Spacer(1, 20))
     conteudo.append(Paragraph(texto_roteiro, subtitulo_style))
 
-    documento.build(conteudo)
+    documentos.build(conteudo)
     return buffer.getvalue()
 
 db = conectar_firebase()
