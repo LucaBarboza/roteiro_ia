@@ -19,6 +19,35 @@ def conectar_firebase():
         firebase_admin.initialize_app(cred)
     return firestore.client()
 
+def gerar_pdf:
+    buffer = io.BytesIO()
+    documentos = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+    styles = getSampleStyleSheet()
+    titulo_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        textColor=colors.HexColor('#2E7D32'),
+        alignment=1
+        )
+    subtitulo_style = ParagraphStyle(
+        'CustomSubtitle',
+        parent=styles['Heading2'],
+        fontSize=14,
+        spaceAfter=12,
+        textColor=colors.HexColor('#1976D2')
+        )
+                            
+    conteudo = []
+                        
+    conteudo.append(Paragraph(f"🗺 Roteiro para {pais} {emojis}", titulo_style))
+    conteudo.append(Spacer(1, 20))
+    conteudo.append(Paragraph(texto_roteiro, subtitulo_style))
+
+    documento.build(conteudo)
+    return buffer.getvalue()
+
 db = conectar_firebase()
 colecao = 'usuarios2'
 
@@ -60,31 +89,17 @@ if roteiros:
                     st.rerun()
             if is_open:
                 with col1:
-                    if st.button("Baixar como PDF", key=f"PDF_{i}"):
-                        buffer = io.BytesIO()
-                        documentos = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
-                        styles = getSampleStyleSheet()
-                        titulo_style = ParagraphStyle(
-                            'CustomTitle',
-                            parent=styles['Heading1'],
-                            fontSize=24,
-                            spaceAfter=30,
-                            textColor=colors.HexColor('#2E7D32'),
-                            alignment=1
-                            )
-                        subtitulo_style = ParagraphStyle(
-                            'CustomSubtitle',
-                            parent=styles['Heading2'],
-                            fontSize=14,
-                            spaceAfter=12,
-                            textColor=colors.HexColor('#1976D2')
-                            )
-                            
-                        story = []
-                        
-                        story.append(Paragraph(f"🗺 Roteiro para {pais} {emojis}", titulo_style))
-                        story.append(Spacer(1, 20))
-                        story.append(Paragraph(roteiro['texto'], subtitulo_style))
+                    if st.download_button(
+                        label="Baixar PDF",
+                        data=gerar_pdf(
+                        pais=roteiro.get('pais', 'País Desconhecido'),
+                        emojis=roteiro.get('emojis', ''),
+                        texto_roteiro=roteiro.get('texto', 'Conteúdo não disponível.')
+                        ),
+                        file_name=f"roteiro_{roteiro.get('pais')}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                        )
                 
 else:
     st.info("Nenhum roteiro ainda")
