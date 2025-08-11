@@ -84,7 +84,7 @@ if roteiros:
                         
                         story.append(Paragraph(f"🗺 Roteiro para {pais} {emojis}", titulo_style))
                         story.append(Spacer(1, 20))
-                        story.append(roteiro['texto'], subtitulo_style)
+                        story.append(Paragraph(roteiro['texto'], subtitulo_style))
                 
 else:
     st.info("Nenhum roteiro ainda")
