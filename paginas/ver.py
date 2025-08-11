@@ -92,10 +92,10 @@ if roteiros:
                     if st.download_button(
                         label="Baixar PDF",
                         data=gerar_pdf(
-                        pais=roteiro.get('pais', 'País Desconhecido'),
-                        emojis=roteiro.get('emojis', ''),
-                        texto_roteiro=roteiro.get('texto', 'Conteúdo não disponível.')
-                        ),
+                            pais=roteiro.get('pais', 'País Desconhecido'),
+                            emojis=roteiro.get('emojis', ''),
+                            texto_roteiro=roteiro.get('texto', 'Conteúdo não disponível.')
+                            ),
                         file_name=f"roteiro_{roteiro.get('pais')}.pdf",
                         mime="application/pdf",
                         use_container_width=True
