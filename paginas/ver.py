@@ -44,16 +44,8 @@ if roteiros:
                 st.header(f"📍  {pais} {emojis}")
                 st.markdown(roteiro['texto'])
                 st.divider()
-            if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
-                doc_ref = db.collection(colecao).document(st.user.email) 
-                doc_ref.update({
-                    'roteiros': firestore.ArrayRemove([roteiro])
-                })
-                st.success(f"Roteiro para {pais} deletado!")
-                if st.session_state.roteiro_aberto == roteiro['pais']:
-                    st.session_state.roteiro_aberto = None
-                st.rerun()
-            if st.button("Baixar como PDF", key=f"PDF_{i}"):
+
+                            if st.button("Baixar como PDF", key=f"PDF_{i}"):
                 buffer = io.BytesIO()
                 documentos = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
                 styles = getSampleStyleSheet()
@@ -79,5 +71,14 @@ if roteiros:
                 story.append(Spacer(1, 20))
                 story.append(roteiro['texto'], subtitulo_style)
                 
+            if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
+                doc_ref = db.collection(colecao).document(st.user.email) 
+                doc_ref.update({
+                    'roteiros': firestore.ArrayRemove([roteiro])
+                })
+                st.success(f"Roteiro para {pais} deletado!")
+                if st.session_state.roteiro_aberto == roteiro['pais']:
+                    st.session_state.roteiro_aberto = None
+                st.rerun()
 else:
     st.info("Nenhum roteiro ainda")
