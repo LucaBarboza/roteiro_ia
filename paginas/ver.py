@@ -19,7 +19,7 @@ def conectar_firebase():
         firebase_admin.initialize_app(cred)
     return firestore.client()
 
-def gerar_pdf:
+def gerar_pdf(pais, emojis, texto_roteiro)::
     buffer = io.BytesIO()
     documentos = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
     styles = getSampleStyleSheet()
