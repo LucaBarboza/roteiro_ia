@@ -10,7 +10,7 @@ if not st.user.is_logged_in:
             st.login()
 
 else:
-    st.image("arquivos/teste1.png", use_container_width=True)
+    st.title("🌎 GuIA de Viagem 🌎")
     st.markdown(f"""
     Olá, **{st.user.name}**!
 
