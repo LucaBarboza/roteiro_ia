@@ -44,8 +44,8 @@ if roteiros:
                 st.header(f"📍  {pais} {emojis}")
                 st.markdown(roteiro['texto'])
                 st.divider()
-            col1, col2, col3, col4, col5 = st.columns(5)
-            with col5:
+            col1, col2, col3, col4 = st.columns(4)
+            with col4:
                 if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
                     doc_ref = db.collection(colecao).document(st.user.email) 
                     doc_ref.update({
