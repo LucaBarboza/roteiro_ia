@@ -116,7 +116,7 @@ if roteiros:
                     # Remova o 'if' e apenas chame a função diretamente
                     st.download_button(
                         label="Baixar PDF",
-                        data=gerar_pdf(
+                        data = gerar_pdf(
                             pais=roteiro.get('pais', 'País Desconhecido'),
                             emojis=roteiro.get('emojis', ''),
                             texto_roteiro=roteiro.get('texto', 'Conteúdo não disponível.')
