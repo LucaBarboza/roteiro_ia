@@ -2,6 +2,8 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
+from pypdf import PdfWriter
+
 
 st.title("Seus Roteiros")
 
@@ -51,6 +53,32 @@ if roteiros:
                 if st.session_state.roteiro_aberto == roteiro['pais']:
                     st.session_state.roteiro_aberto = None
                 st.rerun()
+            if st.button("Baixar como PDF", key=f"PDF_{i}):
+
+                buffer = io.BytesIO()
+                documentos = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+                styles = getSampleStyleSheet()
+                titulo_style = ParagraphStyle(
+                    'CustomTitle',
+                    parent=styles['Heading1'],
+                    fontSize=24,
+                    spaceAfter=30,
+                    textColor=colors.HexColor('#2E7D32'),
+                    alignment=1
+                    )
+                subtitulo_style = ParagraphStyle(
+                    'CustomSubtitle',
+                    parent=styles['Heading2'],
+                    fontSize=14,
+                    spaceAfter=12,
+                    textColor=colors.HexColor('#1976D2')
+                    )
+                    
+                story = []
+                
+                story.append(Paragraph(f"🗺 Roteiro para {pais} {emojis}", titulo_style))
+                story.append(Spacer(1, 20))
+                story.append(roteiro['texto'], subtitulo_style)
                 
 else:
     st.info("Nenhum roteiro ainda")
