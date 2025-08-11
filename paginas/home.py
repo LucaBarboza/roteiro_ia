@@ -10,5 +10,14 @@ if not st.user.is_logged_in:
             st.login()
 
 else:
-    st.write(f"Olá, {st.user.name}!")
+    st.image("arquivos/teste1.png", use_column_width=True)
+    st.title("🌎 GuIA de Viagem 🌎")
+    st.write(f"Olá, {st.user.name}!\n Planeje sua próxima viagem em segundos com o GuIA de Viagem, 
+    o aplicativo que cria roteiros por Inteligência Artificial. 
+    Apenas informe o país de destino e as datas da sua viagem, 
+    e nossa tecnologia gera instantaneamente um plano de viagem otimizado e sob medida. 
+    Ao analisar o período exato, 
+    nossa IA considera os melhores dias para visitar cada atração, entregando um roteiro completo e inteligente. 
+    Ideal para quem busca inspiração e praticidade, 
+    o GuIA transforma o planejamento em uma experiência simples.")
     
