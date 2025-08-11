@@ -29,7 +29,6 @@ if 'roteiro_aberto' not in st.session_state:
 if roteiros:
     for i, roteiro in enumerate(roteiros):
         with st.container(border=True):
-            col1, col2, col3 = st.columns([2, 2, 2]) 
             pais = roteiro.get('pais', 'País Desconhecido')
             emojis = roteiro.get('emojis', '')
             st.subheader(f"{pais} {emojis}", )
@@ -45,6 +44,7 @@ if roteiros:
                 st.header(f"📍  {pais} {emojis}")
                 st.markdown(roteiro['texto'])
                 st.divider()
+            col1, col2, col3 = st.columns(3)
             with col3:
                 if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
                     doc_ref = db.collection(colecao).document(st.user.email) 
