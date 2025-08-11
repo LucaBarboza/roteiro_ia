@@ -89,14 +89,15 @@ if roteiros:
                     st.rerun()
             if is_open:
                 with col1:
-                    if st.download_button(
+                    # Remova o 'if' e apenas chame a função diretamente
+                    st.download_button(
                         label="Baixar PDF",
                         data=gerar_pdf(
                             pais=roteiro.get('pais', 'País Desconhecido'),
                             emojis=roteiro.get('emojis', ''),
                             texto_roteiro=roteiro.get('texto', 'Conteúdo não disponível.')
-                            ),
-                        file_name=f"roteiro_{roteiro.get('pais')}.pdf",
+                        ),
+                        file_name=f"roteiro_{roteiro.get('pais', 'roteiro')}.pdf",
                         mime="application/pdf",
                         use_container_width=True
                     )
