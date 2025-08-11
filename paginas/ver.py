@@ -28,8 +28,10 @@ if roteiros:
     for i, roteiro in enumerate(roteiros):
         with st.container(border=True):
             pais = roteiro.get('pais', 'País Desconhecido')
-            emojis = roteiro.get('emojis', '') # Retorna '' (vazio) se a chave não existir
-            st.subheader(f"{pais} {emojis}")
+            emojis = roteiro.get('emojis', '')
+            col1, col2, col3 = st.columns([1, 2, 1]) # Adjust ratios as needed
+            with col2:
+                st.subheader(f"{pais} {emojis}")
             is_open = (st.session_state.roteiro_aberto == roteiro['pais'])
             button_label = "Fechar" if is_open else "Ver Roteiro"
             if st.button(button_label, key=f"toggle_{roteiro['pais']}", use_container_width=True):
