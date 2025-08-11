@@ -30,7 +30,7 @@ if roteiros:
     for i, roteiro in enumerate(roteiros):
         with st.container(border=True):
             pais = roteiro.get('pais', 'País Desconhecido')
-            emojis = roteiro.get('emojis', '') # Retorna '' (vazio) se a chave não existir
+            emojis = roteiro.get('emojis', '')
             st.subheader(f"{pais} {emojis}", )
             is_open = (st.session_state.roteiro_aberto == roteiro['pais'])
             button_label = "Fechar" if is_open else "Ver Roteiro"
@@ -53,8 +53,7 @@ if roteiros:
                 if st.session_state.roteiro_aberto == roteiro['pais']:
                     st.session_state.roteiro_aberto = None
                 st.rerun()
-            if st.button("Baixar como PDF", key=f"PDF_{i}):
-
+            if st.button("Baixar como PDF", key=f"PDF_{i}"):
                 buffer = io.BytesIO()
                 documentos = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
                 styles = getSampleStyleSheet()
