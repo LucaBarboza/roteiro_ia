@@ -21,31 +21,55 @@ def conectar_firebase():
 
 def gerar_pdf(pais, emojis, texto_roteiro):
     buffer = io.BytesIO()
-    documentos = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+    documento = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
     styles = getSampleStyleSheet()
-    titulo_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=24,
-        spaceAfter=30,
-        textColor=colors.HexColor('#2E7D32'),
-        alignment=1
-        )
-    subtitulo_style = ParagraphStyle(
-        'CustomSubtitle',
-        parent=styles['Heading2'],
-        fontSize=14,
-        spaceAfter=12,
-        textColor=colors.HexColor('#1976D2')
-        )
-                            
-    conteudo = []
-                        
-    conteudo.append(Paragraph(f"🗺 Roteiro para {pais} {emojis}", titulo_style))
-    conteudo.append(Spacer(1, 20))
-    conteudo.append(Paragraph(texto_roteiro, subtitulo_style))
 
-    documentos.build(conteudo)
+    titulo_principal_style = ParagraphStyle(
+        'TituloPrincipal', parent=styles['h1'], fontSize=24, spaceAfter=20, alignment=1, textColor=colors.HexColor('#2E7D32')
+    )
+    dia_style = ParagraphStyle(
+        'DiaTitulo', parent=styles['h2'], fontSize=16, spaceBefore=20, spaceAfter=10, textColor=colors.HexColor('#1976D2')
+    )
+    topico_style = ParagraphStyle(
+        'Topico', parent=styles['Normal'], spaceAfter=2, fontName='Helvetica-Bold'
+    )
+    corpo_style = ParagraphStyle(
+        'Corpo', parent=styles['Normal'], spaceAfter=10, firstLineIndent=15, leading=14
+    )
+    
+    conteudo = []
+    
+    conteudo.append(Paragraph(f"🗺️ Roteiro para {pais} {emojis}", titulo_principal_style))
+
+    linhas = texto_roteiro.strip().split('\n')
+
+    for linha in linhas:
+        if not linha.strip():
+            continue
+
+        if linha.strip().startswith('Dia '):
+            conteudo.append(Paragraph(linha, dia_style))
+        
+        elif ': — Dica:' in linha:
+            partes = linha.split(': — Dica:', 1)
+            topico_texto = partes[0].strip() + ":"
+            dica_texto = "<b>Dica:</b> " + partes[1].strip().replace('"', '')
+
+            conteudo.append(Paragraph(topico_texto, topico_style))
+            conteudo.append(Paragraph(dica_texto, corpo_style))
+
+        elif ':' in linha and len(linha.split(':', 1)[0]) < 40: 
+            partes = linha.split(':', 1)
+            topico_texto = partes[0].strip() + ":"
+            descricao_texto = partes[1].strip()
+
+            conteudo.append(Paragraph(topico_texto, topico_style))
+            conteudo.append(Paragraph(descricao_texto, corpo_style))
+            
+        else:
+            conteudo.append(Paragraph(linha, corpo_style))
+
+    documento.build(conteudo)
     return buffer.getvalue()
 
 db = conectar_firebase()
