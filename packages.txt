@@ -1,4 +1,0 @@
-pango
-cairo
-gdk-pixbuf
-fontconfig
