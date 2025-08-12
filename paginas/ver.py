@@ -2,6 +2,7 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
+from fpdf import FPDF
 
 st.title("Seus Roteiros")
 
@@ -13,6 +14,62 @@ def conectar_firebase():
         cred = credentials.Certificate(dict(st.secrets["firebase"]))
         firebase_admin.initialize_app(cred)
     return firestore.client()
+
+class PDF(FPDF):
+    def header(self):
+        self.add_font('DejaVu', '', 'assets/DejaVuSans.ttf', uni=True)
+        self.set_font('DejaVu', '', 24)
+        
+        emojis = self.emojis
+        pais = self.pais
+        titulo_pagina = f'{pais} {emojis}'
+        
+        self.cell(0, 10, titulo_pagina, 0, 1, 'C')
+        self.ln(10) 
+
+    def chapter_title(self, label):
+        self.set_font('DejaVu', 'B', 18)
+        self.multi_cell(0, 10, label.replace('## ', ''), 0, 1, 'L')
+        self.ln(4)
+
+    def chapter_body(self, text):
+        self.set_font('DejaVu', '', 12)
+        for line in text.splitlines():
+            line = line.strip()
+            if line.startswith('- ') or line.startswith('* '):
+                self.multi_cell(0, 7, f'  •  {line[2:].strip()}')
+            elif ':' in line:
+                partes = line.split(':', 1)
+                self.set_font('DejaVu', 'B', 12)
+                self.cell(self.get_string_width(partes[0] + ':') + 1, 7, partes[0] + ':')
+                self.set_font('DejaVu', '', 12)
+                self.multi_cell(0, 7, partes[1].strip())
+            else:
+                self.multi_cell(0, 7, line)
+        self.ln()
+
+def criar_pdf_roteiro(roteiro_markdown, emojis, pais):
+    pdf = PDF()
+    
+    pdf.emojis = emojis
+    pdf.pais = pais
+    
+    pdf.add_page()
+    
+    secoes = roteiro_markdown.split('## ')
+    
+    for i, secao in enumerate(secoes):
+        if not secao.strip():
+            continue
+            
+        partes = secao.split('\n', 1)
+        titulo = partes[0].strip()
+        corpo = partes[1].strip() if len(partes) > 1 else ""
+        
+        pdf.chapter_title(titulo)
+        pdf.chapter_body(corpo)
+
+    return pdf.output(dest='S').encode('latin-1')
 
 db = conectar_firebase()
 colecao = 'usuarios2'
@@ -26,6 +83,8 @@ if 'roteiro_aberto' not in st.session_state:
 
 if roteiros:
     for i, roteiro in enumerate(roteiros):
+        pdf_bytes = criar_pdf_roteiro(roteiro['texto'], emojis, pais)
+
         with st.container(border=True):
             pais = roteiro.get('pais', 'País Desconhecido')
             emojis = roteiro.get('emojis', '')
@@ -53,6 +112,15 @@ if roteiros:
                     if st.session_state.roteiro_aberto == roteiro['pais']:
                         st.session_state.roteiro_aberto = None
                     st.rerun()
+            with col1:
+                st.download_button(
+                    label="📥 Baixar em PDF",
+                    data=pdf_bytes,
+                    file_name=f"roteiro_{pais.lower().replace(' ', '_')}.pdf",
+                    mime="application/pdf",
+                    key=f"download_{i}",
+                    use_container_width=True
+                    )
                 
 else:
     st.info("Nenhum roteiro ainda")
