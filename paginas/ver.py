@@ -49,9 +49,9 @@ class PDF(FPDF):
 def criar_pdf_roteiro(roteiro_markdown, emojis, pais):
     pdf = PDF()
     
+    # ... (todo o seu código para montar o PDF, que já está correto) ...
     pdf.emojis = emojis
     pdf.pais = pais
-    
     pdf.add_page()
     
     secoes = roteiro_markdown.split('## ')
@@ -67,7 +67,8 @@ def criar_pdf_roteiro(roteiro_markdown, emojis, pais):
         pdf.chapter_title(titulo)
         pdf.chapter_body(corpo)
 
-    # CORREÇÃO AQUI: Remova o .encode('latin-1')
+    # CORREÇÃO AQUI: Garanta que 'dest="S"' está presente.
+    # Isso faz a função retornar os bytes do PDF em vez de None.
     return pdf.output(dest='S')
     
     for i, secao in enumerate(secoes):
