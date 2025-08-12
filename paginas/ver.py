@@ -7,6 +7,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
+import re
+
 
 st.title("Seus Roteiros")
 
@@ -24,50 +26,57 @@ def gerar_pdf(pais, emojis, texto_roteiro):
     documento = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
     styles = getSampleStyleSheet()
 
-    titulo_principal_style = ParagraphStyle(
-        'TituloPrincipal', parent=styles['h1'], fontSize=24, spaceAfter=20, alignment=1, textColor=colors.HexColor('#2E7D32')
-    )
-    dia_style = ParagraphStyle(
-        'DiaTitulo', parent=styles['h2'], fontSize=16, spaceBefore=20, spaceAfter=10, textColor=colors.HexColor('#1976D2')
-    )
-    topico_style = ParagraphStyle(
-        'Topico', parent=styles['Normal'], spaceAfter=2, fontName='Helvetica-Bold'
-    )
-    corpo_style = ParagraphStyle(
-        'Corpo', parent=styles['Normal'], spaceAfter=10, firstLineIndent=15, leading=14
-    )
-    
+    styles.add(ParagraphStyle(
+        name='TituloPrincipal', parent=styles['h1'], fontSize=26, spaceAfter=20, alignment=1, textColor=colors.HexColor('#0d47a1')
+    ))
+    styles.add(ParagraphStyle(
+        name='DiaTitulo', parent=styles['h2'], fontSize=16, spaceBefore=22, spaceAfter=12, textColor=colors.HexColor('#1565c0'), fontName='Helvetica-Bold'
+    ))
+    styles.add(ParagraphStyle(
+        name='Topico', parent=styles['Normal'], spaceAfter=4, fontName='Helvetica-Bold', textColor=colors.HexColor('#333333')
+    ))
+    styles.add(ParagraphStyle(
+        name='Corpo', parent=styles['Normal'], spaceAfter=12, firstLineIndent=0, leading=15, alignment=4 # Justificado
+    ))
+
     conteudo = []
-    
-    conteudo.append(Paragraph(f"🗺️ Roteiro para {pais} {emojis}", titulo_principal_style))
+    conteudo.append(Paragraph(f"🗺️ Roteiro para {pais} {emojis}", styles['TituloPrincipal']))
+
+    paragrafo_atual = ""
+
+    def processar_paragrafo(texto, estilo):
+        """Função interna para processar e adicionar um parágrafo."""
+        if texto.strip():
+            texto_formatado = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', texto)
+            conteudo.append(Paragraph(texto_formatado, estilo))
+            conteudo.append(Spacer(1, 6)) # Pequeno espaço após cada parágrafo
 
     linhas = texto_roteiro.strip().split('\n')
 
     for linha in linhas:
-        if not linha.strip():
+        linha = linha.strip()
+        if not linha:
             continue
 
-        if linha.strip().startswith('Dia '):
-            conteudo.append(Paragraph(linha, dia_style))
-        
-        elif ': — Dica:' in linha:
-            partes = linha.split(': — Dica:', 1)
-            topico_texto = partes[0].strip() + ":"
-            dica_texto = "<b>Dica:</b> " + partes[1].strip().replace('"', '')
+        if linha.startswith('Dia ') or linha.startswith('Foco:') or linha.startswith('Sugestão') or ':' in linha:
+            processar_paragrafo(paragrafo_atual, styles['Corpo']) 
+            paragrafo_atual = "" 
 
-            conteudo.append(Paragraph(topico_texto, topico_style))
-            conteudo.append(Paragraph(dica_texto, corpo_style))
-
-        elif ':' in linha and len(linha.split(':', 1)[0]) < 40: 
-            partes = linha.split(':', 1)
-            topico_texto = partes[0].strip() + ":"
-            descricao_texto = partes[1].strip()
-
-            conteudo.append(Paragraph(topico_texto, topico_style))
-            conteudo.append(Paragraph(descricao_texto, corpo_style))
-            
+            if linha.startswith('Dia '):
+                processar_paragrafo(linha, styles['DiaTitulo'])
+            elif ':' in linha:
+                partes = linha.split(':', 1)
+                topico = partes[0].strip() + ":"
+                resto = partes[1].strip()
+                processar_paragrafo(topico, styles['Topico'])
+                if resto:
+                    paragrafo_atual = resto 
+            else:
+                 paragrafo_atual = linha 
         else:
-            conteudo.append(Paragraph(linha, corpo_style))
+            paragrafo_atual += " " + linha
+
+    processar_paragrafo(paragrafo_atual, styles['Corpo'])
 
     documento.build(conteudo)
     return buffer.getvalue()
