@@ -48,10 +48,27 @@ class PDF(FPDF):
 
 def criar_pdf_roteiro(roteiro_markdown, emojis, pais):
     pdf = PDF()
+    
     pdf.emojis = emojis
     pdf.pais = pais
+    
     pdf.add_page()
+    
     secoes = roteiro_markdown.split('## ')
+    
+    for i, secao in enumerate(secoes):
+        if not secao.strip():
+            continue
+            
+        partes = secao.split('\n', 1)
+        titulo = partes[0].strip()
+        corpo = partes[1].strip() if len(partes) > 1 else ""
+        
+        pdf.chapter_title(titulo)
+        pdf.chapter_body(corpo)
+
+    # CORREÇÃO AQUI: Remova o .encode('latin-1')
+    return pdf.output(dest='S')
     
     for i, secao in enumerate(secoes):
         if not secao.strip():
