@@ -67,7 +67,7 @@ def criar_pdf_roteiro(roteiro_markdown, emojis, pais):
         pdf.chapter_body(corpo)
 
     # CORREÇÃO: A função deve retornar os bytes do PDF para o botão de download
-    return pdf.output(dest='S')
+    return pdf.output(dest='S').encode('latin-1')
 
 # --- Conexão com Firebase ---
 
