@@ -83,13 +83,11 @@ if 'roteiro_aberto' not in st.session_state:
 
 if roteiros:
     for i, roteiro in enumerate(roteiros):
-        pdf_bytes = criar_pdf_roteiro(roteiro['texto'], emojis, pais)
-
         with st.container(border=True):
             pais = roteiro.get('pais', 'País Desconhecido')
             emojis = roteiro.get('emojis', '')
             st.subheader(f"{pais} {emojis}", )
-            is_open = (st.session_state.roteiro_aberto == roteiro['pais'])
+            is_open = (st.session_state.roteiro_aberto == i)
             button_label = "Fechar" if is_open else "Ver Roteiro"
             if st.button(button_label, key=f"toggle_{roteiro['pais']}", use_container_width=True):
                 if is_open:
@@ -102,6 +100,7 @@ if roteiros:
                 st.markdown(roteiro['texto'])
                 st.divider()
             col1, col2, col3, col4 = st.columns([2, 1, 1, 0.8])
+            pdf_bytes = criar_pdf_roteiro(roteiro['texto'], emojis, pais)
             with col4:
                 if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
                     doc_ref = db.collection(colecao).document(st.user.email) 
@@ -114,13 +113,13 @@ if roteiros:
                     st.rerun()
             with col1:
                 st.download_button(
-                    label="📥 Baixar em PDF",
-                    data=pdf_bytes,
-                    file_name=f"roteiro_{pais.lower().replace(' ', '_')}.pdf",
-                    mime="application/pdf",
-                    key=f"download_{i}",
-                    use_container_width=True
-                    )
+                label="📥 Baixar em PDF",
+                data=pdf_bytes,
+                file_name=f"roteiro_{pais.lower().replace(' ', '_')}.pdf",
+                mime="application/pdf",
+                key=f"download_{i}",
+                use_container_width=True
+                )
                 
 else:
     st.info("Nenhum roteiro ainda")
