@@ -17,15 +17,21 @@ def conectar_firebase():
 
 class PDF(FPDF):
     def header(self):
+        # Registra a fonte REGULAR (você já tinha essa linha)
         self.add_font('DejaVu', '', 'assets/DejaVuSans.ttf', uni=True)
+        
+        # ADICIONE ESTA LINHA para registrar a fonte BOLD (NEGRITO)
+        self.add_font('DejaVu', 'B', 'assets/DejaVuSans-Bold.ttf', uni=True)
+
+        # O resto do seu método header continua igual...
         self.set_font('DejaVu', '', 24)
         
-        emojis = self.emojis
-        pais = self.pais
+        emojis = getattr(self, 'emojis', '')
+        pais = getattr(self, 'pais', 'Roteiro')
         titulo_pagina = f'{pais} {emojis}'
         
         self.cell(0, 10, titulo_pagina, 0, 1, 'C')
-        self.ln(10) 
+        self.ln(10)
 
     def chapter_title(self, label):
         self.set_font('DejaVu', 'B', 18)
