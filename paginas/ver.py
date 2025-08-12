@@ -134,6 +134,9 @@ else:
 
                 pdf_bytes = criar_pdf_roteiro(roteiro['texto'], emojis, pais)
                 
+                # ADICIONE ESTA LINHA PARA DEBUGAR:
+                st.write(f"Debug: O tipo de dado para o botão é {type(pdf_bytes)}")
+
                 # Layout para os botões de ação
                 col1, col2 = st.columns([3, 1])
                 
