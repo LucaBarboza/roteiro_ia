@@ -15,6 +15,7 @@ class PDF(FPDF):
         emojis = getattr(self, 'emojis', '')
         pais = getattr(self, 'pais', 'Roteiro')
         
+        # Sanitização do título para evitar erros com caracteres especiais
         titulo_pagina = f'{pais} {emojis}'.encode('latin-1', 'replace').decode('latin-1')
         
         self.cell(0, 10, titulo_pagina, 0, 1, 'C')
@@ -48,8 +49,6 @@ class PDF(FPDF):
 
 def criar_pdf_roteiro(roteiro_markdown, emojis, pais):
     pdf = PDF()
-    
-    # ... (todo o seu código para montar o PDF, que já está correto) ...
     pdf.emojis = emojis
     pdf.pais = pais
     pdf.add_page()
@@ -67,19 +66,8 @@ def criar_pdf_roteiro(roteiro_markdown, emojis, pais):
         pdf.chapter_title(titulo)
         pdf.chapter_body(corpo)
 
-    # CORREÇÃO AQUI: Garanta que 'dest="S"' está presente.
-    # Isso faz a função retornar os bytes do PDF em vez de None.
+    # CORREÇÃO: A função deve retornar os bytes do PDF para o botão de download
     return pdf.output(dest='S')
-    
-    for i, secao in enumerate(secoes):
-        if not secao.strip():
-            continue
-        partes = secao.split('\n', 1)
-        titulo = partes[0].strip()
-        corpo = partes[1].strip() if len(partes) > 1 else ""
-        pdf.chapter_title(titulo)
-        pdf.chapter_body(corpo)
-    return pdf.output(dest='S').encode('latin-1')
 
 # --- Conexão com Firebase ---
 
@@ -99,6 +87,12 @@ st.title("Seus Roteiros Salvos")
 db = conectar_firebase()
 colecao = 'usuarios2'
 
+# Verifica se o usuário está logado
+if not hasattr(st, "user") or not st.user.email:
+    st.warning("Por favor, faça o login para ver seus roteiros.")
+    st.stop()
+
+# Busca os dados do Firebase
 doc = db.collection(colecao).document(st.user.email).get()
 dados = doc.to_dict() if doc.exists else {}
 roteiros = dados.get('roteiros', [])
@@ -134,9 +128,6 @@ else:
 
                 pdf_bytes = criar_pdf_roteiro(roteiro['texto'], emojis, pais)
                 
-                # ADICIONE ESTA LINHA PARA DEBUGAR:
-                st.write(f"Debug: O tipo de dado para o botão é {type(pdf_bytes)}")
-
                 # Layout para os botões de ação
                 col1, col2 = st.columns([3, 1])
                 
