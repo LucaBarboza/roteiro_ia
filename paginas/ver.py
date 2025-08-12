@@ -15,35 +15,47 @@ def conectar_firebase():
         firebase_admin.initialize_app(cred)
     return firestore.client()
 
+Consegui identificar! Este erro FPDFException, acontecendo dentro da lógica de quebra de linha da biblioteca, é um clássico.
+
+Ele ocorre quando a biblioteca fpdf encontra um caractere no seu texto (provavelmente um emoji específico ou um símbolo Unicode incomum gerado pela IA) que ela não consegue "medir" ou processar para encaixar na página, mesmo com a fonte DejaVu.
+
+A solução é "limpar" ou "sanitizar" todo texto que passamos para o PDF. Faremos isso forçando o texto para um formato seguro (latin-1) que substitui qualquer caractere problemático por um substituto (como "?"), evitando que o programa quebre.
+
+O Código Corrigido
+Você só precisa alterar a sua classe PDF. O resto do seu código está perfeito. Substitua a sua classe PDF inteira por esta versão corrigida. Eu adicionei a sanitização em todos os lugares que o texto é escrito no PDF.
+
+Python
+
+# Substitua a sua classe PDF inteira por esta
+
 class PDF(FPDF):
     def header(self):
-        # Registra a fonte REGULAR (você já tinha essa linha)
         self.add_font('DejaVu', '', 'assets/DejaVuSans.ttf', uni=True)
-        
-        # ADICIONE ESTA LINHA para registrar a fonte BOLD (NEGRITO)
         self.add_font('DejaVu', 'B', 'assets/DejaVuSans-Bold.ttf', uni=True)
-
-        # O resto do seu método header continua igual...
         self.set_font('DejaVu', '', 24)
         
         emojis = getattr(self, 'emojis', '')
         pais = getattr(self, 'pais', 'Roteiro')
-        titulo_pagina = f'{pais} {emojis}'
+        
+        # SANITIZAÇÃO DO TÍTULO
+        titulo_pagina = f'{pais} {emojis}'.encode('latin-1', 'replace').decode('latin-1')
         
         self.cell(0, 10, titulo_pagina, 0, 1, 'C')
-        self.ln(10)
+        self.ln(10) 
 
     def chapter_title(self, label):
         self.set_font('DejaVu', 'B', 18)
         
+        # SANITIZAÇÃO DO TÍTULO DO CAPÍTULO
+        texto_sanitizado = label.replace('## ', '').encode('latin-1', 'replace').decode('latin-1')
+        
         self.multi_cell(
             w=0, 
             h=10, 
-            text=label.replace('## ', ''), 
+            text=texto_sanitizado,
             align='L',
-            ln=True # Usando o mesmo parâmetro 'ln=True' que você já usa no chapter_body
+            ln=True
         )
-        
         self.ln(4)
 
     def chapter_body(self, text):
@@ -51,15 +63,26 @@ class PDF(FPDF):
         for line in text.splitlines():
             line = line.strip()
             if line.startswith('- ') or line.startswith('* '):
-                self.multi_cell(0, 7, f'  •  {line[2:].strip()}')
+                # SANITIZAÇÃO DAS LINHAS DE LISTA
+                texto_sanitizado = f'  •  {line[2:].strip()}'.encode('latin-1', 'replace').decode('latin-1')
+                self.multi_cell(0, 7, texto_sanitizado, ln=True)
+
             elif ':' in line:
                 partes = line.split(':', 1)
+                
+                # SANITIZAÇÃO DAS PARTES (NEGRITO E NORMAL)
+                parte1_sanitizada = (partes[0] + ':').encode('latin-1', 'replace').decode('latin-1')
+                parte2_sanitizada = partes[1].strip().encode('latin-1', 'replace').decode('latin-1')
+
                 self.set_font('DejaVu', 'B', 12)
-                self.cell(self.get_string_width(partes[0] + ':') + 1, 7, partes[0] + ':')
+                # Usamos get_string_width com o texto já sanitizado para evitar erros de medição
+                self.cell(self.get_string_width(parte1_sanitizada) + 1, 7, parte1_sanitizada)
                 self.set_font('DejaVu', '', 12)
-                self.multi_cell(0, 7, partes[1].strip())
+                self.multi_cell(0, 7, parte2_sanitizada, ln=True)
             else:
-                self.multi_cell(0, 7, line)
+                # SANITIZAÇÃO DE LINHAS NORMAIS
+                texto_sanitizado = line.encode('latin-1', 'replace').decode('latin-1')
+                self.multi_cell(0, 7, texto_sanitizado, ln=True)
         self.ln()
 
 def criar_pdf_roteiro(roteiro_markdown, emojis, pais):
