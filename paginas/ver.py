@@ -23,63 +23,71 @@ def conectar_firebase():
         firebase_admin.initialize_app(cred)
     return firestore.client()
 
-def gerar_pdf(pais, emojis, texto_roteiro):
+def gerar_pdf_moderno(pais, emojis, texto_roteiro):
     """
     Cria um PDF de alta qualidade a partir de um texto Markdown
     usando HTML + CSS com a biblioteca WeasyPrint.
     """
 
-    # Converte o texto principal do roteiro de Markdown para HTML
-    corpo_html = markdown2.markdown(texto_roteiro, extras=['fenced-code-blocks', 'tables', 'break-on-newline'])
+    # Primeiro, converte o texto principal do roteiro de Markdown para HTML
+    # O 'extras' garante que listas e outros elementos sejam bem formatados
+    corpo_html = markdown2.markdown(texto_roteiro, extras=['fenced-code-blocks', 'tables', 'break-on-newline', 'smarty-pants'])
 
-    # CSS para estilizar o PDF exatamente como na sua imagem de referência
+    # Agora, criamos o CSS que vai estilizar nosso PDF para ficar igual à imagem
     css_style = """
+        /* Importa uma fonte limpa do Google Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
         
+        /* Estilo geral do documento */
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #1e1e1e; /* Fundo escuro geral */
-            color: #e0e0e0;           /* Cor do texto principal */
+            background-color: #202124; /* Fundo escuro (cinza Google) */
+            color: #e8eaed;           /* Cor do texto principal (cinza claro Google) */
             line-height: 1.6;
         }
+        /* Estilo do título principal com o nome do país */
         h1 {
-            font-size: 48px;
+            font-size: 42px;
             color: #ffffff;
             text-align: center;
             margin-bottom: 40px;
         }
+        /* Estilo do título de cada dia */
         h2 {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             color: #ffffff;
-            background-color: #2a2a2a; /* Fundo escuro para o título do dia */
-            padding: 15px;
+            padding-bottom: 10px;
             margin-top: 40px;
-            border-left: 5px solid #03a9f4; /* Detalhe azul */
+            border-bottom: 2px solid #8ab4f8; /* Linha azul clara (Google) abaixo do título */
         }
+        /* Estilo da lista de atividades */
         ul {
             list-style-type: none; /* Remove os marcadores padrão */
             padding-left: 0;
         }
+        /* Estilo de cada item da lista */
         li {
-            padding-left: 1.5em;
-            text-indent: -1.5em; /* Cria um marcador personalizado */
+            padding-left: 1.5em; 
+            text-indent: -1.5em; /* Truque para alinhar o marcador personalizado */
             margin-bottom: 15px;
         }
+        /* Cria o marcador de bolinha personalizado */
         li::before {
-            content: '•'; /* Marcador de bolinha */
-            color: #03a9f4; /* Cor do marcador */
+            content: '•'; 
+            color: #8ab4f8; /* Cor azul clara do marcador */
             font-size: 20px;
             margin-right: 10px;
             vertical-align: middle;
         }
+        /* Deixa o texto em negrito mais destacado */
         strong, b {
-            color: #ffffff; /* Deixa o texto em negrito mais branco */
+            color: #ffffff; 
             font-weight: 700;
         }
     """
 
-    # Monta o documento HTML completo
+    # Finalmente, montamos o documento HTML completo com o CSS e o conteúdo
     html_completo = f"""
     <!DOCTYPE html>
     <html lang="pt-br">
@@ -89,7 +97,7 @@ def gerar_pdf(pais, emojis, texto_roteiro):
         <style>{css_style}</style>
     </head>
     <body>
-        <h1>📍 {pais} {emojis}</h1>
+        <h1>{pais} {emojis}</h1>
         {corpo_html}
     </body>
     </html>
