@@ -35,7 +35,15 @@ class PDF(FPDF):
 
     def chapter_title(self, label):
         self.set_font('DejaVu', 'B', 18)
-        self.multi_cell(0, 10, label.replace('## ', ''), 0, 1, 'L')
+        
+        self.multi_cell(
+            w=0, 
+            h=10, 
+            text=label.replace('## ', ''), 
+            align='L',
+            ln=True # Usando o mesmo parâmetro 'ln=True' que você já usa no chapter_body
+        )
+        
         self.ln(4)
 
     def chapter_body(self, text):
