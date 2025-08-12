@@ -8,6 +8,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 import re
+import markdown2
+from weasyprint import HTML
 
 
 st.title("Seus Roteiros")
@@ -22,64 +24,81 @@ def conectar_firebase():
     return firestore.client()
 
 def gerar_pdf(pais, emojis, texto_roteiro):
-    buffer = io.BytesIO()
-    documento = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
-    styles = getSampleStyleSheet()
+    """
+    Cria um PDF de alta qualidade a partir de um texto Markdown
+    usando HTML + CSS com a biblioteca WeasyPrint.
+    """
 
-    styles.add(ParagraphStyle(
-        name='TituloPrincipal', parent=styles['h1'], fontSize=26, spaceAfter=20, alignment=1, textColor=colors.HexColor('#0d47a1')
-    ))
-    styles.add(ParagraphStyle(
-        name='DiaTitulo', parent=styles['h2'], fontSize=16, spaceBefore=22, spaceAfter=12, textColor=colors.HexColor('#1565c0'), fontName='Helvetica-Bold'
-    ))
-    styles.add(ParagraphStyle(
-        name='Topico', parent=styles['Normal'], spaceAfter=4, fontName='Helvetica-Bold', textColor=colors.HexColor('#333333')
-    ))
-    styles.add(ParagraphStyle(
-        name='Corpo', parent=styles['Normal'], spaceAfter=12, firstLineIndent=0, leading=15, alignment=4 # Justificado
-    ))
+    # Converte o texto principal do roteiro de Markdown para HTML
+    corpo_html = markdown2.markdown(texto_roteiro, extras=['fenced-code-blocks', 'tables', 'break-on-newline'])
 
-    conteudo = []
-    conteudo.append(Paragraph(f"🗺️ Roteiro para {pais} {emojis}", styles['TituloPrincipal']))
+    # CSS para estilizar o PDF exatamente como na sua imagem de referência
+    css_style = """
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1e1e1e; /* Fundo escuro geral */
+            color: #e0e0e0;           /* Cor do texto principal */
+            line-height: 1.6;
+        }
+        h1 {
+            font-size: 48px;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            background-color: #2a2a2a; /* Fundo escuro para o título do dia */
+            padding: 15px;
+            margin-top: 40px;
+            border-left: 5px solid #03a9f4; /* Detalhe azul */
+        }
+        ul {
+            list-style-type: none; /* Remove os marcadores padrão */
+            padding-left: 0;
+        }
+        li {
+            padding-left: 1.5em;
+            text-indent: -1.5em; /* Cria um marcador personalizado */
+            margin-bottom: 15px;
+        }
+        li::before {
+            content: '•'; /* Marcador de bolinha */
+            color: #03a9f4; /* Cor do marcador */
+            font-size: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        strong, b {
+            color: #ffffff; /* Deixa o texto em negrito mais branco */
+            font-weight: 700;
+        }
+    """
 
-    paragrafo_atual = ""
+    # Monta o documento HTML completo
+    html_completo = f"""
+    <!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <title>Roteiro de Viagem</title>
+        <style>{css_style}</style>
+    </head>
+    <body>
+        <h1>📍 {pais} {emojis}</h1>
+        {corpo_html}
+    </body>
+    </html>
+    """
 
-    def processar_paragrafo(texto, estilo):
-        """Função interna para processar e adicionar um parágrafo."""
-        if texto.strip():
-            texto_formatado = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', texto)
-            conteudo.append(Paragraph(texto_formatado, estilo))
-            conteudo.append(Spacer(1, 6)) # Pequeno espaço após cada parágrafo
-
-    linhas = texto_roteiro.strip().split('\n')
-
-    for linha in linhas:
-        linha = linha.strip()
-        if not linha:
-            continue
-
-        if linha.startswith('Dia ') or linha.startswith('Foco:') or linha.startswith('Sugestão') or ':' in linha:
-            processar_paragrafo(paragrafo_atual, styles['Corpo']) 
-            paragrafo_atual = "" 
-
-            if linha.startswith('Dia '):
-                processar_paragrafo(linha, styles['DiaTitulo'])
-            elif ':' in linha:
-                partes = linha.split(':', 1)
-                topico = partes[0].strip() + ":"
-                resto = partes[1].strip()
-                processar_paragrafo(topico, styles['Topico'])
-                if resto:
-                    paragrafo_atual = resto 
-            else:
-                 paragrafo_atual = linha 
-        else:
-            paragrafo_atual += " " + linha
-
-    processar_paragrafo(paragrafo_atual, styles['Corpo'])
-
-    documento.build(conteudo)
-    return buffer.getvalue()
+    # Usa o WeasyPrint para renderizar o HTML e gerar os bytes do PDF
+    pdf_bytes = HTML(string=html_completo).write_pdf()
+    
+    return pdf_bytes
 
 db = conectar_firebase()
 colecao = 'usuarios2'
