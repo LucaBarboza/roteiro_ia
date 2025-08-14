@@ -66,39 +66,35 @@ import os
 st.title("Seus Roteiros")
 
 def sanitize_text(text):
-    """
-    Substitui caracteres problemáticos para evitar erros na geração do PDF.
-    """
     return text.encode('latin-1', 'replace').decode('latin-1')
 
 def create_styled_pdf(markdown_text, title, font_path='arquivos/DejaVuSans.ttf'):
+    # VERIFICAÇÃO INICIAL: Checa se o arquivo da fonte existe.
+    # Esta é a causa mais provável do erro.
+    if not os.path.exists(font_path):
+        st.error(f"ERRO CRÍTICO: Arquivo de fonte não encontrado em '{font_path}'. Verifique se o arquivo 'DejaVuSans.ttf' está na pasta 'arquivos' do seu repositório.")
+        return None # Retorna None se a fonte não for encontrada
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    if not os.path.exists(font_path):
-        st.error(f"Arquivo de fonte não encontrado em: {font_path}. Faça o download e adicione ao projeto.")
-        return None
-
     pdf.add_font('DejaVu', '', font_path, uni=True)
     pdf.add_font('DejaVu', 'B', font_path, uni=True)
 
-    # --- Título Principal ---
     pdf.set_font('DejaVu', 'B', 20)
     pdf.cell(0, 10, sanitize_text(title), ln=True, align='C')
     pdf.ln(10)
 
-    # --- Processa o Roteiro Linha por Linha ---
     for line in markdown_text.split('\n'):
         line = line.strip()
         if not line:
             continue
         
-        # TROCA DE multi_cell() PARA write() EM TODAS AS OCORRÊNCIAS
         if line.startswith('## '):
             pdf.set_font('DejaVu', 'B', 16)
             pdf.write(8, sanitize_text(line[3:]))
-            pdf.ln(12) # Aumentar o espaçamento após o título do dia
+            pdf.ln(12)
         elif line.startswith('### '):
             pdf.set_font('DejaVu', 'B', 14)
             pdf.write(8, sanitize_text(line[4:]))
@@ -131,7 +127,7 @@ def create_styled_pdf(markdown_text, title, font_path='arquivos/DejaVuSans.ttf')
     return pdf.output()
 
 
-# --- O restante do arquivo permanece exatamente o mesmo ---
+# --- O restante do arquivo permanece o mesmo, mas com a verificação if ---
 
 @st.cache_resource
 def conectar_firebase():
@@ -177,6 +173,7 @@ if roteiros:
                 pdf_title = f"{pais} {emojis}"
                 pdf_bytes = create_styled_pdf(roteiro['texto'], pdf_title)
                 
+                # VERIFICAÇÃO CRÍTICA: Só mostra o botão se pdf_bytes não for None.
                 if pdf_bytes:
                     st.download_button(
                         label="Baixar Roteiro em PDF 📄",
