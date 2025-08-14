@@ -64,48 +64,55 @@ from fpdf import FPDF
 import os
 import re
 
-# Caminhos absolutos e seguros para as fontes
+# Caminhos absolutos para as fontes
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
 FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
+FONT_PATH_ITALIC = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Oblique.ttf')
 
 st.title("Seus Roteiros")
 
 def write_styled_text(pdf, text):
-    parts = re.split(r'(\*\*.*?\*\*)', text)
+    parts = re.split(r'(\*\*.*?\*\*|\*.*?\*)', text)
     for part in parts:
         if not part: continue
         if part.startswith('**') and part.endswith('**'):
             pdf.set_font('DejaVu', 'B', 11)
             pdf.write(7, part[2:-2])
+        elif part.startswith('*') and part.endswith('*'):
+            pdf.set_font('DejaVu', 'I', 11)
+            pdf.write(7, part[1:-1])
         else:
             pdf.set_font('DejaVu', '', 11)
             pdf.write(7, part)
 
-def create_polished_pdf(markdown_text, title):
-    if not os.path.exists(FONT_PATH_REGULAR) or not os.path.exists(FONT_PATH_BOLD):
-        st.error("ERRO: Um ou mais arquivos de fonte (Regular, Bold) não foram encontrados.")
+def create_final_pdf(markdown_text, title):
+    if not all(os.path.exists(p) for p in [FONT_PATH_REGULAR, FONT_PATH_BOLD, FONT_PATH_ITALIC]):
+        st.error("ERRO: Faltando um ou mais arquivos de fonte (Regular, Bold, Italic).")
         return None
 
     pdf = FPDF()
-    
-    # --- MELHORIA 1: Adicionando Margens Laterais ---
     pdf.set_left_margin(20)
     pdf.set_right_margin(20)
-    
     pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=20) # Margem inferior
+    pdf.set_auto_page_break(auto=True, margin=20)
 
     pdf.add_font('DejaVu', '', FONT_PATH_REGULAR, uni=True)
     pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
+    pdf.add_font('DejaVu', 'I', FONT_PATH_ITALIC, uni=True)
 
-    # --- Título Principal (Com Emojis) ---
     pdf.set_font('DejaVu', 'B', 22)
-    pdf.multi_cell(0, 12, title, align='C', ln=True)
+    title_width = pdf.get_string_width(title)
+    doc_width = pdf.w - pdf.l_margin - pdf.r_margin
+    x_start = pdf.l_margin + (doc_width - title_width) / 2
+    if x_start < pdf.l_margin:
+        x_start = pdf.l_margin
+    pdf.set_x(x_start)
+    pdf.write(12, title)
+    pdf.ln(20)
 
     is_first_day = True
-
     for line in markdown_text.split('\n'):
         line = line.strip()
         if not line: continue
@@ -119,27 +126,25 @@ def create_polished_pdf(markdown_text, title):
             pdf.set_font('DejaVu', 'B', 16)
             pdf.set_fill_color(230, 230, 230)
             
-            # --- MELHORIA 2: Usando multi_cell para Centralizar e Evitar Vazamento ---
-            pdf.multi_cell(0, 12, f" {line[3:]} ", ln=True, fill=True, align='C')
+            # --- CORREÇÃO APLICADA AQUI ---
+            # Removemos os '**' do texto do título antes de imprimir
+            title_text = line[3:].replace('**', '')
+            pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
             pdf.ln(6)
 
         elif line.startswith('### '):
             pdf.set_font('DejaVu', 'B', 13)
-            # Centralizando subtítulos também
             pdf.multi_cell(0, 7, line[4:], ln=True, align='C')
             pdf.ln(4)
 
         elif line.startswith('* ') or line.startswith('- '):
             text = line[2:]
-            
-            pdf.cell(5) 
+            pdf.cell(5)
             pdf.set_font('DejaVu', 'B', 11)
             pdf.cell(5, 7, "• ")
-
             write_styled_text(pdf, text)
             pdf.ln()
             pdf.ln(4)
-
         else: 
             pdf.set_font('DejaVu', '', 11)
             pdf.multi_cell(0, 7, line, ln=True)
@@ -170,8 +175,7 @@ if roteiros:
     for i, roteiro in enumerate(roteiros):
         with st.container(border=True):
             pais = roteiro.get('pais', 'País Desconhecido')
-            # --- MELHORIA 3: Garantindo que os emojis sejam usados ---
-            emojis = roteiro.get('emojis', '') 
+            emojis = roteiro.get('emojis', '')
             st.subheader(f"{pais} {emojis}")
             
             is_open = (st.session_state.roteiro_aberto == roteiro['pais'])
@@ -187,7 +191,7 @@ if roteiros:
                 st.divider()
 
                 pdf_title = f"{pais} {emojis}"
-                pdf_bytes = create_polished_pdf(roteiro['texto'], pdf_title)
+                pdf_bytes = create_final_pdf(roteiro['texto'], pdf_title)
                 
                 if pdf_bytes:
                     st.download_button(
