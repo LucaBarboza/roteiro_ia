@@ -87,7 +87,7 @@ def write_styled_text(pdf, text):
             pdf.write(7, part)
 
 def create_final_pdf(markdown_text, title):
-    if not all(os.path.exists(p) for p in [FONT_PATH_REGULAR, FONT_PATH_BOLD):
+    if not all(os.path.exists(p) for p in [FONT_PATH_REGULAR, FONT_PATH_BOLD]):
         st.error("ERRO: Faltando um ou mais arquivos de fonte (Regular, Bold).")
         return None
 
