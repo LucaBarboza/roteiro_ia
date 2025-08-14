@@ -81,7 +81,6 @@ def create_pdf_sem_fonte(markdown_text, title):
     pdf.set_auto_page_break(auto=True, margin=15)
 
     # --- Título Principal ---
-    # Usando a fonte padrão 'Helvetica'
     pdf.set_font('Helvetica', 'B', 16)
     pdf.cell(0, 10, sanitize_text(title), ln=True, align='C')
     pdf.ln(10)
@@ -103,7 +102,9 @@ def create_pdf_sem_fonte(markdown_text, title):
         elif line.startswith('* ') or line.startswith('- '):
             text = line[2:]
             
-            pdf.cell(5, 8, "•")
+            # --- CORREÇÃO APLICADA AQUI ---
+            # Trocando o caractere "•" por "*"
+            pdf.cell(5, 8, "*")
 
             if '**' in text and ':' in text:
                 parts = text.split(':', 1)
@@ -153,7 +154,6 @@ if roteiros:
     for i, roteiro in enumerate(roteiros):
         with st.container(border=True):
             pais = roteiro.get('pais', 'País Desconhecido')
-            # Vamos remover os emojis do título do PDF para garantir
             emojis = roteiro.get('emojis', '')
             
             st.subheader(f"{pais} {emojis}")
@@ -173,11 +173,9 @@ if roteiros:
                 st.markdown(roteiro['texto'])
                 st.divider()
 
-                # Título para o PDF será apenas o nome do país
                 pdf_title = pais
                 pdf_bytes = create_pdf_sem_fonte(roteiro['texto'], pdf_title)
                 
-                # A verificação continua sendo importante
                 if pdf_bytes:
                     st.download_button(
                         label="Baixar Roteiro em PDF 📄",
