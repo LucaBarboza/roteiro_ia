@@ -72,6 +72,21 @@ FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
 
 st.title("Seus Roteiros")
 
+def deletar_roteiro(roteiro_para_deletar):
+    """Função para deletar um roteiro do Firestore."""
+    try:
+        doc_ref = db.collection(colecao).document(st.user.email)
+        doc_ref.update({'roteiros': firestore.ArrayRemove([roteiro_para_deletar])})
+
+        # Se o roteiro deletado era o que estava aberto, fecha ele
+        if st.session_state.get('roteiro_aberto') == roteiro_para_deletar.get('pais'):
+            st.session_state.roteiro_aberto = None
+        
+        st.success(f"Roteiro para {roteiro_para_deletar.get('pais')} deletado!")
+        st.rerun()
+    except Exception as e:
+        st.error(f"Erro ao deletar o roteiro: {e}")
+
 def write_styled_text(pdf, text):
     """
     Processa e escreve texto com múltiplos estilos (negrito e itálico).
@@ -175,52 +190,64 @@ roteiros = dados.get('roteiros', [])
 if 'roteiro_aberto' not in st.session_state:
     st.session_state.roteiro_aberto = None
 
+if 'roteiro_aberto' not in st.session_state:
+    st.session_state.roteiro_aberto = None
+
 if roteiros:
     for i, roteiro in enumerate(roteiros):
         with st.container(border=True):
             pais = roteiro.get('pais', 'País Desconhecido')
             emojis = roteiro.get('emojis', '')
-            st.subheader(f"{pais} {emojis}")
-            
-            is_open = (st.session_state.roteiro_aberto == roteiro['pais'])
-            button_label = "Fechar" if is_open else "Ver Roteiro"
-            
-            if st.button(button_label, key=f"toggle_{roteiro['pais']}", use_container_width=True):
-                st.session_state.roteiro_aberto = None if is_open else roteiro['pais']
-                st.rerun()
-            
-            # As colunas são definidas aqui
-            col1, col2, col3, col4 = st.columns([2, 1, 1, 0.8])
+            is_open = (st.session_state.roteiro_aberto == pais)
 
-            # O conteúdo do roteiro e o botão de download aparecem se estiver aberto
-            if is_open:
-                st.header(f"📍  {pais} {emojis}")
+            # Cabeçalho (sempre visível)
+            st.subheader(f"{pais} {emojis}")
+
+            # --- ESTADO FECHADO ---
+            # Se o roteiro NÃO estiver aberto, mostre os botões lado a lado
+            if not is_open:
+                col_ver, col_del = st.columns([3, 1]) # Dê mais espaço para o botão "Ver"
+                
+                with col_ver:
+                    if st.button("Ver Roteiro Completo", key=f"open_{i}", use_container_width=True):
+                        st.session_state.roteiro_aberto = pais
+                        st.rerun()
+                
+                with col_del:
+                    # Botão Deletar para o estado FECHADO
+                    if st.button("🗑️", key=f"delete_closed_{i}", help="Deletar este roteiro"):
+                        deletar_roteiro(roteiro) # Chama a função auxiliar
+
+            # --- ESTADO ABERTO ---
+            # Se o roteiro ESTIVER aberto, mostre o conteúdo completo
+            else:
+                # Botão para fechar (ocupa a largura toda)
+                if st.button("Fechar Roteiro", key=f"close_{i}", use_container_width=True):
+                    st.session_state.roteiro_aberto = None
+                    st.rerun()
+
+                # Conteúdo do roteiro
+                st.header(f"📍 Roteiro Completo para {pais} {emojis}")
                 st.markdown(roteiro['texto'])
                 st.divider()
 
-                pdf_title = pais
-                # A função de criar PDF foi renomeada nas nossas conversas, 
-                # use o nome correto que está no seu código (ex: create_final_pdf)
-                pdf_bytes = create_final_pdf(roteiro['texto'], pdf_title)
-                
-                # O botão de download vai na primeira coluna
-                with col1:
+                # Botões de ação na parte de baixo
+                col_download, col_del_open = st.columns([3, 1])
+
+                with col_download:
+                    pdf_bytes = create_final_pdf(roteiro['texto'], pais)
                     if pdf_bytes:
                         st.download_button(
                             label="Baixar Roteiro em PDF 📄",
                             data=pdf_bytes,
                             file_name=f"roteiro_{pais.replace(' ', '_').lower()}.pdf",
-                            mime="application/pdf"
+                            mime="application/pdf",
+                            use_container_width=True
                         )
-
-            # O botão de deletar vai na quarta coluna (bloco corrigido)
-            with col4:
-                if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
-                    doc_ref = db.collection(colecao).document(st.user.email) 
-                    doc_ref.update({'roteiros': firestore.ArrayRemove([roteiro])})
-                    st.success(f"Roteiro para {pais} deletado!")
-                    if st.session_state.roteiro_aberto == roteiro['pais']:
-                        st.session_state.roteiro_aberto = None
-                    st.rerun()
+                
+                with col_del_open:
+                    # Botão Deletar para o estado ABERTO (aparece embaixo)
+                    if st.button("🗑️ Deletar", key=f"delete_open_{i}", help="Deletar este roteiro"):
+                        deletar_roteiro(roteiro) # Chama a mesma função auxiliar
 else:
-    st.info("Nenhum roteiro ainda")
+    st.info("Você ainda não criou nenhum roteiro de viagem.")
