@@ -53,7 +53,6 @@ if roteiros:
                     if st.session_state.roteiro_aberto == roteiro['pais']:
                         st.session_state.roteiro_aberto = None
                     st.rerun()
-                    )
                 
 else:
     st.info("Nenhum roteiro ainda")
