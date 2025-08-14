@@ -125,6 +125,15 @@ def create_final_pdf(markdown_text, title):
             title_text = line[3:].replace('**', '')
             pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
             pdf.ln(6)
+            
+        elif line.strip() == '**Dicas Essenciais**':
+            pdf.add_page()
+            pdf.ln(8)
+            pdf.set_font('DejaVu', 'B', 16)
+            pdf.set_fill_color(230, 230, 230)
+            title_text = line.replace('**', '')
+            pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
+            pdf.ln(6)
 
         elif line.startswith('### '):
             pdf.set_font('DejaVu', 'B', 13)
