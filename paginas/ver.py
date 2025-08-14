@@ -61,26 +61,34 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 from fpdf import FPDF
-import os
+import os # Importação essencial
 
-st.title("Seus Roteiros")
+# --- NOVO: Lógica para construir um caminho absoluto para a fonte ---
+# Pega o caminho absoluto do diretório onde este script (ver.py) está
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# Sobe um nível para chegar à raiz do projeto
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+# Constrói o caminho completo e confiável para o arquivo da fonte
+FONT_PATH = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
+
 
 def sanitize_text(text):
     return text.encode('latin-1', 'replace').decode('latin-1')
 
-def create_styled_pdf(markdown_text, title, font_path='arquivos/DejaVuSans.ttf'):
-    # VERIFICAÇÃO INICIAL: Checa se o arquivo da fonte existe.
-    # Esta é a causa mais provável do erro.
-    if not os.path.exists(font_path):
-        st.error(f"ERRO CRÍTICO: Arquivo de fonte não encontrado em '{font_path}'. Verifique se o arquivo 'DejaVuSans.ttf' está na pasta 'arquivos' do seu repositório.")
-        return None # Retorna None se a fonte não for encontrada
+# A função agora usará a constante FONT_PATH, tornando-a mais limpa
+def create_styled_pdf(markdown_text, title):
+    # Verificação usa o caminho absoluto FONT_PATH
+    if not os.path.exists(FONT_PATH):
+        st.error(f"ERRO CRÍTICO: Arquivo de fonte não encontrado. Caminho verificado: {FONT_PATH}")
+        return None
 
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    pdf.add_font('DejaVu', '', font_path, uni=True)
-    pdf.add_font('DejaVu', 'B', font_path, uni=True)
+    # Usa o caminho absoluto FONT_PATH para adicionar a fonte
+    pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
+    pdf.add_font('DejaVu', 'B', FONT_PATH, uni=True)
 
     pdf.set_font('DejaVu', 'B', 20)
     pdf.cell(0, 10, sanitize_text(title), ln=True, align='C')
@@ -127,7 +135,7 @@ def create_styled_pdf(markdown_text, title, font_path='arquivos/DejaVuSans.ttf')
     return pdf.output()
 
 
-# --- O restante do arquivo permanece o mesmo, mas com a verificação if ---
+# --- O restante do arquivo permanece o mesmo ---
 
 @st.cache_resource
 def conectar_firebase():
@@ -171,9 +179,9 @@ if roteiros:
                 st.divider()
 
                 pdf_title = f"{pais} {emojis}"
+                # A chamada da função não precisa mais de parâmetros extras
                 pdf_bytes = create_styled_pdf(roteiro['texto'], pdf_title)
                 
-                # VERIFICAÇÃO CRÍTICA: Só mostra o botão se pdf_bytes não for None.
                 if pdf_bytes:
                     st.download_button(
                         label="Baixar Roteiro em PDF 📄",
