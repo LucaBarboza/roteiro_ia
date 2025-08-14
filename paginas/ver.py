@@ -65,7 +65,6 @@ import os
 
 st.title("Seus Roteiros")
 
-# --- NOVO: Função para sanitizar o texto e evitar quebras ---
 def sanitize_text(text):
     """
     Substitui caracteres problemáticos para evitar erros na geração do PDF.
@@ -86,7 +85,6 @@ def create_styled_pdf(markdown_text, title, font_path='arquivos/DejaVuSans.ttf')
 
     # --- Título Principal ---
     pdf.set_font('DejaVu', 'B', 20)
-    # APLICANDO A SANITIZAÇÃO
     pdf.cell(0, 10, sanitize_text(title), ln=True, align='C')
     pdf.ln(10)
 
@@ -96,19 +94,18 @@ def create_styled_pdf(markdown_text, title, font_path='arquivos/DejaVuSans.ttf')
         if not line:
             continue
         
-        # APLICANDO A SANITIZAÇÃO EM TODAS AS SAÍDAS DE TEXTO
+        # TROCA DE multi_cell() PARA write() EM TODAS AS OCORRÊNCIAS
         if line.startswith('## '):
             pdf.set_font('DejaVu', 'B', 16)
-            pdf.multi_cell(0, 8, sanitize_text(line[3:]))
-            pdf.ln(4)
+            pdf.write(8, sanitize_text(line[3:]))
+            pdf.ln(12) # Aumentar o espaçamento após o título do dia
         elif line.startswith('### '):
             pdf.set_font('DejaVu', 'B', 14)
-            pdf.multi_cell(0, 7, sanitize_text(line[4:]))
-            pdf.ln(3)
+            pdf.write(8, sanitize_text(line[4:]))
+            pdf.ln(10)
         elif line.startswith('* ') or line.startswith('- '):
             text = line[2:]
             
-            pdf.set_font('DejaVu', 'B', 12)
             pdf.cell(5, 8, "•")
 
             if '**' in text and ':' in text:
@@ -120,15 +117,16 @@ def create_styled_pdf(markdown_text, title, font_path='arquivos/DejaVuSans.ttf')
                 pdf.cell(pdf.get_string_width(sanitize_text(bold_part)) + 1, 8, sanitize_text(bold_part))
                 
                 pdf.set_font('DejaVu', '', 12)
-                pdf.multi_cell(0, 8, sanitize_text(regular_part)) # O ponto exato do erro anterior
+                pdf.write(8, sanitize_text(regular_part))
+                pdf.ln(10)
             else:
                 pdf.set_font('DejaVu', '', 12)
-                pdf.multi_cell(0, 8, sanitize_text(text))
-            pdf.ln(2)
+                pdf.write(8, sanitize_text(text))
+                pdf.ln(10)
         else:
             pdf.set_font('DejaVu', '', 12)
-            pdf.multi_cell(0, 8, sanitize_text(line))
-            pdf.ln(2)
+            pdf.write(8, sanitize_text(line))
+            pdf.ln(10)
 
     return pdf.output()
 
