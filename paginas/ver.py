@@ -201,7 +201,7 @@ if roteiros:
                 pdf_title = pais
                 # A função de criar PDF foi renomeada nas nossas conversas, 
                 # use o nome correto que está no seu código (ex: create_final_pdf)
-                pdf_bytes = create_production_pdf(roteiro['texto'], pdf_title)
+                pdf_bytes = create_final_pdf(roteiro['texto'], pdf_title)
                 
                 # O botão de download vai na primeira coluna
                 with col1:
