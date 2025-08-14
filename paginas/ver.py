@@ -188,7 +188,9 @@ if roteiros:
             if st.button(button_label, key=f"toggle_{roteiro['pais']}", use_container_width=True):
                 st.session_state.roteiro_aberto = None if is_open else roteiro['pais']
                 st.rerun()
-                
+        
+            col1, col2, col3, col4 = st.columns([2, 1, 1, 0.8])
+
             if is_open:
                 st.header(f"📍  {pais} {emojis}")
                 st.markdown(roteiro['texto'])
@@ -196,23 +198,22 @@ if roteiros:
 
                 pdf_title = pais
                 pdf_bytes = create_final_pdf(roteiro['texto'], pdf_title)
-                
-                if pdf_bytes:
-                    st.download_button(
-                        label="Baixar Roteiro em PDF 📄",
-                        data=pdf_bytes,
-                        file_name=f"roteiro_{pais.replace(' ', '_').lower()}.pdf",
-                        mime="application/pdf"
-                    )
+                with col1:    
+                    if pdf_bytes:
+                        st.download_button(
+                            label="Baixar Roteiro em PDF 📄",
+                            data=pdf_bytes,
+                            file_name=f"roteiro_{pais.replace(' ', '_').lower()}.pdf",
+                            mime="application/pdf"
+                        )
 
-            col1, col2, col3, col4 = st.columns([2, 1, 1, 0.8])
             with col4:
                 if st.button("🗑️ Deletar", key=f"delete_{i}", help="Deletar este roteiro"):
-                    doc_ref = db.collection(colecao).document(st.user.email) 
-                    doc_ref.update({'roteiros': firestore.ArrayRemove([roteiro])})
-                    st.success(f"Roteiro para {pais} deletado!")
-                    if st.session_state.roteiro_aberto == roteiro['pais']:
-                        st.session_state.roteiro_aberto = None
+                doc_ref = db.collection(colecao).document(st.user.email) 
+                doc_ref.update({'roteiros': firestore.ArrayRemove([roteiro])})
+                st.success(f"Roteiro para {pais} deletado!")
+                if st.session_state.roteiro_aberto == roteiro['pais']:
+                    st.session_state.roteiro_aberto = None
                     st.rerun()
 else:
     st.info("Nenhum roteiro ainda")
