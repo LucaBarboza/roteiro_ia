@@ -65,7 +65,7 @@ from firebase_admin import credentials, firestore
 from fpdf import FPDF
 import os
 
-# Lógica para construir um caminho absoluto e seguro para a fonte (essencial)
+# Lógica para construir um caminho absoluto e seguro para a fonte
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 FONT_PATH = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
@@ -74,7 +74,8 @@ st.title("Seus Roteiros")
 
 def create_stylish_pdf(markdown_text, title):
     """
-    Cria um PDF com design profissional, espaçamento e hierarquia visual.
+    Cria um PDF com design profissional, usando o método 'write' para
+    garantir a formatação correta do texto.
     """
     if not os.path.exists(FONT_PATH):
         st.error(f"ERRO: Fonte DejaVu não encontrada no caminho: {FONT_PATH}")
@@ -98,11 +99,9 @@ def create_stylish_pdf(markdown_text, title):
         if not line: continue
 
         if line.startswith('## '):
-            # --- Cabeçalho de Destaque para o Dia ---
-            pdf.ln(10) # Espaço extra antes de um novo dia
+            pdf.ln(10)
             pdf.set_font('DejaVu', 'B', 16)
-            pdf.set_fill_color(230, 230, 230) # Cinza claro
-            pdf.set_text_color(0, 0, 0) # Texto preto
+            pdf.set_fill_color(230, 230, 230)
             pdf.cell(0, 12, f" {line[3:]}", ln=True, fill=True)
             pdf.ln(5)
 
@@ -114,22 +113,31 @@ def create_stylish_pdf(markdown_text, title):
         elif line.startswith('* ') or line.startswith('- '):
             text = line[2:]
             
-            # Recuo para o item da lista
-            pdf.cell(5) 
+            pdf.cell(5) # Recuo
             pdf.set_font('DejaVu', 'B', 11)
             pdf.cell(5, 8, "•")
 
+            # --- LÓGICA CORRIGIDA USANDO pdf.write() ---
             if '**' in text and ':' in text:
                 parts = text.split(':', 1)
                 bold_part = parts[0].replace('**', '').strip() + ':'
-                regular_part = " " + parts[1].strip() # Adiciona espaço
+                regular_part = " " + parts[1].strip()
                 
-                pdf.cell(pdf.get_string_width(bold_part) + 1, 8, bold_part)
+                # Escreve a parte em negrito
+                pdf.set_font('DejaVu', 'B', 11)
+                pdf.write(8, bold_part)
+                
+                # Escreve a parte normal na mesma linha
                 pdf.set_font('DejaVu', '', 11)
-                pdf.multi_cell(0, 8, regular_part, ln=True)
+                pdf.write(8, regular_part)
+                
+                # Pula para a próxima linha
+                pdf.ln()
             else:
                 pdf.set_font('DejaVu', '', 11)
+                # Usa multi_cell aqui pois não há mudança de estilo na linha
                 pdf.multi_cell(0, 8, f" {text}", ln=True)
+            
             pdf.ln(3)
 
         else: # Texto normal (parágrafos)
