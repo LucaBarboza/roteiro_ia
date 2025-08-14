@@ -4,3 +4,4 @@ firebase-admin==6.6.0
 google-generativeai
 fpdf2
 Pillow
+regex
