@@ -70,17 +70,16 @@ PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 
 FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
 FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
-FONT_PATH_EMOJI = os.path.join(PROJECT_ROOT, 'arquivos', 'NotoEmoji.ttf')  # Fonte para emojis
+FONT_PATH_EMOJI = os.path.join(PROJECT_ROOT, 'arquivos', 'NotoEmoji.ttf')  # Fonte para emojis (PB)
 
 st.title("Seus Roteiros")
 
 def write_styled_text(pdf, text):
-    """
-    Processa e escreve texto com múltiplos estilos (negrito e itálico).
-    """
+    """Processa e escreve texto com múltiplos estilos (negrito e itálico)."""
     parts = re.split(r'(\*\*.*?\*\*|\*.*?\*)', text)
     for part in parts:
-        if not part: continue
+        if not part:
+            continue
         if part.startswith('**') and part.endswith('**'):
             pdf.set_font('DejaVu', 'B', 11)
             pdf.write(7, part[2:-2])
@@ -98,20 +97,20 @@ def create_production_pdf(markdown_text, title, emojis=""):
     # Registrando as fontes
     pdf.add_font('DejaVu', '', FONT_PATH_REGULAR, uni=True)
     pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
-    pdf.add_font('Emoji', '', FONT_PATH_EMOJI, uni=True)  # Fonte de emoji
+    pdf.add_font('Emoji', '', FONT_PATH_EMOJI, uni=True)  # Fonte de emoji PB
 
     # Título principal com emojis
     pdf.set_font('DejaVu', 'B', 22)
-    pdf.multi_cell(0, 12, title, align='C')
     if emojis:
-        pdf.set_font('Emoji', '', 22)
-        pdf.multi_cell(0, 12, emojis, align='C')
+        pdf.multi_cell(0, 12, f"{title} {emojis}", align='C')
+    else:
+        pdf.multi_cell(0, 12, title, align='C')
     pdf.ln(15)
 
     is_first_day = True
     for line in markdown_text.split('\n'):
         line = line.strip()
-        if not line: 
+        if not line:
             continue
 
         if line.startswith('## '):
@@ -184,10 +183,7 @@ if roteiros:
                 st.markdown(roteiro['texto'])
                 st.divider()
 
-                pdf_title = pais
-                pdf_emojis = emojis
-                pdf_bytes = create_production_pdf(roteiro['texto'], pdf_title, pdf_emojis)
-
+                pdf_bytes = create_production_pdf(roteiro['texto'], pais, emojis)
                 if pdf_bytes:
                     st.download_button(
                         label="Baixar Roteiro em PDF 📄",
