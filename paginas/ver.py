@@ -65,14 +65,13 @@ import os
 import re
 import io
 from PIL import Image, ImageDraw, ImageFont
-import regex # <- NOVA IMPORTAÇÃO
+import regex
 
 # Caminhos absolutos para as fontes
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
 FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
-FONT_PATH_ITALIC = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Oblique.ttf')
 
 st.title("Seus Roteiros")
 
@@ -103,17 +102,11 @@ def write_styled_text(pdf, text):
         if part.startswith('**') and part.endswith('**'):
             pdf.set_font('DejaVu', 'B', 11)
             pdf.write(7, part[2:-2])
-        elif part.startswith('*') and part.endswith('*'):
-            pdf.set_font('DejaVu', 'I', 11)
-            pdf.write(7, part[1:-1])
         else:
             pdf.set_font('DejaVu', '', 11)
             pdf.write(7, part)
 
 def create_final_pdf(markdown_text, title_text, emojis_text):
-    if not all(os.path.exists(p) for p in [FONT_PATH_REGULAR, FONT_PATH_BOLD, FONT_PATH_ITALIC]):
-        st.error("ERRO: Faltando um ou mais arquivos de fonte (Regular, Bold, Italic).")
-        return None
 
     pdf = FPDF()
     pdf.set_left_margin(20)
@@ -123,7 +116,6 @@ def create_final_pdf(markdown_text, title_text, emojis_text):
 
     pdf.add_font('DejaVu', '', FONT_PATH_REGULAR, uni=True)
     pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
-    pdf.add_font('DejaVu', 'I', FONT_PATH_ITALIC, uni=True)
 
     pdf.set_font('DejaVu', 'B', 22)
     
