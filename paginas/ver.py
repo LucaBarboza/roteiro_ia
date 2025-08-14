@@ -114,7 +114,17 @@ def create_final_pdf(markdown_text, title):
         line = line.strip()
         if not line: continue
 
-        if line.startswith('## '):
+        if 'Dicas Essenciais' in line:
+            pdf.add_page()
+            pdf.ln(8)
+            pdf.set_font('DejaVu', 'B', 16)
+            pdf.set_fill_color(230, 230, 230)
+            # Limpa qualquer marcador de markdown para o título
+            title_text = line.replace('**', '').replace('###', '').replace('##', '').strip()
+            pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
+            pdf.ln(6)
+            
+        elif line.startswith('## '):
             if not is_first_day:
                 pdf.add_page()
             is_first_day = False
@@ -123,15 +133,6 @@ def create_final_pdf(markdown_text, title):
             pdf.set_font('DejaVu', 'B', 16)
             pdf.set_fill_color(230, 230, 230)
             title_text = line[3:].replace('**', '')
-            pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
-            pdf.ln(6)
-            
-        elif line.strip() == '**Dicas Essenciais**':
-            pdf.add_page()
-            pdf.ln(8)
-            pdf.set_font('DejaVu', 'B', 16)
-            pdf.set_fill_color(230, 230, 230)
-            title_text = line.replace('**', '')
             pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
             pdf.ln(6)
 
