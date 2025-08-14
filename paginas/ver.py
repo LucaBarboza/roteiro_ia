@@ -57,41 +57,56 @@
 # else:
 #     st.info("Nenhum roteiro ainda")
 
-# paginas/ver.py (Versão Final Corrigida)
-
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 from fpdf import FPDF
 import os
+import re
 
-# Lógica para construir um caminho absoluto e seguro para a fonte
+# Caminhos absolutos e seguros para AMBAS as fontes
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-FONT_PATH = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
+FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
+FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
 
 st.title("Seus Roteiros")
 
-def create_stylish_pdf(markdown_text, title):
-    """
-    Cria um PDF com design profissional, usando o método 'write' para
-    garantir a formatação correta do texto.
-    """
-    if not os.path.exists(FONT_PATH):
-        st.error(f"ERRO: Fonte DejaVu não encontrada no caminho: {FONT_PATH}")
+def write_styled_text(pdf, text):
+    parts = re.split(r'(\*\*.*?\*\*)', text)
+    for part in parts:
+        if not part: continue
+        if part.startswith('**') and part.endswith('**'):
+            pdf.set_font('DejaVu', 'B', 11) # Pede o estilo Negrito
+            pdf.write(8, part[2:-2])
+        else:
+            pdf.set_font('DejaVu', '', 11) # Pede o estilo Regular
+            pdf.write(8, part)
+
+def create_final_pdf(markdown_text, title):
+    # Verificação de segurança para AMBOS os arquivos de fonte
+    if not os.path.exists(FONT_PATH_REGULAR):
+        st.error(f"ERRO: Fonte Regular não encontrada em: {FONT_PATH_REGULAR}")
+        return None
+    if not os.path.exists(FONT_PATH_BOLD):
+        st.error(f"ERRO: Fonte Negrito não encontrada em: {FONT_PATH_BOLD}")
         return None
 
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
-    pdf.add_font('DejaVu', 'B', FONT_PATH, uni=True)
+    # --- REGISTRO CORRETO DAS FONTES ---
+    # Registra a fonte regular para o estilo '' (normal)
+    pdf.add_font('DejaVu', '', FONT_PATH_REGULAR, uni=True)
+    # Registra a fonte bold para o estilo 'B' (negrito)
+    pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
 
     # --- Título Principal ---
-    pdf.set_font('DejaVu', 'B', 22)
+    pdf.set_font('DejaVu', 'B', 22) # Pede o estilo Negrito
     pdf.multi_cell(0, 12, title, align='C', ln=True)
-    pdf.ln(10)
+
+    is_first_day = True
 
     # --- Processa o Roteiro ---
     for line in markdown_text.split('\n'):
@@ -99,49 +114,34 @@ def create_stylish_pdf(markdown_text, title):
         if not line: continue
 
         if line.startswith('## '):
-            pdf.ln(10)
-            pdf.set_font('DejaVu', 'B', 16)
+            if not is_first_day:
+                pdf.add_page()
+            is_first_day = False
+            
+            pdf.ln(5)
+            pdf.set_font('DejaVu', 'B', 16) # Pede o estilo Negrito
             pdf.set_fill_color(230, 230, 230)
             pdf.cell(0, 12, f" {line[3:]}", ln=True, fill=True)
             pdf.ln(5)
 
         elif line.startswith('### '):
-            pdf.set_font('DejaVu', 'B', 13)
+            pdf.set_font('DejaVu', 'B', 13) # Pede o estilo Negrito
             pdf.multi_cell(0, 7, line[4:], ln=True)
             pdf.ln(4)
 
         elif line.startswith('* ') or line.startswith('- '):
             text = line[2:]
             
-            pdf.cell(5) # Recuo
-            pdf.set_font('DejaVu', 'B', 11)
-            pdf.cell(5, 8, "•")
+            pdf.cell(5)
+            pdf.set_font('DejaVu', 'B', 11) # Pede o estilo Negrito
+            pdf.cell(5, 8, "• ")
 
-            # --- LÓGICA CORRIGIDA USANDO pdf.write() ---
-            if '**' in text and ':' in text:
-                parts = text.split(':', 1)
-                bold_part = parts[0].replace('**', '').strip() + ':'
-                regular_part = " " + parts[1].strip()
-                
-                # Escreve a parte em negrito
-                pdf.set_font('DejaVu', 'B', 11)
-                pdf.write(8, bold_part)
-                
-                # Escreve a parte normal na mesma linha
-                pdf.set_font('DejaVu', '', 11)
-                pdf.write(8, regular_part)
-                
-                # Pula para a próxima linha
-                pdf.ln()
-            else:
-                pdf.set_font('DejaVu', '', 11)
-                # Usa multi_cell aqui pois não há mudança de estilo na linha
-                pdf.multi_cell(0, 8, f" {text}", ln=True)
-            
+            write_styled_text(pdf, text)
+            pdf.ln()
             pdf.ln(3)
 
-        else: # Texto normal (parágrafos)
-            pdf.set_font('DejaVu', '', 11)
+        else: 
+            pdf.set_font('DejaVu', '', 11) # Pede o estilo Regular
             pdf.multi_cell(0, 7, line, ln=True)
             pdf.ln(3)
 
@@ -186,7 +186,7 @@ if roteiros:
                 st.divider()
 
                 pdf_title = f"{pais} {emojis}"
-                pdf_bytes = create_stylish_pdf(roteiro['texto'], pdf_title)
+                pdf_bytes = create_final_pdf(roteiro['texto'], pdf_title)
                 
                 if pdf_bytes:
                     st.download_button(
