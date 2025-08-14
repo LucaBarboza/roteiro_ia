@@ -69,7 +69,6 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
 FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
-FONT_PATH_ITALIC = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Oblique.ttf')
 
 st.title("Seus Roteiros")
 
@@ -88,8 +87,8 @@ def write_styled_text(pdf, text):
             pdf.write(7, part)
 
 def create_final_pdf(markdown_text, title):
-    if not all(os.path.exists(p) for p in [FONT_PATH_REGULAR, FONT_PATH_BOLD, FONT_PATH_ITALIC]):
-        st.error("ERRO: Faltando um ou mais arquivos de fonte (Regular, Bold, Italic).")
+    if not all(os.path.exists(p) for p in [FONT_PATH_REGULAR, FONT_PATH_BOLD):
+        st.error("ERRO: Faltando um ou mais arquivos de fonte (Regular, Bold).")
         return None
 
     pdf = FPDF()
@@ -100,7 +99,6 @@ def create_final_pdf(markdown_text, title):
 
     pdf.add_font('DejaVu', '', FONT_PATH_REGULAR, uni=True)
     pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
-    pdf.add_font('DejaVu', 'I', FONT_PATH_ITALIC, uni=True)
 
     pdf.set_font('DejaVu', 'B', 22)
     title_width = pdf.get_string_width(title)
