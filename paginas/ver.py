@@ -67,8 +67,10 @@ import re
 # Caminhos absolutos para as fontes
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+
 FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
 FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
+FONT_PATH_EMOJI = os.path.join(PROJECT_ROOT, 'arquivos', 'NotoColorEmoji.ttf')  # Fonte para emojis
 
 st.title("Seus Roteiros")
 
@@ -93,34 +95,40 @@ def create_production_pdf(markdown_text, title, emojis=""):
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=20)
 
+    # Registrando as fontes
     pdf.add_font('DejaVu', '', FONT_PATH_REGULAR, uni=True)
     pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
+    pdf.add_font('Emoji', '', FONT_PATH_EMOJI, uni=True)  # Fonte de emoji
 
-    # Aqui já insere emojis no título
+    # Título principal com emojis
     pdf.set_font('DejaVu', 'B', 22)
-    pdf.multi_cell(0, 12, f"{title} {emojis}", align='C', ln=True)
+    pdf.multi_cell(0, 12, title, align='C')
+    if emojis:
+        pdf.set_font('Emoji', '', 22)
+        pdf.multi_cell(0, 12, emojis, align='C')
     pdf.ln(15)
 
     is_first_day = True
     for line in markdown_text.split('\n'):
         line = line.strip()
-        if not line: continue
+        if not line: 
+            continue
 
         if line.startswith('## '):
             if not is_first_day:
                 pdf.add_page()
             is_first_day = False
-            
+
             pdf.ln(8)
             pdf.set_font('DejaVu', 'B', 16)
             pdf.set_fill_color(230, 230, 230)
             title_text = line[3:].replace('**', '')
-            pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
+            pdf.multi_cell(0, 12, f" {title_text} ", fill=True, align='C')
             pdf.ln(6)
 
         elif line.startswith('### '):
             pdf.set_font('DejaVu', 'B', 13)
-            pdf.multi_cell(0, 7, line[4:], ln=True, align='C')
+            pdf.multi_cell(0, 7, line[4:], align='C')
             pdf.ln(4)
 
         elif line.startswith('* ') or line.startswith('- '):
@@ -131,13 +139,12 @@ def create_production_pdf(markdown_text, title, emojis=""):
             write_styled_text(pdf, text)
             pdf.ln()
             pdf.ln(4)
-        else: 
+        else:
             pdf.set_font('DejaVu', '', 11)
-            pdf.multi_cell(0, 7, line, ln=True)
+            pdf.multi_cell(0, 7, line)
             pdf.ln(4)
 
     return bytes(pdf.output())
-
 
 @st.cache_resource
 def conectar_firebase():
@@ -153,7 +160,7 @@ colecao = 'usuarios2'
 doc = db.collection(colecao).document(st.user.email).get()
 dados = doc.to_dict() if doc.exists else {}
 roteiros = dados.get('roteiros', [])
-    
+
 if 'roteiro_aberto' not in st.session_state:
     st.session_state.roteiro_aberto = None
 
@@ -162,24 +169,25 @@ if roteiros:
         with st.container(border=True):
             pais = roteiro.get('pais', 'País Desconhecido')
             emojis = roteiro.get('emojis', '')
+
             st.subheader(f"{pais} {emojis}")
-            
+
             is_open = (st.session_state.roteiro_aberto == roteiro['pais'])
             button_label = "Fechar" if is_open else "Ver Roteiro"
-            
+
             if st.button(button_label, key=f"toggle_{roteiro['pais']}", use_container_width=True):
                 st.session_state.roteiro_aberto = None if is_open else roteiro['pais']
                 st.rerun()
-                
+
             if is_open:
                 st.header(f"📍  {pais} {emojis}")
                 st.markdown(roteiro['texto'])
                 st.divider()
 
                 pdf_title = pais
-                pdf_emojis = roteiro.get('emojis', '')
+                pdf_emojis = emojis
                 pdf_bytes = create_production_pdf(roteiro['texto'], pdf_title, pdf_emojis)
-                
+
                 if pdf_bytes:
                     st.download_button(
                         label="Baixar Roteiro em PDF 📄",
