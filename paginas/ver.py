@@ -79,9 +79,6 @@ def write_styled_text(pdf, text):
         if part.startswith('**') and part.endswith('**'):
             pdf.set_font('DejaVu', 'B', 11)
             pdf.write(7, part[2:-2])
-        elif part.startswith('*') and part.endswith('*'):
-            pdf.set_font('DejaVu', 'I', 11)
-            pdf.write(7, part[1:-1])
         else:
             pdf.set_font('DejaVu', '', 11)
             pdf.write(7, part)
