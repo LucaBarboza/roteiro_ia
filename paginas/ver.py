@@ -63,57 +63,80 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 from fpdf import FPDF
+import os
+
+# 1. Lógica para construir um caminho absoluto e seguro para a fonte
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+FONT_PATH = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
 
 st.title("Seus Roteiros")
 
-def sanitize_text(text):
-    return text.encode('latin-1', 'replace').decode('latin-1')
+def create_pdf_with_font(markdown_text, title):
+    """
+    Cria um PDF de alta qualidade usando a fonte DejaVu para suportar
+    todos os caracteres especiais e emojis.
+    """
+    # Verificação de segurança para o arquivo da fonte
+    if not os.path.exists(FONT_PATH):
+        st.error(f"ERRO: Fonte DejaVu não encontrada no caminho: {FONT_PATH}")
+        return None
 
-def create_pdf(markdown_text, title):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    pdf.set_font('Helvetica', 'B', 16)
-    pdf.cell(0, 10, sanitize_text(title), ln=True, align='C')
+    # 2. Adicionando a fonte DejaVu Unicode
+    pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
+    pdf.add_font('DejaVu', 'B', FONT_PATH, uni=True)
+
+    # --- Título Principal ---
+    pdf.set_font('DejaVu', 'B', 20)
+    # O texto agora é passado diretamente, sem sanitização
+    pdf.cell(0, 10, title, ln=True, align='C')
     pdf.ln(10)
 
+    # --- Processa o Roteiro Linha por Linha ---
     for line in markdown_text.split('\n'):
         line = line.strip()
         if not line:
             continue
         
         if line.startswith('## '):
-            pdf.set_font('Helvetica', 'B', 14)
-            pdf.write(8, sanitize_text(line[3:]))
+            pdf.set_font('DejaVu', 'B', 16)
+            pdf.write(8, line[3:])
             pdf.ln(12)
         elif line.startswith('### '):
-            pdf.set_font('Helvetica', 'B', 12)
-            pdf.write(8, sanitize_text(line[4:]))
+            pdf.set_font('DejaVu', 'B', 14)
+            pdf.write(8, line[4:])
             pdf.ln(10)
         elif line.startswith('* ') or line.startswith('- '):
             text = line[2:]
-            pdf.cell(5, 8, "*")
+            
+            # 3. Restaurando o bullet original "•"
+            pdf.cell(5, 8, "•")
+
             if '**' in text and ':' in text:
                 parts = text.split(':', 1)
                 bold_part = parts[0].replace('**', '').strip() + ':'
                 regular_part = parts[1].strip()
-                pdf.set_font('Helvetica', 'B', 10)
-                pdf.cell(pdf.get_string_width(sanitize_text(bold_part)) + 1, 8, sanitize_text(bold_part))
-                pdf.set_font('Helvetica', '', 10)
-                pdf.write(8, sanitize_text(regular_part))
+                
+                pdf.set_font('DejaVu', 'B', 12)
+                pdf.cell(pdf.get_string_width(bold_part) + 1, 8, bold_part)
+                
+                pdf.set_font('DejaVu', '', 12)
+                pdf.write(8, regular_part)
                 pdf.ln(10)
             else:
-                pdf.set_font('Helvetica', '', 10)
-                pdf.write(8, sanitize_text(text))
+                pdf.set_font('DejaVu', '', 12)
+                pdf.write(8, text)
                 pdf.ln(10)
         else:
-            pdf.set_font('Helvetica', '', 10)
-            pdf.write(8, sanitize_text(line))
+            pdf.set_font('DejaVu', '', 12)
+            pdf.write(8, line)
             pdf.ln(10)
 
-    # --- A CORREÇÃO FINAL ESTÁ AQUI ---
-    # Convertendo explicitamente a saída para o tipo 'bytes'
+    # 4. Mantendo a conversão para 'bytes' que resolveu o problema
     return bytes(pdf.output())
 
 
@@ -154,8 +177,9 @@ if roteiros:
                 st.markdown(roteiro['texto'])
                 st.divider()
 
-                pdf_title = pais
-                pdf_bytes = create_pdf(roteiro['texto'], pdf_title)
+                # 5. Voltando a usar os emojis no título do PDF
+                pdf_title = f"{pais} {emojis}"
+                pdf_bytes = create_pdf_with_font(roteiro['texto'], pdf_title)
                 
                 if pdf_bytes:
                     st.download_button(
