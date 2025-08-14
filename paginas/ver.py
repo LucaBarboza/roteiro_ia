@@ -186,7 +186,7 @@ if roteiros:
                 st.markdown(roteiro['texto'])
                 st.divider()
 
-                pdf_title = f"{pais} {emojis}"
+                pdf_title = f"{pais} {roteiro['emojis']}"
                 pdf_bytes = create_polished_pdf(roteiro['texto'], pdf_title)
                 
                 if pdf_bytes:
