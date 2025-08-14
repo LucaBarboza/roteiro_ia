@@ -65,36 +65,29 @@ import os
 
 st.title("Seus Roteiros")
 
-# --- NOVO: Função avançada para gerar PDF estilizado ---
+# --- NOVO: Função para sanitizar o texto e evitar quebras ---
+def sanitize_text(text):
+    """
+    Substitui caracteres problemáticos para evitar erros na geração do PDF.
+    """
+    return text.encode('latin-1', 'replace').decode('latin-1')
+
 def create_styled_pdf(markdown_text, title, font_path='arquivos/DejaVuSans.ttf'):
-    """
-    Cria um arquivo PDF com estilo a partir de um texto Markdown,
-    replicando o formato da imagem fornecida.
-
-    Args:
-        markdown_text (str): O conteúdo do roteiro em formato Markdown.
-        title (str): O título principal do documento.
-        font_path (str): O caminho para o arquivo de fonte .ttf.
-
-    Returns:
-        bytes: O conteúdo do PDF gerado como bytes.
-    """
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # Verifica se o arquivo de fonte existe antes de adicioná-lo
     if not os.path.exists(font_path):
         st.error(f"Arquivo de fonte não encontrado em: {font_path}. Faça o download e adicione ao projeto.")
         return None
 
-    # Adiciona a fonte Unicode (essencial para emojis e caracteres especiais)
     pdf.add_font('DejaVu', '', font_path, uni=True)
-    pdf.add_font('DejaVu', 'B', font_path, uni=True)  # Estilo Negrito
+    pdf.add_font('DejaVu', 'B', font_path, uni=True)
 
     # --- Título Principal ---
     pdf.set_font('DejaVu', 'B', 20)
-    pdf.cell(0, 10, title, ln=True, align='C')
+    # APLICANDO A SANITIZAÇÃO
+    pdf.cell(0, 10, sanitize_text(title), ln=True, align='C')
     pdf.ln(10)
 
     # --- Processa o Roteiro Linha por Linha ---
@@ -102,53 +95,46 @@ def create_styled_pdf(markdown_text, title, font_path='arquivos/DejaVuSans.ttf')
         line = line.strip()
         if not line:
             continue
-
+        
+        # APLICANDO A SANITIZAÇÃO EM TODAS AS SAÍDAS DE TEXTO
         if line.startswith('## '):
-            # Título do Dia (ex: ## Dia 1: ...) -> Fonte Grande e Negrito
             pdf.set_font('DejaVu', 'B', 16)
-            pdf.multi_cell(0, 8, line[3:])
+            pdf.multi_cell(0, 8, sanitize_text(line[3:]))
             pdf.ln(4)
         elif line.startswith('### '):
-            # Subtítulo (ex: ### Visão Geral) -> Fonte Média e Negrito
             pdf.set_font('DejaVu', 'B', 14)
-            pdf.multi_cell(0, 7, line[4:])
+            pdf.multi_cell(0, 7, sanitize_text(line[4:]))
             pdf.ln(3)
         elif line.startswith('* ') or line.startswith('- '):
-            # Item de lista (ex: * Atividade...)
             text = line[2:]
             
-            # Adiciona o símbolo de bullet manualmente
             pdf.set_font('DejaVu', 'B', 12)
             pdf.cell(5, 8, "•")
 
-            # Verifica se há uma parte em negrito (ex: **Foco:** texto)
             if '**' in text and ':' in text:
                 parts = text.split(':', 1)
                 bold_part = parts[0].replace('**', '').strip() + ':'
                 regular_part = parts[1].strip()
                 
-                # Escreve a parte em negrito
                 pdf.set_font('DejaVu', 'B', 12)
-                pdf.cell(pdf.get_string_width(bold_part) + 1, 8, bold_part)
+                pdf.cell(pdf.get_string_width(sanitize_text(bold_part)) + 1, 8, sanitize_text(bold_part))
                 
-                # Escreve o resto da linha com fonte normal
                 pdf.set_font('DejaVu', '', 12)
-                pdf.multi_cell(0, 8, regular_part)
+                pdf.multi_cell(0, 8, sanitize_text(regular_part)) # O ponto exato do erro anterior
             else:
-                # Caso não tenha negrito, escreve a linha inteira normal
                 pdf.set_font('DejaVu', '', 12)
-                pdf.multi_cell(0, 8, text)
+                pdf.multi_cell(0, 8, sanitize_text(text))
             pdf.ln(2)
         else:
-            # Parágrafo de texto normal
             pdf.set_font('DejaVu', '', 12)
-            pdf.multi_cell(0, 8, line)
+            pdf.multi_cell(0, 8, sanitize_text(line))
             pdf.ln(2)
 
     return pdf.output()
 
 
-# --- Conexão com Firebase (código original sem alterações) ---
+# --- O restante do arquivo permanece exatamente o mesmo ---
+
 @st.cache_resource
 def conectar_firebase():
     try:
@@ -190,7 +176,6 @@ if roteiros:
                 st.markdown(roteiro['texto'])
                 st.divider()
 
-                # --- Lógica e Botão de Download (usando a nova função) ---
                 pdf_title = f"{pais} {emojis}"
                 pdf_bytes = create_styled_pdf(roteiro['texto'], pdf_title)
                 
