@@ -70,7 +70,8 @@ PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 
 FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
 FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
-FONT_PATH_EMOJI = os.path.join(PROJECT_ROOT, 'arquivos', 'NotoEmoji.ttf')  # Fonte para emojis (PB)
+FONT_PATH_EMOJI_COLOR = os.path.join(PROJECT_ROOT, 'arquivos', 'NotoColorEmoji.ttf')
+FONT_PATH_EMOJI_BW = os.path.join(PROJECT_ROOT, 'arquivos', 'NotoEmoji.ttf')  # Fallback PB
 
 st.title("Seus Roteiros")
 
@@ -94,17 +95,22 @@ def create_production_pdf(markdown_text, title, emojis=""):
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=20)
 
-    # Registrando as fontes
+    # Adiciona fontes padrão
     pdf.add_font('DejaVu', '', FONT_PATH_REGULAR, uni=True)
     pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
-    pdf.add_font('Emoji', '', FONT_PATH_EMOJI, uni=True)  # Fonte de emoji PB
 
-    # Título principal com emojis
+    # Tenta adicionar fonte de emoji colorida, se falhar usa preto e branco
+    try:
+        pdf.add_font('Emoji', '', FONT_PATH_EMOJI_COLOR, uni=True)
+        font_emoji = 'Emoji'
+    except Exception:
+        pdf.add_font('Emoji', '', FONT_PATH_EMOJI_BW, uni=True)
+        font_emoji = 'Emoji'
+
+    # Título + emojis na mesma célula
     pdf.set_font('DejaVu', 'B', 22)
-    if emojis:
-        pdf.multi_cell(0, 12, f"{title} {emojis}", align='C')
-    else:
-        pdf.multi_cell(0, 12, title, align='C')
+    titulo_completo = f"{title} {emojis}" if emojis else title
+    pdf.multi_cell(0, 12, titulo_completo, align='C')
     pdf.ln(15)
 
     is_first_day = True
