@@ -86,8 +86,7 @@ def write_styled_text(pdf, text):
             pdf.set_font('DejaVu', '', 11)
             pdf.write(7, part)
 
-def create_production_pdf(markdown_text, title):
-
+def create_production_pdf(markdown_text, title, emojis=""):
     pdf = FPDF()
     pdf.set_left_margin(20)
     pdf.set_right_margin(20)
@@ -97,8 +96,9 @@ def create_production_pdf(markdown_text, title):
     pdf.add_font('DejaVu', '', FONT_PATH_REGULAR, uni=True)
     pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
 
+    # Aqui já insere emojis no título
     pdf.set_font('DejaVu', 'B', 22)
-    pdf.multi_cell(0, 12, title, align='C', ln=True)
+    pdf.multi_cell(0, 12, f"{title} {emojis}", align='C', ln=True)
     pdf.ln(15)
 
     is_first_day = True
@@ -176,10 +176,9 @@ if roteiros:
                 st.markdown(roteiro['texto'])
                 st.divider()
 
-                # --- MODIFICAÇÃO FINAL ---
-                # Usamos apenas o nome do país como título para garantir 100% de estabilidade
                 pdf_title = pais
-                pdf_bytes = create_production_pdf(roteiro['texto'], pdf_title)
+                pdf_emojis = roteiro.get('emojis', '')
+                pdf_bytes = create_production_pdf(roteiro['texto'], pdf_title, pdf_emojis)
                 
                 if pdf_bytes:
                     st.download_button(
