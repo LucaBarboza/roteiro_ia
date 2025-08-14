@@ -70,7 +70,7 @@ PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 
 FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
 FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
-FONT_PATH_EMOJI = os.path.join(PROJECT_ROOT, 'arquivos', 'NotoColorEmoji.ttf')  # Fonte para emojis
+FONT_PATH_EMOJI = os.path.join(PROJECT_ROOT, 'arquivos', 'NotoEmoji.ttf')  # Fonte para emojis
 
 st.title("Seus Roteiros")
 
