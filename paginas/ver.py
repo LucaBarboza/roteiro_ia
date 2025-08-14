@@ -190,7 +190,6 @@ if roteiros:
                 st.rerun()
             
             # As colunas são definidas aqui
-            col1, col2, col3, col4 = st.columns([2, 1, 1, 0.8])
 
             # O conteúdo do roteiro e o botão de download aparecem se estiver aberto
             if is_open:
@@ -202,7 +201,9 @@ if roteiros:
                 # A função de criar PDF foi renomeada nas nossas conversas, 
                 # use o nome correto que está no seu código (ex: create_final_pdf)
                 pdf_bytes = create_final_pdf(roteiro['texto'], pdf_title)
-                
+            
+            col1, col2, col3, col4 = st.columns([2, 1, 1, 0.8])
+
                 # O botão de download vai na primeira coluna
                 with col1:
                     if pdf_bytes:
