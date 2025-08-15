@@ -5,6 +5,7 @@ from datetime import datetime
 import google.generativeai as genai
 import firebase_admin
 from firebase_admin import credentials, firestore
+from funcoes import conectar_firebase
 
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
@@ -143,13 +144,6 @@ async def gerar_roteiro_completo(pais, dias):
 
 ###################
 @st.cache_resource
-def conectar_firebase():
-    try:
-        firebase_admin.get_app()
-    except ValueError:
-        cred = credentials.Certificate(dict(st.secrets["firebase"]))
-        firebase_admin.initialize_app(cred)
-    return firestore.client()
 
 db = conectar_firebase()
 colecao = 'usuarios2'
