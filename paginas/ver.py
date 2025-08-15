@@ -216,7 +216,6 @@ def render_text_as_image(text, font_size_px):
     try:
         font = ImageFont.truetype(FONT_PATH_EMOJI, font_size_px)
     except IOError:
-        # Se a fonte não for encontrada, retorna None para evitar erros
         return None, 0
 
     bbox = font.getbbox(text)
@@ -227,7 +226,11 @@ def render_text_as_image(text, font_size_px):
 
     img = Image.new('RGBA', (image_width, image_height), (255, 255, 255, 0))
     draw = ImageDraw.Draw(img)
-    draw.text((0, 0), text, font=font, fill=(0, 0, 0), embedded_color=True)
+
+    # --- CORREÇÃO APLICADA AQUI ---
+    # Removemos o parâmetro 'embedded_color=True' para máxima compatibilidade
+    # O emoji pode aparecer em preto e branco, mas isso evita o erro.
+    draw.text((0, 0), text, font=font, fill=(0, 0, 0))
 
     buffer = BytesIO()
     img.save(buffer, 'PNG')
