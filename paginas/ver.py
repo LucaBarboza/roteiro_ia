@@ -177,6 +177,17 @@
 # else:
 #     st.info("Você ainda não criou nenhum roteiro de viagem.")
 
+Olá! Peço desculpas que, mesmo após tantas tentativas, o resultado ainda não está perfeito. A ausência dos emojis, depois de todo esse trabalho, é frustrante.
+
+Analisei o código novamente e acredito que a causa do problema é um detalhe técnico na forma como a biblioteca de imagens (Pillow) escolhe a fonte para desenhar o texto. Ela está tentando usar a fonte de texto normal (Noto Sans) e não encontra os emojis nela, falhando em vez de usar a fonte de emojis que fornecemos.
+
+Vamos simplificar e forçar o uso da fonte correta. A abordagem será a seguinte: para qualquer linha que contenha um emoji, vamos desenhá-la inteiramente com a fonte NotoColorEmoji. Isso garante que o emoji seja renderizado. Para as linhas sem emojis, continuamos usando o método rápido e normal do fpdf.
+
+Código Corrigido
+Por favor, substitua as suas funções de criação de PDF por este bloco de código completo. Ele contém a lógica refinada.
+
+Python
+
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -187,88 +198,64 @@ import re
 import os
 
 # --- CONFIGURAÇÃO DE ARQUIVOS E FONTES ---
-# Usando as fontes Noto para melhor compatibilidade
 FONT_DIR = 'arquivos'
 FONT_PATH_REGULAR = os.path.join(FONT_DIR, 'NotoSans-Regular.ttf')
 FONT_PATH_BOLD = os.path.join(FONT_DIR, 'NotoSans-Bold.ttf')
 FONT_PATH_EMOJI = os.path.join(FONT_DIR, 'NotoColorEmoji-Regular.ttf')
 
-st.title("Seus Roteiros")
-
 # --- FUNÇÕES AUXILIARES PARA O PDF ---
 
 def contains_emoji(text):
     """Verifica se um texto contém caracteres emoji."""
-    # Regex simples para pegar a maioria dos emojis comuns
     emoji_pattern = re.compile(
         "["
         "\U0001F600-\U0001F64F"  # emoticons
         "\U0001F300-\U0001F5FF"  # symbols & pictographs
         "\U0001F680-\U0001F6FF"  # transport & map symbols
-        "\U0001F700-\U0001F77F"  # alchemical symbols
-        "\U0001F780-\U0001F7FF"  # Geometric Shapes Extended
-        "\U0001F800-\U0001F8FF"  # Supplemental Arrows-C
         "\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
-        "\U0001FA00-\U0001FA6F"  # Chess Symbols
-        "\U0001FA70-\U0001FAFF"  # Symbols and Pictographs Extended-A
         "\U00002702-\U000027B0"  # Dingbats
-        "\U000024C2-\U0001F251" 
         "]+",
         flags=re.UNICODE,
     )
     return emoji_pattern.search(text)
 
-def render_text_as_image(text, font_path, font_size_px, is_bold=False):
-    """Renderiza uma linha de texto em uma imagem PNG com fundo transparente."""
-    font_to_use = FONT_PATH_BOLD if is_bold else font_path
+def render_text_as_image(text, font_size_px):
+    """
+    Renderiza uma linha de texto em uma imagem PNG.
+    Usa SEMPRE a fonte NotoColorEmoji para garantir que os emojis apareçam.
+    """
     try:
-        # Usamos a fonte de Emoji como base e a Pillow se encarrega de usar as outras se precisar
         font = ImageFont.truetype(FONT_PATH_EMOJI, font_size_px)
-        text_font = ImageFont.truetype(font_to_use, font_size_px)
-    except IOError as e:
-        st.error(f"Erro ao carregar fonte: {e}")
-        return None
+    except IOError:
+        # Se a fonte não for encontrada, retorna None para evitar erros
+        return None, 0
 
-    # Calcula o tamanho da imagem
-    bbox = text_font.getbbox(text)
+    bbox = font.getbbox(text)
     image_width, image_height = bbox[2], bbox[3]
-    if image_width == 0 or image_height == 0: return None
+
+    if image_width == 0 or image_height == 0:
+        return None, 0
 
     img = Image.new('RGBA', (image_width, image_height), (255, 255, 255, 0))
     draw = ImageDraw.Draw(img)
-    draw.text((0, 0), text, font=text_font, fill=(0, 0, 0))
+    draw.text((0, 0), text, font=font, fill=(0, 0, 0), embedded_color=True)
 
     buffer = BytesIO()
     img.save(buffer, 'PNG')
     buffer.seek(0)
     return buffer, image_width
 
-def write_line(pdf, text, font_size_pt, is_bold=False, is_multicell=False, align='L'):
-    """Escreve uma linha no PDF, usando imagem se tiver emoji, ou texto normal caso contrário."""
-    if contains_emoji(text):
-        font_size_px = int(font_size_pt * 1.33) # Conversão aproximada pt -> px
-        img_buffer, img_width_px = render_text_as_image(text, FONT_PATH_REGULAR, font_size_px, is_bold)
-        
-        if img_buffer:
-            img_width_mm = (img_width_px / 1.33) * 0.352778
-            img_height_mm = font_size_pt * 0.352778
+def write_styled_text(pdf, text, height):
+    """Processa e escreve texto com múltiplos estilos (negrito) SEM emojis."""
+    parts = re.split(r'(\*\*.*?\*\*)', text)
+    for part in parts:
+        if not part: continue
+        is_bold = part.startswith('**') and part.endswith('**')
+        clean_part = part[2:-2] if is_bold else part
+        pdf.set_font('NotoSans', 'B' if is_bold else '', 11)
+        pdf.write(height, clean_part)
 
-            # Centraliza se necessário
-            x_pos = pdf.get_x()
-            if align == 'C':
-                x_pos = (pdf.w - pdf.l_margin - pdf.r_margin - img_width_mm) / 2 + pdf.l_margin
-
-            pdf.image(img_buffer, x=x_pos, h=img_height_mm)
-            pdf.ln(img_height_mm + (2 if is_multicell else 0))
-    else:
-        font_style = 'B' if is_bold else ''
-        pdf.set_font('NotoSans', font_style, font_size_pt)
-        if is_multicell:
-            pdf.multi_cell(0, font_size_pt * 0.5, text, align=align, ln=True)
-        else:
-            pdf.write(font_size_pt * 0.5, text)
-
-# --- FUNÇÃO PRINCIPAL DE CRIAÇÃO DO PDF (BASEADA NO SEU CÓDIGO) ---
+# --- FUNÇÃO PRINCIPAL DE CRIAÇÃO DO PDF (BASEADA NO SEU CÓDIGO ORIGINAL) ---
 def create_final_pdf(markdown_text, title, emoji):
     pdf = FPDF()
     pdf.set_margins(20, 20, 20)
@@ -278,10 +265,18 @@ def create_final_pdf(markdown_text, title, emoji):
     pdf.add_font('NotoSans', 'B', FONT_PATH_BOLD)
     pdf.add_page()
 
-    # Título principal (com emoji)
-    write_line(pdf, f"{title} {emoji}", 22, is_bold=True, is_multicell=True, align='C')
-    pdf.ln(10)
+    # --- Título principal (com emoji) ---
+    title_with_emoji = f"{title} {emoji}"
+    font_size_pt = 22
+    font_size_px = int(font_size_pt * 1.33)
+    img_buffer, img_width_px = render_text_as_image(title_with_emoji, font_size_px)
+    if img_buffer:
+        img_width_mm = (img_width_px / 1.33) * 0.352778
+        x_pos = (pdf.w - pdf.l_margin - pdf.r_margin - img_width_mm) / 2 + pdf.l_margin
+        pdf.image(img_buffer, x=x_pos, h=font_size_pt * 0.35)
+    pdf.ln(15)
 
+    # --- Corpo do Roteiro ---
     is_first_day = True
     for line in markdown_text.split('\n'):
         line = line.strip()
@@ -305,23 +300,34 @@ def create_final_pdf(markdown_text, title, emoji):
 
         elif line.startswith('* ') or line.startswith('- '):
             text = line[2:]
-            pdf.set_x(25) # Recuo
+            line_height = 7
+            pdf.set_x(25)
             pdf.set_font('NotoSans', 'B', 11)
-            pdf.cell(5, 7, "• ")
+            pdf.cell(5, line_height, "• ")
             
-            # Divide em partes negrito/normal
-            parts = re.split(r'(\*\*.*?\*\*)', text)
-            for part in parts:
-                if not part: continue
-                is_bold_part = part.startswith('**') and part.endswith('**')
-                clean_part = part[2:-2] if is_bold_part else part
-                write_line(pdf, clean_part, 11, is_bold=is_bold_part)
-            pdf.ln(8)
+            if contains_emoji(text):
+                font_size_px = int(11 * 1.33)
+                img_buffer, img_width_px = render_text_as_image(text, font_size_px)
+                if img_buffer:
+                    img_width_mm = (img_width_px / 1.33) * 0.352778
+                    pdf.image(img_buffer, y=pdf.get_y(), h=line_height)
+                pdf.ln(line_height + 1)
+            else:
+                write_styled_text(pdf, text, line_height)
+                pdf.ln(line_height + 1)
 
         else: 
-            pdf.set_font('NotoSans', '', 11)
-            pdf.multi_cell(0, 7, line, ln=True)
-            pdf.ln(4)
+            if contains_emoji(line):
+                font_size_px = int(11 * 1.33)
+                img_buffer, img_width_px = render_text_as_image(line, font_size_px)
+                if img_buffer:
+                    img_width_mm = (img_width_px / 1.33) * 0.352778
+                    pdf.image(img_buffer, h=7)
+                pdf.ln(8)
+            else:
+                pdf.set_font('NotoSans', '', 11)
+                pdf.multi_cell(0, 7, line, ln=True)
+                pdf.ln(4)
 
     return bytes(pdf.output())
 
