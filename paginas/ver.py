@@ -191,52 +191,47 @@ st.title("Seus Roteiros de Viagem 🗺️")
 # --- FUNÇÃO DE GERAÇÃO DE PDF ATUALIZADA PARA WEASYPRINT ---
 def create_final_pdf(markdown_text, title, emoji):
     """
-    Cria um PDF com emojis coloridos usando WeasyPrint. Inclui um
-    pré-processador de Markdown para garantir uma estrutura de lista consistente.
+    Cria um PDF com emojis coloridos usando WeasyPrint e um CSS específico
+    para replicar o layout de referência.
     """
-    # --- INÍCIO DO PRÉ-PROCESSAMENTO DO MARKDOWN ---
-    processed_lines = []
-    for line in markdown_text.split('\n'):
-        stripped_line = line.strip()
-        # Mantém os títulos de dia (##) e ignora linhas vazias
-        if stripped_line.startswith('## '):
-            processed_lines.append(stripped_line)
-        elif stripped_line: # Se a linha não estiver vazia...
-            # Remove marcadores de subtítulo (###) se existirem
-            if stripped_line.startswith('### '):
-                stripped_line = stripped_line[4:]
-            # Garante que a linha se torne um item de lista
-            processed_lines.append(f'* {stripped_line}')
-
-    # Junta as linhas processadas de volta em um único texto
-    processed_markdown = '\n'.join(processed_lines)
-    # --- FIM DO PRÉ-PROCESSAMENTO ---
-
-    # Converte o texto JÁ PROCESSADO para HTML
-    html_body = markdown2.markdown(processed_markdown, extras=["break-on-newline"])
+    # O texto original é usado, sem pré-processamento
+    html_body = markdown2.markdown(markdown_text, extras=["break-on-newline"])
 
     html_string = f"""
     <html>
     <head>
         <meta charset="UTF-8">
         <style>
-            /* --- CSS FINAL E SIMPLIFICADO --- */
+            /* --- CSS FINAL PARA O ESTILO DE REFERÊNCIA --- */
             @page {{
                 margin: 1in;
             }}
             body {{
                 font-family: 'Noto Serif', 'Noto Color Emoji', serif;
                 font-size: 12pt;
-                line-height: 1.5; /* Um pouco mais de espaço para leitura */
+                line-height: 1.4;
                 color: #000;
             }}
 
+            /* --- CONTROLE DE PAGINAÇÃO (Mantido) --- */
+            h2 {{
+                page-break-before: always;
+                page-break-after: avoid;
+            }}
+            h2:first-of-type {{
+                page-break-before: auto;
+            }}
+            p, ul {{
+                widows: 2;
+                orphans: 2;
+            }}
+
+            /* --- ESTILOS DOS ELEMENTOS PARA IMITAR O PDF (18) --- */
             h1 {{
                 font-size: 24pt;
                 font-weight: bold;
                 text-align: center;
                 margin-bottom: 25px;
-                page-break-after: avoid;
             }}
             h2 {{
                 font-size: 16pt;
@@ -244,28 +239,38 @@ def create_final_pdf(markdown_text, title, emoji):
                 text-align: center;
                 margin-top: 0;
                 margin-bottom: 20px;
-                page-break-before: always;
-                page-break-after: avoid;
-            }}
-            h2:first-of-type {{
-                page-break-before: auto;
             }}
 
-            /* Agora só precisamos estilizar a lista, pois tudo virou uma! */
+            /* Estilo para o 'Foco:' (que é um H3 no Markdown) */
+            h3 {{
+                font-size: 12pt; /* Mesmo tamanho do texto normal */
+                font-weight: normal; /* Sem negrito extra, o 'strong' cuidará disso se houver */
+                margin: 16px 0;
+                padding-left: 1.5em;
+                text-indent: -1.5em;
+            }}
+            /* Adiciona o bullet APENAS ao H3 (Foco:) e aos LIs (itens de lista) */
+            h3::before, li::before {{
+                content: '•  ';
+            }}
+
+            /* Parágrafos normais (sem bullet) */
+            p {{
+                 margin-bottom: 12px;
+            }}
+
+            /* Configuração da lista de bullets */
             ul {{
-                padding-left: 0; /* Removemos o recuo padrão da lista */
-                list-style-type: none; /* Removemos o bullet padrão */
+                padding-left: 0;
+                list-style-type: none;
+                margin: 16px 0;
             }}
             li {{
                 margin-bottom: 12px;
-                padding-left: 1.5em; /* Criamos nosso próprio recuo */
-                text-indent: -1.5em; /* Puxa o bullet para fora, alinhando o texto */
+                padding-left: 1.5em;
+                text-indent: -1.5em;
             }}
-            /* Adicionamos nosso bullet personalizado via CSS */
-            li::before {{
-                content: '•  ';
-                font-size: 12pt; /* Garante que o bullet tenha o mesmo tamanho do texto */
-            }}
+
             strong {{
                 font-weight: bold;
             }}
