@@ -191,55 +191,78 @@ st.title("Seus Roteiros de Viagem 🗺️")
 # --- FUNÇÃO DE GERAÇÃO DE PDF ATUALIZADA PARA WEASYPRINT ---
 def create_final_pdf(markdown_text, title, emoji):
     """
-    Cria um PDF com emojis coloridos usando a biblioteca WeasyPrint,
-    que possui um motor de renderização superior.
+    Cria um PDF com emojis coloridos usando WeasyPrint e CSS aprimorado
+    para um layout profissional.
     """
     html_body = markdown2.markdown(markdown_text, extras=["break-on-newline"])
 
-    # O CSS é praticamente o mesmo, mas agora ele usará as fontes instaladas
-    # no sistema pelo arquivo packages.txt
     html_string = f"""
     <html>
     <head>
         <meta charset="UTF-8">
         <style>
+            /* --- CSS APRIMORADO PARA UM LAYOUT PROFISSIONAL --- */
+
             body {{
                 font-family: 'Noto Sans', 'Noto Color Emoji', sans-serif;
                 margin: 1in;
                 font-size: 11pt;
-                line-height: 1.5;
+                line-height: 1.6; /* Aumenta o espaço entre linhas para melhor leitura */
+                color: #333; /* Cinza escuro é mais suave para os olhos que preto puro */
             }}
+
+            /* --- CONTROLE DE LAYOUT E PAGINAÇÃO --- */
+            h2 {{
+                /* A regra mágica: todo título de "Dia" começará em uma página nova */
+                page-break-before: always;
+                /* Evita que a página quebre logo depois de um título */
+                page-break-after: avoid;
+            }}
+            p, ul {{
+                /* Evita que uma única linha de um parágrafo fique isolada
+                   no início ou no fim de uma página (viúvas e órfãs) */
+                widows: 2;
+                orphans: 2;
+            }}
+
+            /* --- ESTILOS DOS ELEMENTOS --- */
             h1 {{
-                font-size: 22pt;
+                font-size: 26pt; /* Um pouco maior para mais destaque */
                 font-weight: 700;
                 text-align: center;
-                margin-bottom: 15px;
+                color: #000;
+                margin-bottom: 25px;
+                page-break-after: avoid;
             }}
             h2 {{
-                font-size: 16pt;
+                font-size: 18pt;
                 font-weight: 700;
-                background-color: #E6E6E6;
                 text-align: center;
-                padding: 12px;
-                margin-top: 12px;
-                margin-bottom: 6px;
-                border-radius: 5px;
+                color: #111;
+                margin-top: 0; /* Como está no topo da pág, não precisa de margem */
+                margin-bottom: 30px; /* Mais espaço depois do título do dia */
+                padding-bottom: 10px; /* Espaço entre o texto e a linha */
+                /* Uma linha divisória elegante no lugar do fundo cinza */
+                border-bottom: 2px solid #E6E6E6;
             }}
             h3 {{
-                font-size: 13pt;
+                font-size: 14pt;
                 font-weight: 700;
-                text-align: center;
-                margin-bottom: 4px;
+                text-align: left; /* Alinhado à esquerda para subtítulos fica mais legível */
+                color: #111;
+                margin-top: 24px; /* Mais espaço antes de cada subtítulo */
+                margin-bottom: 8px;
             }}
             ul {{
                 padding-left: 25px;
-                list-style-type: disc;
+                list-style-type: '•  '; /* Bullet personalizado com mais espaço */
             }}
             li {{
-                margin-bottom: 8px;
+                margin-bottom: 10px; /* Mais espaço entre os itens da lista */
+                padding-left: 5px;
             }}
             p {{
-                 margin-bottom: 8px;
+                 margin-bottom: 12px;
             }}
             strong {{
                 font-weight: 700;
@@ -254,7 +277,6 @@ def create_final_pdf(markdown_text, title, emoji):
     """
 
     try:
-        # A mágica da WeasyPrint: converte o HTML para PDF em memória
         pdf_bytes = HTML(string=html_string).write_pdf()
         return pdf_bytes
     except Exception as e:
