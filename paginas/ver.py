@@ -191,25 +191,39 @@ st.title("Seus Roteiros de Viagem 🗺️")
 def create_final_pdf(markdown_text, title):
     """
     Cria um PDF com emojis coloridos convertendo Markdown para HTML e depois para PDF.
+    VERSÃO CORRIGIDA: Usa @font-face para máxima compatibilidade.
     """
-    # Converte o texto Markdown para HTML. O extra 'break-on-newline' ajuda
-    # a manter as quebras de linha como no texto original.
     html_body = markdown2.markdown(markdown_text, extras=["break-on-newline"])
 
     # Monta um documento HTML completo com CSS para estilização
-    # O CSS importa a fonte Noto Color Emoji para garantir que os emojis apareçam coloridos
     html_string = f"""
     <html>
     <head>
         <meta charset="UTF-8">
         <style>
-            /* Importa fontes do Google: Noto Sans para texto e Noto Color Emoji para emojis */
-            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Color+Emoji&display=swap');
+            /* --- INÍCIO DA CORREÇÃO --- */
+            /* Define as fontes explicitamente com @font-face em vez de @import */
+            @font-face {{
+                font-family: 'Noto Sans';
+                src: url(https://fonts.gstatic.com/s/notosans/v36/o-0IIpQlx3QUlC5A4PNb6RSCzyNA.woff2) format('woff2');
+                font-weight: 400;
+                font-style: normal;
+            }}
+            @font-face {{
+                font-family: 'Noto Sans';
+                src: url(https://fonts.gstatic.com/s/notosans/v36/o-0NIpQlx3QUlC5A4PNjXhFlY9aA5Q.woff2) format('woff2');
+                font-weight: 700;
+                font-style: normal;
+            }}
+            @font-face {{
+                font-family: 'Noto Color Emoji';
+                src: url(https://fonts.gstatic.com/s/notocoloremoji/v28/Yq6P-KqIXTD0J4-d9TM1kD0Y6_z9lQ.woff2) format('woff2');
+            }}
+            /* --- FIM DA CORREÇÃO --- */
 
-            /* Define a fonte para todo o documento, com fallback */
             body {{
                 font-family: 'Noto Sans', 'Noto Color Emoji', sans-serif;
-                margin: 1in; /* Equivalente às margens de 20mm */
+                margin: 1in;
                 font-size: 11pt;
                 line-height: 1.5;
             }}
@@ -222,7 +236,7 @@ def create_final_pdf(markdown_text, title):
             h2 {{
                 font-size: 16pt;
                 font-weight: 700;
-                background-color: #E6E6E6; /* Cinza claro */
+                background-color: #E6E6E6;
                 text-align: center;
                 padding: 12px;
                 margin-top: 12px;
@@ -237,7 +251,7 @@ def create_final_pdf(markdown_text, title):
             }}
             ul {{
                 padding-left: 25px;
-                list-style-type: '• '; /* Usa um bullet similar ao que você tinha */
+                list-style-type: disc; /* Usando um estilo padrão e seguro */
             }}
             li {{
                 margin-bottom: 8px;
@@ -246,7 +260,7 @@ def create_final_pdf(markdown_text, title):
                  margin-bottom: 8px;
             }}
             strong {{
-                font-weight: 700; /* Garante que o negrito (**) seja aplicado */
+                font-weight: 700;
             }}
         </style>
     </head>
@@ -257,18 +271,17 @@ def create_final_pdf(markdown_text, title):
     </html>
     """
 
-    # Cria o PDF em memória
     result = BytesIO()
     pdf = pisa.CreatePDF(
-        BytesIO(html_string.encode("UTF-8")), # O HTML de origem
-        dest=result,                          # O objeto de destino (em memória)
+        BytesIO(html_string.encode("UTF-8")),
+        dest=result,
         encoding='UTF-8'
     )
 
-    # Retorna os bytes do PDF se não houver erro
     if not pdf.err:
         return result.getvalue()
     else:
+        # Log do erro para depuração
         st.error(f"Ocorreu um erro ao gerar o PDF: {pdf.err}")
         return None
 
