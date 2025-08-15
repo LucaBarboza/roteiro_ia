@@ -180,148 +180,95 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
-from fpdf import FPDF
-from PIL import Image, ImageDraw, ImageFont
-from io import BytesIO
-import re
-import os
+import markdown2
+from weasyprint import HTML
 
-# --- CONFIGURAÇÃO DE ARQUIVOS E FONTES ---
-FONT_DIR = 'arquivos'
-FONT_PATH_REGULAR = os.path.join(FONT_DIR, 'NotoSans-Regular.ttf')
-FONT_PATH_BOLD = os.path.join(FONT_DIR, 'NotoSans-Bold.ttf')
-FONT_PATH_EMOJI = os.path.join(FONT_DIR, 'NotoColorEmoji-Regular.ttf')
-
-# --- FUNÇÕES AUXILIARES PARA O PDF ---
-
-def contains_emoji(text):
-    """Verifica se um texto contém caracteres emoji."""
-    emoji_pattern = re.compile(
-        "["
-        "\U0001F600-\U0001F64F"  # emoticons
-        "\U0001F300-\U0001F5FF"  # symbols & pictographs
-        "\U0001F680-\U0001F6FF"  # transport & map symbols
-        "\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
-        "\U00002702-\U000027B0"  # Dingbats
-        "]+",
-        flags=re.UNICODE,
-    )
-    return emoji_pattern.search(text)
-
-def render_text_as_image(text, font_size_px):
-    """
-    Renderiza uma linha de texto em uma imagem PNG.
-    Usa SEMPRE a fonte NotoColorEmoji para garantir que os emojis apareçam.
-    """
-    try:
-        font = ImageFont.truetype(FONT_PATH_EMOJI, font_size_px)
-    except IOError:
-        return None, 0
-
-    bbox = font.getbbox(text)
-    image_width, image_height = bbox[2], bbox[3]
-
-    if image_width == 0 or image_height == 0:
-        return None, 0
-
-    img = Image.new('RGBA', (image_width, image_height), (255, 255, 255, 0))
-    draw = ImageDraw.Draw(img)
-
-    # --- CORREÇÃO APLICADA AQUI ---
-    # Removemos o parâmetro 'embedded_color=True' para máxima compatibilidade
-    # O emoji pode aparecer em preto e branco, mas isso evita o erro.
-    draw.text((0, 0), text, font=font, fill=(0, 0, 0))
-
-    buffer = BytesIO()
-    img.save(buffer, 'PNG')
-    buffer.seek(0)
-    return buffer, image_width
-
-def write_styled_text(pdf, text, height):
-    """Processa e escreve texto com múltiplos estilos (negrito) SEM emojis."""
-    parts = re.split(r'(\*\*.*?\*\*)', text)
-    for part in parts:
-        if not part: continue
-        is_bold = part.startswith('**') and part.endswith('**')
-        clean_part = part[2:-2] if is_bold else part
-        pdf.set_font('NotoSans', 'B' if is_bold else '', 11)
-        pdf.write(height, clean_part)
-
-# --- FUNÇÃO PRINCIPAL DE CRIAÇÃO DO PDF (BASEADA NO SEU CÓDIGO ORIGINAL) ---
+# --- FUNÇÃO DE GERAÇÃO DE PDF (VERSÃO WEASYPRINT DEFINITIVA) ---
 def create_final_pdf(markdown_text, title, emoji):
-    pdf = FPDF()
-    pdf.set_margins(20, 20, 20)
-    pdf.set_auto_page_break(auto=True, margin=20)
+    """
+    Cria um PDF com layout clássico e emojis coloridos usando WeasyPrint.
+    Esta versão recria o layout do PDF de referência.
+    """
+    # 1. Converte o Markdown original para HTML
+    html_body = markdown2.markdown(markdown_text, extras=["break-on-newline", "cuddled-lists"])
 
-    pdf.add_font('NotoSans', '', FONT_PATH_REGULAR)
-    pdf.add_font('NotoSans', 'B', FONT_PATH_BOLD)
-    pdf.add_page()
+    # 2. Monta o HTML completo com o CSS definitivo
+    html_string = f"""
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            /* CSS recriado para ser idêntico ao PDF de referência (18) */
+            @page {{
+                margin: 20mm; /* Margens como no seu código fpdf original */
+            }}
 
-    # --- Título principal (com emoji) ---
-    title_with_emoji = f"{title} {emoji}"
-    font_size_pt = 22
-    font_size_px = int(font_size_pt * 1.33)
-    img_buffer, img_width_px = render_text_as_image(title_with_emoji, font_size_px)
-    if img_buffer:
-        img_width_mm = (img_width_px / 1.33) * 0.352778
-        x_pos = (pdf.w - pdf.l_margin - pdf.r_margin - img_width_mm) / 2 + pdf.l_margin
-        pdf.image(img_buffer, x=x_pos, h=font_size_pt * 0.35)
-    pdf.ln(15)
+            body {{
+                font-family: 'Noto Serif', 'Noto Color Emoji', serif;
+                font-size: 12pt;
+                line-height: 1.5;
+            }}
 
-    # --- Corpo do Roteiro ---
-    is_first_day = True
-    for line in markdown_text.split('\n'):
-        line = line.strip()
-        if not line: continue
+            /* --- Títulos --- */
+            h1 {{
+                font-size: 24pt;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 25px;
+            }}
+            h2 {{
+                font-size: 16pt;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 20px;
+                /* Paginação: cada dia em uma nova página */
+                page-break-before: always;
+            }}
+            /* Exceto o primeiro dia, que fica na mesma página do título principal */
+            h2:first-of-type {{
+                page-break-before: auto;
+            }}
 
-        if 'Dicas Essenciais' in line or line.startswith('## '):
-            if not is_first_day or 'Dicas Essenciais' in line:
-                pdf.add_page()
-            is_first_day = False
+            /* --- Estrutura dos Itens --- */
+            /* Transforma o H3 (Foco:) e os LIs em itens de lista com bullet */
+            h3, li {{
+                margin-bottom: 12px;
+            }}
+            h3::before, li::before {{
+                content: '•  ';
+                margin-right: 5px;
+            }}
             
-            title_text = line.replace('**', '').replace('###', '').replace('##', '').strip()
-            pdf.set_font('NotoSans', 'B', 16)
-            pdf.set_fill_color(230, 230, 230)
-            pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
-            pdf.ln(6)
-        
-        elif line.startswith('### '):
-            pdf.set_font('NotoSans', 'B', 13)
-            pdf.multi_cell(0, 7, line[4:], ln=True, align='C')
-            pdf.ln(4)
+            /* Remove o bullet e o recuo padrão das listas <ul> */
+            ul {{
+                list-style-type: none;
+                padding-left: 0;
+            }}
 
-        elif line.startswith('* ') or line.startswith('- '):
-            text = line[2:]
-            line_height = 7
-            pdf.set_x(25)
-            pdf.set_font('NotoSans', 'B', 11)
-            pdf.cell(5, line_height, "• ")
-            
-            if contains_emoji(text):
-                font_size_px = int(11 * 1.33)
-                img_buffer, img_width_px = render_text_as_image(text, font_size_px)
-                if img_buffer:
-                    img_width_mm = (img_width_px / 1.33) * 0.352778
-                    pdf.image(img_buffer, y=pdf.get_y(), h=line_height)
-                pdf.ln(line_height + 1)
-            else:
-                write_styled_text(pdf, text, line_height)
-                pdf.ln(line_height + 1)
+            /* Parágrafos normais não têm bullet */
+            p {{
+                margin-bottom: 12px;
+            }}
 
-        else: 
-            if contains_emoji(line):
-                font_size_px = int(11 * 1.33)
-                img_buffer, img_width_px = render_text_as_image(line, font_size_px)
-                if img_buffer:
-                    img_width_mm = (img_width_px / 1.33) * 0.352778
-                    pdf.image(img_buffer, h=7)
-                pdf.ln(8)
-            else:
-                pdf.set_font('NotoSans', '', 11)
-                pdf.multi_cell(0, 7, line, ln=True)
-                pdf.ln(4)
+            strong {{
+                font-weight: bold;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>{title} {emoji}</h1>
+        {html_body}
+    </body>
+    </html>
+    """
 
-    return bytes(pdf.output())
+    try:
+        # 3. Gera o PDF usando WeasyPrint
+        pdf_bytes = HTML(string=html_string).write_pdf()
+        return pdf_bytes
+    except Exception as e:
+        st.error(f"Ocorreu um erro ao gerar o PDF com WeasyPrint: {e}")
+        return None
 
 # --- FUNÇÕES DE CONEXÃO E LÓGICA DO APP ---
 
