@@ -182,43 +182,27 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import markdown2
 from io import BytesIO
-from xhtml2pdf import pisa
+# A importação da 'pisa' foi removida e a 'HTML' da WeasyPrint foi adicionada
+from weasyprint import HTML
 
+# Título da aplicação
 st.title("Seus Roteiros de Viagem 🗺️")
 
-# --- NOVA FUNÇÃO PARA GERAR PDF COM EMOJIS ---
+# --- FUNÇÃO DE GERAÇÃO DE PDF ATUALIZADA PARA WEASYPRINT ---
 def create_final_pdf(markdown_text, title, emoji):
     """
-    Cria um PDF com emojis coloridos usando FONTES LOCAIS para garantir
-    compatibilidade com o Streamlit Cloud.
+    Cria um PDF com emojis coloridos usando a biblioteca WeasyPrint,
+    que possui um motor de renderização superior.
     """
     html_body = markdown2.markdown(markdown_text, extras=["break-on-newline"])
 
+    # O CSS é praticamente o mesmo, mas agora ele usará as fontes instaladas
+    # no sistema pelo arquivo packages.txt
     html_string = f"""
     <html>
     <head>
         <meta charset="UTF-8">
         <style>
-            /* --- CORREÇÃO FINAL --- */
-            /* O caminho foi ajustado para 'arquivos/' para bater com a sua pasta. */
-            @font-face {{
-                font-family: 'Noto Sans';
-                font-style: normal;
-                font-weight: 400;
-                src: url('arquivos/NotoSans-Regular.ttf');
-            }}
-            @font-face {{
-                font-family: 'Noto Sans';
-                font-style: normal;
-                font-weight: 700;
-                src: url('arquivos/NotoSans-Bold.ttf');
-            }}
-            @font-face {{
-                font-family: 'Noto Color Emoji';
-                src: url('arquivos/NotoColorEmoji-Regular.ttf');
-            }}
-            /* --- FIM DA CORREÇÃO --- */
-
             body {{
                 font-family: 'Noto Sans', 'Noto Color Emoji', sans-serif;
                 margin: 1in;
@@ -269,17 +253,12 @@ def create_final_pdf(markdown_text, title, emoji):
     </html>
     """
 
-    result = BytesIO()
-    pdf = pisa.CreatePDF(
-        BytesIO(html_string.encode("UTF-8")),
-        dest=result,
-        encoding='UTF-8'
-    )
-
-    if not pdf.err:
-        return result.getvalue()
-    else:
-        st.error(f"Ocorreu um erro ao gerar o PDF: {pdf.err}")
+    try:
+        # A mágica da WeasyPrint: converte o HTML para PDF em memória
+        pdf_bytes = HTML(string=html_string).write_pdf()
+        return pdf_bytes
+    except Exception as e:
+        st.error(f"Ocorreu um erro ao gerar o PDF com WeasyPrint: {e}")
         return None
 
 # --- FUNÇÕES DE CONEXÃO E LÓGICA DO APP ---
