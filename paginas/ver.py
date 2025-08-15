@@ -230,32 +230,23 @@ def create_final_pdf(markdown_text, title, emoji):
     pdf.set_auto_page_break(auto=True, margin=25)
     pdf.set_margins(25, 25, 25)
 
-    # Adiciona as fontes ao FPDF para texto SEM emoji
     pdf.add_font('NotoSans', '', FONT_PATH_REGULAR)
     pdf.add_font('NotoSans', 'B', FONT_PATH_BOLD)
     pdf.add_page()
 
-    # --- TÍTULO PRINCIPAL (COM EMOJI) ---
     title_with_emoji = f"{title} {emoji}"
-    # Define um tamanho de fonte grande para o título
     title_font_size_pt = 24
-    # Converte de pt para px para a Pillow (aproximação)
     title_font_size_px = int(title_font_size_pt * 1.33)
     
     title_img_buffer = render_text_to_image(title_with_emoji, FONT_PATH_EMOJI, title_font_size_px, text_color=(0,0,0))
     if title_img_buffer:
-        # A largura da imagem em mm para o FPDF
-        # 1 pt = 0.352778 mm
         img_width_mm = (Image.open(title_img_buffer).width / 1.33) * 0.352778
-        title_img_buffer.seek(0) # Reinicia o buffer após leitura
+        title_img_buffer.seek(0)
         
-        # Centraliza a imagem
         x_pos = (pdf.w - img_width_mm) / 2
         pdf.image(title_img_buffer, x=x_pos, h=title_font_size_pt * 0.352778)
         pdf.ln(15)
 
-    # --- CORPO DO ROTEIRO ---
-    # Pré-processamento para unificar tudo em uma lista
     processed_lines = []
     for line in markdown_text.split('\n'):
         stripped_line = line.strip()
@@ -268,7 +259,7 @@ def create_final_pdf(markdown_text, title, emoji):
     
     is_first_day = True
     for line in processed_lines:
-        if line.startswith('## '): # Título do Dia
+        if line.startswith('## '):
             if not is_first_day:
                 pdf.add_page()
             is_first_day = False
@@ -277,47 +268,46 @@ def create_final_pdf(markdown_text, title, emoji):
             pdf.multi_cell(0, 10, line[3:], align='C', ln=True)
             pdf.ln(5)
 
-        elif line.startswith('* '): # Item da lista
+        elif line.startswith('* '):
             text = line[2:]
-            
-            # Divide o texto em partes com negrito e sem negrito
             parts = re.split(r'(\*\*.*?\*\*)', text)
             
-            pdf.set_x(30) # Recuo do bullet
+            pdf.set_x(30)
             pdf.set_font('NotoSans', 'B', 12)
             pdf.cell(5, 8, "•")
             
-            # Escreve cada parte com seu estilo
+            current_x = pdf.get_x()
+            current_y = pdf.get_y()
+            
             for part in parts:
                 if not part: continue
                 
                 font_path = FONT_PATH_REGULAR
-                font_style = ''
                 if part.startswith('**') and part.endswith('**'):
                     part = part[2:-2]
                     font_path = FONT_PATH_BOLD
-                    font_style = 'B'
 
-                # Renderiza como imagem para suportar emojis
                 line_img_buffer = render_text_to_image(part, font_path, 16, text_color=(0,0,0))
                 if line_img_buffer:
                     img = Image.open(line_img_buffer)
                     img_width_mm = (img.width / 1.33) * 0.352778
-                    img_height_mm = 8 # Altura fixa da linha
+                    img_height_mm = 8
                     line_img_buffer.seek(0)
                     
-                    # Verifica se precisa quebrar a linha
-                    if pdf.get_x() + img_width_mm > (pdf.w - pdf.r_margin):
-                        pdf.ln(img_height_mm)
-                        pdf.set_x(35) # Recuo após quebra de linha
+                    if current_x + img_width_mm > (pdf.w - pdf.r_margin):
+                        current_y += img_height_mm
+                        current_x = 35
 
-                    pdf.image(line_img_buffer, y=pdf.get_y(), h=img_height_mm)
-                    # Move o cursor para o lado da imagem
-                    pdf.set_x(pdf.get_x() + img_width_mm)
+                    pdf.image(line_img_buffer, x=current_x, y=current_y, h=img_height_mm)
+                    current_x += img_width_mm
 
-            pdf.ln(8)
+            pdf.set_y(current_y) # Garante que o cursor Y esteja na linha correta
+            pdf.ln(img_height_mm + 2) # Pula para a próxima linha
 
-    return pdf.output()
+    # --- ALTERAÇÃO APLICADA AQUI ---
+    # Codificamos a saída para o formato 'latin-1' para garantir que seja binária
+    return pdf.output().encode('latin-1')
+
 
 # --- FUNÇÕES DE CONEXÃO E LÓGICA DO APP ---
 
