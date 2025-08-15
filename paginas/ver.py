@@ -323,7 +323,7 @@ def create_final_pdf(markdown_text, title, emoji):
             pdf.multi_cell(0, 7, line, ln=True)
             pdf.ln(4)
 
-    return pdf.output()
+    return bytes(pdf.output())
 
 # --- FUNÇÕES DE CONEXÃO E LÓGICA DO APP ---
 
