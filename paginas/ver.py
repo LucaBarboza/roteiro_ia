@@ -191,8 +191,8 @@ st.title("Seus Roteiros de Viagem 🗺️")
 # --- FUNÇÃO DE GERAÇÃO DE PDF ATUALIZADA PARA WEASYPRINT ---
 def create_final_pdf(markdown_text, title, emoji):
     """
-    Cria um PDF com emojis coloridos usando WeasyPrint e CSS aprimorado
-    para um layout profissional.
+    Cria um PDF com emojis coloridos usando WeasyPrint e um CSS de
+    estilo clássico com fonte serifada.
     """
     html_body = markdown2.markdown(markdown_text, extras=["break-on-newline"])
 
@@ -201,22 +201,22 @@ def create_final_pdf(markdown_text, title, emoji):
     <head>
         <meta charset="UTF-8">
         <style>
-            /* --- CSS FINAL COM AJUSTES DE DESIGN --- */
+            /* --- CSS DE ESTILO CLÁSSICO (SERIF) --- */
 
             body {{
-                font-family: 'Noto Sans', 'Noto Color Emoji', sans-serif;
-                margin: 0.8in; /* Margens reduzidas */
-                font-size: 12pt; /* Fonte principal maior */
-                line-height: 1.6;
-                color: #333;
+                /* A fonte principal agora é Noto Serif */
+                font-family: 'Noto Serif', 'Noto Color Emoji', serif;
+                margin: 1in; /* Margem clássica */
+                font-size: 12pt;
+                line-height: 1.4; /* Espaçamento entre linhas mais tradicional */
+                color: #000; /* Texto em preto */
             }}
 
             /* --- CONTROLE DE LAYOUT E PAGINAÇÃO --- */
             h2 {{
-                page-break-before: always; /* Regra geral: todo Dia começa em pág. nova */
+                page-break-before: always;
                 page-break-after: avoid;
             }}
-            /* A mágica para o título: anula a quebra de página APENAS para o primeiro H2 */
             h2:first-of-type {{
                 page-break-before: auto;
             }}
@@ -227,53 +227,43 @@ def create_final_pdf(markdown_text, title, emoji):
 
             /* --- ESTILOS DOS ELEMENTOS --- */
             h1 {{
-                font-size: 28pt; /* Fonte ajustada */
-                font-weight: 700;
+                font-size: 24pt;
+                font-weight: bold;
                 text-align: center;
-                color: #000;
-                margin-bottom: 30px;
+                margin-bottom: 25px;
                 page-break-after: avoid;
             }}
             h2 {{
-                font-size: 20pt; /* Fonte ajustada */
-                font-weight: 700;
+                font-size: 16pt;
+                font-weight: bold;
                 text-align: center;
-                color: #111;
                 margin-top: 0;
-                margin-bottom: 30px;
-                padding: 4px 12px; /* Padding para o "grifado" */
-                background-color: #E6E6E6; /* Cor do "grifado" (cinza claro) */
-                /* Para o fundo não ocupar a linha toda, e sim só o texto */
-                display: inline-block;
-                border-radius: 4px; /* Cantos levemente arredondados */
-                /* Correção para o espaçamento dos números (ex: 11, 12) */
-                letter-spacing: normal;
-            }}
-            /* Precisamos de um container para centralizar o H2, que agora é inline-block */
-            div.h2-container {{
-                text-align: center;
+                margin-bottom: 20px;
             }}
             h3 {{
-                font-size: 15pt; /* Fonte ajustada */
-                font-weight: 700;
+                font-size: 12pt; /* Mesmo tamanho do corpo, apenas em negrito */
+                font-weight: bold;
                 text-align: left;
-                color: #111;
-                margin-top: 24px;
-                margin-bottom: 8px;
+                margin-top: 16px;
+                margin-bottom: 16px;
+            }}
+            /* Adiciona o bullet '•' antes do H3 (ex: Foco:) para imitar o exemplo */
+            h3::before {{
+                content: '•  ';
             }}
             ul {{
-                padding-left: 25px;
-                list-style-type: '•  ';
+                padding-left: 20px;
+                /* Remove o estilo padrão da lista, pois o Markdown já insere o '*' */
+                list-style-type: none;
             }}
             li {{
-                margin-bottom: 10px;
-                padding-left: 5px;
+                margin-bottom: 12px;
             }}
             p {{
                  margin-bottom: 12px;
             }}
             strong {{
-                font-weight: 700;
+                font-weight: bold;
             }}
         </style>
     </head>
@@ -283,13 +273,9 @@ def create_final_pdf(markdown_text, title, emoji):
     </body>
     </html>
     """
-    
-    # Pequena modificação para centralizar o H2 "grifado"
-    # O Markdown gera <h2>...</h2>. Vamos envolvê-lo em uma div para centralizar.
-    html_string = html_string.replace('<h2>', '<div class="h2-container"><h2>')
-    html_string = html_string.replace('</h2>', '</h2></div>')
 
     try:
+        # A função agora é mais simples, sem manipulação de string extra
         pdf_bytes = HTML(string=html_string).write_pdf()
         return pdf_bytes
     except Exception as e:
