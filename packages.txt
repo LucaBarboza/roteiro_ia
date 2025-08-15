@@ -1,5 +1,5 @@
 libpangocairo-1.0-0
 libharfbuzz0b
 libfreetype6
-fonts-noto-serif
+fonts-noto-core
 fonts-noto-color-emoji
