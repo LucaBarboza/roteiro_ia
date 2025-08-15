@@ -240,7 +240,8 @@ def create_final_pdf(markdown_text, title, emoji):
     
     title_img_buffer = render_text_to_image(title_with_emoji, FONT_PATH_EMOJI, title_font_size_px, text_color=(0,0,0))
     if title_img_buffer:
-        img_width_mm = (Image.open(title_img_buffer).width / 1.33) * 0.352778
+        img = Image.open(title_img_buffer)
+        img_width_mm = (img.width / 1.33) * 0.352778
         title_img_buffer.seek(0)
         
         x_pos = (pdf.w - img_width_mm) / 2
@@ -301,13 +302,12 @@ def create_final_pdf(markdown_text, title, emoji):
                     pdf.image(line_img_buffer, x=current_x, y=current_y, h=img_height_mm)
                     current_x += img_width_mm
 
-            pdf.set_y(current_y) # Garante que o cursor Y esteja na linha correta
-            pdf.ln(img_height_mm + 2) # Pula para a próxima linha
+            pdf.set_y(current_y)
+            pdf.ln(img_height_mm + 2)
 
-    # --- ALTERAÇÃO APLICADA AQUI ---
-    # Codificamos a saída para o formato 'latin-1' para garantir que seja binária
-    return pdf.output().encode('latin-1')
-
+    # --- CORREÇÃO FINAL APLICADA AQUI ---
+    # A saída já é em bytes, então removemos o .encode('latin-1')
+    return pdf.output()
 
 # --- FUNÇÕES DE CONEXÃO E LÓGICA DO APP ---
 
