@@ -21,9 +21,8 @@ def conectar_firebase():
 # GERADOR DE PDF
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
-FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
+FONT_PATH_REGULAR = os.path.join(SCRIPT_DIR, 'arquivos', 'DejaVuSans.ttf')
+FONT_PATH_BOLD = os.path.join(SCRIPT_DIR, 'arquivos', 'DejaVuSans-Bold.ttf')
 
 def write_styled_text(pdf, text):
     """
