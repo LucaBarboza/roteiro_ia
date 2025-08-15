@@ -1,4 +1,10 @@
 import streamlit as st
+import streamlit as st
+import firebase_admin
+from firebase_admin import credentials, firestore
+from fpdf import FPDF
+import re
+import os
 
 # CONECTAR COM O FIREBASE
 
@@ -13,6 +19,11 @@ def conectar_firebase():
 
 
 # GERADOR DE PDF
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
+FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
 
 def write_styled_text(pdf, text):
     """

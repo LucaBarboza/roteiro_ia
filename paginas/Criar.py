@@ -3,8 +3,6 @@ import os
 import asyncio
 from datetime import datetime
 import google.generativeai as genai
-import firebase_admin
-from firebase_admin import credentials, firestore
 from funcoes import conectar_firebase
 
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])

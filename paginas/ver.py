@@ -1,15 +1,5 @@
 import streamlit as st
-import firebase_admin
-from firebase_admin import credentials, firestore
-from fpdf import FPDF
-import os
-import re
 from funcoes import deletar_roteiro, create_final_pdf, write_styled_text, conectar_firebase
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
-FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
 
 st.title("Seus Roteiros")
 
