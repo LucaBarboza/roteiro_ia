@@ -1,15 +1,25 @@
 import streamlit as st
-import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 from fpdf import FPDF
 import re
 import os
 
-# CONECTAR COM O FIREBASE
+# --- Define Font Paths ---
+# This ensures the script knows where to find your font files.
+# SCRIPT_DIR will be the directory containing this funcoes.py file.
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# Go one level up to the project's root directory
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+# Construct the path to the 'arquivos' folder from the project root
+FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
+FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
 
+
+# --- CONECTAR COM O FIREBASE ---
 @st.cache_resource
 def conectar_firebase():
+    """Initializes the Firebase app and returns a Firestore client."""
     try:
         firebase_admin.get_app()
     except ValueError:
@@ -18,17 +28,12 @@ def conectar_firebase():
     return firestore.client()
 
 
-# GERADOR DE PDF
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-FONT_PATH_REGULAR = os.path.join(SCRIPT_DIR, 'arquivos', 'DejaVuSans.ttf')
-FONT_PATH_BOLD = os.path.join(SCRIPT_DIR, 'arquivos', 'DejaVuSans-Bold.ttf')
-
+# --- GERADOR DE PDF ---
 def write_styled_text(pdf, text):
     """
-    Processa e escreve texto com múltiplos estilos (negrito e itálico).
+    Processes and writes text with multiple styles (bold).
     """
-    parts = re.split(r'(\*\*.*?\*\*|\*.*?\*)', text)
+    parts = re.split(r'(\*\*.*?\*\*)', text)
     for part in parts:
         if not part: continue
         if part.startswith('**') and part.endswith('**'):
@@ -39,6 +44,7 @@ def write_styled_text(pdf, text):
             pdf.write(7, part)
 
 def create_final_pdf(markdown_text, title):
+    """Creates and returns the bytes for a PDF file from markdown text."""
     pdf = FPDF()
     pdf.set_left_margin(20)
     pdf.set_right_margin(20)
@@ -49,14 +55,7 @@ def create_final_pdf(markdown_text, title):
     pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
 
     pdf.set_font('DejaVu', 'B', 22)
-    title_width = pdf.get_string_width(title)
-    doc_width = pdf.w - pdf.l_margin - pdf.r_margin
-    x_start = pdf.l_margin + (doc_width - title_width) / 2
-    if x_start < pdf.l_margin:
-        x_start = pdf.l_margin
-    pdf.set_x(x_start)
-    pdf.write(12, title)
-    
+    pdf.multi_cell(0, 12, title, align='C', ln=True)
     pdf.ln(15)
 
     is_first_day = True
@@ -69,7 +68,6 @@ def create_final_pdf(markdown_text, title):
             pdf.ln(8)
             pdf.set_font('DejaVu', 'B', 16)
             pdf.set_fill_color(230, 230, 230)
-            # Limpa qualquer marcador de markdown para o título
             title_text = line.replace('**', '').replace('###', '').replace('##', '').strip()
             pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
             pdf.ln(6)
@@ -106,15 +104,17 @@ def create_final_pdf(markdown_text, title):
 
     return bytes(pdf.output())
 
-# DELETAR
-
-def deletar_roteiro(roteiro_para_deletar):
-    """Função para deletar um roteiro do Firestore."""
+# --- DELETAR ---
+def deletar_roteiro(db, colecao, roteiro_para_deletar):
+    """
+    Deletes a travel itinerary from Firestore.
+    Now requires 'db' and 'colecao' to be passed as arguments.
+    """
     try:
         doc_ref = db.collection(colecao).document(st.user.email)
         doc_ref.update({'roteiros': firestore.ArrayRemove([roteiro_para_deletar])})
 
-        # Se o roteiro deletado era o que estava aberto, fecha ele
+        # If the deleted itinerary was the open one, close it
         if st.session_state.get('roteiro_aberto') == roteiro_para_deletar.get('pais'):
             st.session_state.roteiro_aberto = None
         
