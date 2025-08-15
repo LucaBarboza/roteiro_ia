@@ -191,41 +191,46 @@ st.title("Seus Roteiros de Viagem 🗺️")
 # --- FUNÇÃO DE GERAÇÃO DE PDF ATUALIZADA PARA WEASYPRINT ---
 def create_final_pdf(markdown_text, title, emoji):
     """
-    Cria um PDF com emojis coloridos usando WeasyPrint e um CSS de
-    estilo clássico com fonte serifada.
+    Cria um PDF com emojis coloridos usando WeasyPrint. Inclui um
+    pré-processador de Markdown para garantir uma estrutura de lista consistente.
     """
-    html_body = markdown2.markdown(markdown_text, extras=["break-on-newline"])
+    # --- INÍCIO DO PRÉ-PROCESSAMENTO DO MARKDOWN ---
+    processed_lines = []
+    for line in markdown_text.split('\n'):
+        stripped_line = line.strip()
+        # Mantém os títulos de dia (##) e ignora linhas vazias
+        if stripped_line.startswith('## '):
+            processed_lines.append(stripped_line)
+        elif stripped_line: # Se a linha não estiver vazia...
+            # Remove marcadores de subtítulo (###) se existirem
+            if stripped_line.startswith('### '):
+                stripped_line = stripped_line[4:]
+            # Garante que a linha se torne um item de lista
+            processed_lines.append(f'* {stripped_line}')
+
+    # Junta as linhas processadas de volta em um único texto
+    processed_markdown = '\n'.join(processed_lines)
+    # --- FIM DO PRÉ-PROCESSAMENTO ---
+
+    # Converte o texto JÁ PROCESSADO para HTML
+    html_body = markdown2.markdown(processed_markdown, extras=["break-on-newline"])
 
     html_string = f"""
     <html>
     <head>
         <meta charset="UTF-8">
         <style>
-            /* --- CSS DE ESTILO CLÁSSICO (SERIF) --- */
-
+            /* --- CSS FINAL E SIMPLIFICADO --- */
+            @page {{
+                margin: 1in;
+            }}
             body {{
-                /* A fonte principal agora é Noto Serif */
                 font-family: 'Noto Serif', 'Noto Color Emoji', serif;
-                margin: 1in; /* Margem clássica */
                 font-size: 12pt;
-                line-height: 1.4; /* Espaçamento entre linhas mais tradicional */
-                color: #000; /* Texto em preto */
+                line-height: 1.5; /* Um pouco mais de espaço para leitura */
+                color: #000;
             }}
 
-            /* --- CONTROLE DE LAYOUT E PAGINAÇÃO --- */
-            h2 {{
-                page-break-before: always;
-                page-break-after: avoid;
-            }}
-            h2:first-of-type {{
-                page-break-before: auto;
-            }}
-            p, ul {{
-                widows: 2;
-                orphans: 2;
-            }}
-
-            /* --- ESTILOS DOS ELEMENTOS --- */
             h1 {{
                 font-size: 24pt;
                 font-weight: bold;
@@ -239,28 +244,27 @@ def create_final_pdf(markdown_text, title, emoji):
                 text-align: center;
                 margin-top: 0;
                 margin-bottom: 20px;
+                page-break-before: always;
+                page-break-after: avoid;
             }}
-            h3 {{
-                font-size: 12pt; /* Mesmo tamanho do corpo, apenas em negrito */
-                font-weight: bold;
-                text-align: left;
-                margin-top: 16px;
-                margin-bottom: 16px;
+            h2:first-of-type {{
+                page-break-before: auto;
             }}
-            /* Adiciona o bullet '•' antes do H3 (ex: Foco:) para imitar o exemplo */
-            h3::before {{
-                content: '•  ';
-            }}
+
+            /* Agora só precisamos estilizar a lista, pois tudo virou uma! */
             ul {{
-                padding-left: 20px;
-                /* Remove o estilo padrão da lista, pois o Markdown já insere o '*' */
-                list-style-type: none;
+                padding-left: 0; /* Removemos o recuo padrão da lista */
+                list-style-type: none; /* Removemos o bullet padrão */
             }}
             li {{
                 margin-bottom: 12px;
+                padding-left: 1.5em; /* Criamos nosso próprio recuo */
+                text-indent: -1.5em; /* Puxa o bullet para fora, alinhando o texto */
             }}
-            p {{
-                 margin-bottom: 12px;
+            /* Adicionamos nosso bullet personalizado via CSS */
+            li::before {{
+                content: '•  ';
+                font-size: 12pt; /* Garante que o bullet tenha o mesmo tamanho do texto */
             }}
             strong {{
                 font-weight: bold;
@@ -275,7 +279,6 @@ def create_final_pdf(markdown_text, title, emoji):
     """
 
     try:
-        # A função agora é mais simples, sem manipulação de string extra
         pdf_bytes = HTML(string=html_string).write_pdf()
         return pdf_bytes
     except Exception as e:
