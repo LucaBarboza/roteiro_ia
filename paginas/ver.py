@@ -199,8 +199,8 @@ def create_final_pdf(markdown_text, title, emoji):
     <head>
         <meta charset="UTF-8">
         <style>
-            /* --- INÍCIO DA CORREÇÃO --- */
-            /* Aponta para os arquivos de fonte locais dentro da pasta 'assets' */
+            /* --- CORREÇÃO FINAL --- */
+            /* O caminho foi ajustado para 'arquivos/' para bater com a sua pasta. */
             @font-face {{
                 font-family: 'Noto Sans';
                 font-style: normal;
