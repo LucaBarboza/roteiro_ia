@@ -180,20 +180,82 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
-import markdown2
+from fpdf import FPDF
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-# A importação da 'pisa' foi removida e a 'HTML' da WeasyPrint foi adicionada
-from weasyprint import HTML
+import re
 
-# Título da aplicação
-st.title("Seus Roteiros de Viagem 🗺️")
+st.title("Seus Roteiros")
 
-# --- FUNÇÃO DE GERAÇÃO DE PDF ATUALIZADA PARA WEASYPRINT ---
+# --- CONFIGURAÇÃO DAS FONTES (MANTENHA COMO ESTAVA) ---
+# Substitua por seu caminho real se for diferente
+FONT_DIR = 'arquivos'
+FONT_PATH_REGULAR = f'{FONT_DIR}/NotoSans-Regular.ttf'
+FONT_PATH_BOLD = f'{FONT_DIR}/NotoSans-Bold.ttf'
+FONT_PATH_EMOJI = f'{FONT_DIR}/NotoColorEmoji-Regular.ttf'
+
+# --- FUNÇÃO MÁGICA: RENDERIZA TEXTO COM EMOJI PARA UMA IMAGEM ---
+def render_text_to_image(text, font_path, font_size, text_color=(0, 0, 0)):
+    """Desenha um texto (com emojis) em uma imagem PNG com fundo transparente."""
+    try:
+        font = ImageFont.truetype(font_path, font_size)
+    except IOError:
+        st.error(f"Fonte não encontrada em: {font_path}")
+        return None
+
+    # Calcula o tamanho que a imagem precisa ter
+    bbox = font.getbbox(text)
+    image_width = bbox[2]
+    image_height = bbox[3]
+
+    if image_width == 0 or image_height == 0:
+        return None # Retorna nada para texto vazio
+
+    # Cria a imagem com canal Alpha (transparência)
+    img = Image.new('RGBA', (image_width, image_height), (255, 255, 255, 0))
+    draw = ImageDraw.Draw(img)
+
+    # Desenha o texto na imagem
+    draw.text((0, 0), text, font=font, fill=text_color)
+
+    # Salva a imagem em um buffer de memória
+    buffer = BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    return buffer
+
+# --- FUNÇÃO PRINCIPAL DO PDF (BASEADA NO SEU CÓDIGO ORIGINAL) ---
 def create_final_pdf(markdown_text, title, emoji):
-    """
-    Cria um PDF com emojis coloridos usando WeasyPrint. Inclui um
-    pré-processador de Markdown para garantir uma estrutura de lista consistente.
-    """
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=25)
+    pdf.set_margins(25, 25, 25)
+
+    # Adiciona as fontes ao FPDF para texto SEM emoji
+    pdf.add_font('NotoSans', '', FONT_PATH_REGULAR)
+    pdf.add_font('NotoSans', 'B', FONT_PATH_BOLD)
+    pdf.add_page()
+
+    # --- TÍTULO PRINCIPAL (COM EMOJI) ---
+    title_with_emoji = f"{title} {emoji}"
+    # Define um tamanho de fonte grande para o título
+    title_font_size_pt = 24
+    # Converte de pt para px para a Pillow (aproximação)
+    title_font_size_px = int(title_font_size_pt * 1.33)
+    
+    title_img_buffer = render_text_to_image(title_with_emoji, FONT_PATH_EMOJI, title_font_size_px, text_color=(0,0,0))
+    if title_img_buffer:
+        # A largura da imagem em mm para o FPDF
+        # 1 pt = 0.352778 mm
+        img_width_mm = (Image.open(title_img_buffer).width / 1.33) * 0.352778
+        title_img_buffer.seek(0) # Reinicia o buffer após leitura
+        
+        # Centraliza a imagem
+        x_pos = (pdf.w - img_width_mm) / 2
+        pdf.image(title_img_buffer, x=x_pos, h=title_font_size_pt * 0.352778)
+        pdf.ln(15)
+
+    # --- CORPO DO ROTEIRO ---
+    # Pré-processamento para unificar tudo em uma lista
     processed_lines = []
     for line in markdown_text.split('\n'):
         stripped_line = line.strip()
@@ -203,79 +265,59 @@ def create_final_pdf(markdown_text, title, emoji):
             if stripped_line.startswith('### '):
                 stripped_line = stripped_line[4:]
             processed_lines.append(f'* {stripped_line}')
-    processed_markdown = '\n'.join(processed_lines)
-    html_body = markdown2.markdown(processed_markdown, extras=["break-on-newline"])
-
-    html_string = f"""
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            @page {{
-                margin: 1in;
-            }}
-            body {{
-                font-family: 'Noto Serif', 'Noto Color Emoji', serif;
-                font-size: 12pt;
-                line-height: 1.5;
-                color: #000;
-                
-                /* --- CORREÇÃO PARA OS NÚMEROS --- */
-                /* Desativa o ajuste de espaçamento entre caracteres (kerning) */
-                font-kerning: none;
-            }}
-
-            h1 {{
-                font-size: 24pt;
-                font-weight: bold;
-                text-align: center;
-                margin-bottom: 25px;
-                page-break-after: avoid;
-            }}
-            h2 {{
-                font-size: 16pt;
-                font-weight: bold;
-                text-align: center;
-                margin-top: 0;
-                margin-bottom: 20px;
-                page-break-before: always;
-                page-break-after: avoid;
-            }}
-            h2:first-of-type {{
-                page-break-before: auto;
-            }}
+    
+    is_first_day = True
+    for line in processed_lines:
+        if line.startswith('## '): # Título do Dia
+            if not is_first_day:
+                pdf.add_page()
+            is_first_day = False
             
-            ul {{
-                padding-left: 0;
-                list-style-type: none;
-            }}
-            li {{
-                margin-bottom: 12px;
-                padding-left: 1.5em;
-                text-indent: -1.5em;
-            }}
-            li::before {{
-                content: '•  ';
-                font-size: 12pt;
-            }}
-            strong {{
-                font-weight: bold;
-            }}
-        </style>
-    </head>
-    <body>
-        <h1>{title} {emoji}</h1>
-        {html_body}
-    </body>
-    </html>
-    """
+            pdf.set_font('NotoSans', 'B', 16)
+            pdf.multi_cell(0, 10, line[3:], align='C', ln=True)
+            pdf.ln(5)
 
-    try:
-        pdf_bytes = HTML(string=html_string).write_pdf()
-        return pdf_bytes
-    except Exception as e:
-        st.error(f"Ocorreu um erro ao gerar o PDF com WeasyPrint: {e}")
-        return None
+        elif line.startswith('* '): # Item da lista
+            text = line[2:]
+            
+            # Divide o texto em partes com negrito e sem negrito
+            parts = re.split(r'(\*\*.*?\*\*)', text)
+            
+            pdf.set_x(30) # Recuo do bullet
+            pdf.set_font('NotoSans', 'B', 12)
+            pdf.cell(5, 8, "•")
+            
+            # Escreve cada parte com seu estilo
+            for part in parts:
+                if not part: continue
+                
+                font_path = FONT_PATH_REGULAR
+                font_style = ''
+                if part.startswith('**') and part.endswith('**'):
+                    part = part[2:-2]
+                    font_path = FONT_PATH_BOLD
+                    font_style = 'B'
+
+                # Renderiza como imagem para suportar emojis
+                line_img_buffer = render_text_to_image(part, font_path, 16, text_color=(0,0,0))
+                if line_img_buffer:
+                    img = Image.open(line_img_buffer)
+                    img_width_mm = (img.width / 1.33) * 0.352778
+                    img_height_mm = 8 # Altura fixa da linha
+                    line_img_buffer.seek(0)
+                    
+                    # Verifica se precisa quebrar a linha
+                    if pdf.get_x() + img_width_mm > (pdf.w - pdf.r_margin):
+                        pdf.ln(img_height_mm)
+                        pdf.set_x(35) # Recuo após quebra de linha
+
+                    pdf.image(line_img_buffer, y=pdf.get_y(), h=img_height_mm)
+                    # Move o cursor para o lado da imagem
+                    pdf.set_x(pdf.get_x() + img_width_mm)
+
+            pdf.ln(8)
+
+    return pdf.output()
 
 # --- FUNÇÕES DE CONEXÃO E LÓGICA DO APP ---
 
