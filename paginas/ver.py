@@ -22,9 +22,6 @@ roteiros = dados.get('roteiros', [])
 if 'roteiro_aberto' not in st.session_state:
     st.session_state.roteiro_aberto = None
 
-if 'roteiro_aberto' not in st.session_state:
-    st.session_state.roteiro_aberto = None
-
 if roteiros:
     for i, roteiro in enumerate(roteiros):
         with st.container(border=True):
