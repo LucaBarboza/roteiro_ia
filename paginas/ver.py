@@ -190,34 +190,33 @@ st.title("Seus Roteiros de Viagem 🗺️")
 # --- NOVA FUNÇÃO PARA GERAR PDF COM EMOJIS ---
 def create_final_pdf(markdown_text, title, emoji):
     """
-    Cria um PDF com emojis coloridos convertendo Markdown para HTML e depois para PDF.
-    VERSÃO CORRIGIDA: Usa @font-face para máxima compatibilidade.
+    Cria um PDF com emojis coloridos usando FONTES LOCAIS para garantir
+    compatibilidade com o Streamlit Cloud.
     """
     html_body = markdown2.markdown(markdown_text, extras=["break-on-newline"])
 
-    # Monta um documento HTML completo com CSS para estilização
     html_string = f"""
     <html>
     <head>
         <meta charset="UTF-8">
         <style>
             /* --- INÍCIO DA CORREÇÃO --- */
-            /* Define as fontes explicitamente com @font-face em vez de @import */
+            /* Aponta para os arquivos de fonte locais dentro da pasta 'assets' */
             @font-face {{
                 font-family: 'Noto Sans';
-                src: url(https://fonts.gstatic.com/s/notosans/v36/o-0IIpQlx3QUlC5A4PNb6RSCzyNA.woff2) format('woff2');
-                font-weight: 400;
                 font-style: normal;
+                font-weight: 400;
+                src: url('arquivos/NotoSans-Regular.ttf');
             }}
             @font-face {{
                 font-family: 'Noto Sans';
-                src: url(https://fonts.gstatic.com/s/notosans/v36/o-0NIpQlx3QUlC5A4PNjXhFlY9aA5Q.woff2) format('woff2');
-                font-weight: 700;
                 font-style: normal;
+                font-weight: 700;
+                src: url('arquivos/NotoSans-Bold.ttf');
             }}
             @font-face {{
                 font-family: 'Noto Color Emoji';
-                src: url(https://fonts.gstatic.com/s/notocoloremoji/v28/Yq6P-KqIXTD0J4-d9TM1kD0Y6_z9lQ.woff2) format('woff2');
+                src: url('arquivos/NotoColorEmoji-Regular.ttf');
             }}
             /* --- FIM DA CORREÇÃO --- */
 
@@ -251,7 +250,7 @@ def create_final_pdf(markdown_text, title, emoji):
             }}
             ul {{
                 padding-left: 25px;
-                list-style-type: disc; /* Usando um estilo padrão e seguro */
+                list-style-type: disc;
             }}
             li {{
                 margin-bottom: 8px;
@@ -281,7 +280,6 @@ def create_final_pdf(markdown_text, title, emoji):
     if not pdf.err:
         return result.getvalue()
     else:
-        # Log do erro para depuração
         st.error(f"Ocorreu um erro ao gerar o PDF: {pdf.err}")
         return None
 
