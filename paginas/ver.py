@@ -184,129 +184,145 @@ from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import re
+import os
+
+# --- CONFIGURAÇÃO DE ARQUIVOS E FONTES ---
+# Usando as fontes Noto para melhor compatibilidade
+FONT_DIR = 'arquivos'
+FONT_PATH_REGULAR = os.path.join(FONT_DIR, 'NotoSans-Regular.ttf')
+FONT_PATH_BOLD = os.path.join(FONT_DIR, 'NotoSans-Bold.ttf')
+FONT_PATH_EMOJI = os.path.join(FONT_DIR, 'NotoColorEmoji-Regular.ttf')
 
 st.title("Seus Roteiros")
 
-# --- CONFIGURAÇÃO DAS FONTES (MANTENHA COMO ESTAVA) ---
-# Substitua por seu caminho real se for diferente
-FONT_DIR = 'arquivos'
-FONT_PATH_REGULAR = f'{FONT_DIR}/NotoSans-Regular.ttf'
-FONT_PATH_BOLD = f'{FONT_DIR}/NotoSans-Bold.ttf'
-FONT_PATH_EMOJI = f'{FONT_DIR}/NotoColorEmoji-Regular.ttf'
+# --- FUNÇÕES AUXILIARES PARA O PDF ---
 
-# --- FUNÇÃO MÁGICA: RENDERIZA TEXTO COM EMOJI PARA UMA IMAGEM ---
-def render_text_to_image(text, font_path, font_size, text_color=(0, 0, 0)):
-    """Desenha um texto (com emojis) em uma imagem PNG com fundo transparente."""
+def contains_emoji(text):
+    """Verifica se um texto contém caracteres emoji."""
+    # Regex simples para pegar a maioria dos emojis comuns
+    emoji_pattern = re.compile(
+        "["
+        "\U0001F600-\U0001F64F"  # emoticons
+        "\U0001F300-\U0001F5FF"  # symbols & pictographs
+        "\U0001F680-\U0001F6FF"  # transport & map symbols
+        "\U0001F700-\U0001F77F"  # alchemical symbols
+        "\U0001F780-\U0001F7FF"  # Geometric Shapes Extended
+        "\U0001F800-\U0001F8FF"  # Supplemental Arrows-C
+        "\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
+        "\U0001FA00-\U0001FA6F"  # Chess Symbols
+        "\U0001FA70-\U0001FAFF"  # Symbols and Pictographs Extended-A
+        "\U00002702-\U000027B0"  # Dingbats
+        "\U000024C2-\U0001F251" 
+        "]+",
+        flags=re.UNICODE,
+    )
+    return emoji_pattern.search(text)
+
+def render_text_as_image(text, font_path, font_size_px, is_bold=False):
+    """Renderiza uma linha de texto em uma imagem PNG com fundo transparente."""
+    font_to_use = FONT_PATH_BOLD if is_bold else font_path
     try:
-        font = ImageFont.truetype(font_path, font_size)
-    except IOError:
-        st.error(f"Fonte não encontrada em: {font_path}")
+        # Usamos a fonte de Emoji como base e a Pillow se encarrega de usar as outras se precisar
+        font = ImageFont.truetype(FONT_PATH_EMOJI, font_size_px)
+        text_font = ImageFont.truetype(font_to_use, font_size_px)
+    except IOError as e:
+        st.error(f"Erro ao carregar fonte: {e}")
         return None
 
-    # Calcula o tamanho que a imagem precisa ter
-    bbox = font.getbbox(text)
-    image_width = bbox[2]
-    image_height = bbox[3]
+    # Calcula o tamanho da imagem
+    bbox = text_font.getbbox(text)
+    image_width, image_height = bbox[2], bbox[3]
+    if image_width == 0 or image_height == 0: return None
 
-    if image_width == 0 or image_height == 0:
-        return None # Retorna nada para texto vazio
-
-    # Cria a imagem com canal Alpha (transparência)
     img = Image.new('RGBA', (image_width, image_height), (255, 255, 255, 0))
     draw = ImageDraw.Draw(img)
+    draw.text((0, 0), text, font=text_font, fill=(0, 0, 0))
 
-    # Desenha o texto na imagem
-    draw.text((0, 0), text, font=font, fill=text_color)
-
-    # Salva a imagem em um buffer de memória
     buffer = BytesIO()
-    img.save(buffer, format='PNG')
+    img.save(buffer, 'PNG')
     buffer.seek(0)
-    return buffer
+    return buffer, image_width
 
-# --- FUNÇÃO PRINCIPAL DO PDF (BASEADA NO SEU CÓDIGO ORIGINAL) ---
+def write_line(pdf, text, font_size_pt, is_bold=False, is_multicell=False, align='L'):
+    """Escreve uma linha no PDF, usando imagem se tiver emoji, ou texto normal caso contrário."""
+    if contains_emoji(text):
+        font_size_px = int(font_size_pt * 1.33) # Conversão aproximada pt -> px
+        img_buffer, img_width_px = render_text_as_image(text, FONT_PATH_REGULAR, font_size_px, is_bold)
+        
+        if img_buffer:
+            img_width_mm = (img_width_px / 1.33) * 0.352778
+            img_height_mm = font_size_pt * 0.352778
+
+            # Centraliza se necessário
+            x_pos = pdf.get_x()
+            if align == 'C':
+                x_pos = (pdf.w - pdf.l_margin - pdf.r_margin - img_width_mm) / 2 + pdf.l_margin
+
+            pdf.image(img_buffer, x=x_pos, h=img_height_mm)
+            pdf.ln(img_height_mm + (2 if is_multicell else 0))
+    else:
+        font_style = 'B' if is_bold else ''
+        pdf.set_font('NotoSans', font_style, font_size_pt)
+        if is_multicell:
+            pdf.multi_cell(0, font_size_pt * 0.5, text, align=align, ln=True)
+        else:
+            pdf.write(font_size_pt * 0.5, text)
+
+# --- FUNÇÃO PRINCIPAL DE CRIAÇÃO DO PDF (BASEADA NO SEU CÓDIGO) ---
 def create_final_pdf(markdown_text, title, emoji):
     pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=25)
-    pdf.set_margins(25, 25, 25)
+    pdf.set_margins(20, 20, 20)
+    pdf.set_auto_page_break(auto=True, margin=20)
 
     pdf.add_font('NotoSans', '', FONT_PATH_REGULAR)
     pdf.add_font('NotoSans', 'B', FONT_PATH_BOLD)
     pdf.add_page()
 
-    title_with_emoji = f"{title} {emoji}"
-    title_font_size_pt = 24
-    title_font_size_px = int(title_font_size_pt * 1.33)
-    
-    title_img_buffer = render_text_to_image(title_with_emoji, FONT_PATH_EMOJI, title_font_size_px, text_color=(0,0,0))
-    if title_img_buffer:
-        img = Image.open(title_img_buffer)
-        img_width_mm = (img.width / 1.33) * 0.352778
-        title_img_buffer.seek(0)
-        
-        x_pos = (pdf.w - img_width_mm) / 2
-        pdf.image(title_img_buffer, x=x_pos, h=title_font_size_pt * 0.352778)
-        pdf.ln(15)
+    # Título principal (com emoji)
+    write_line(pdf, f"{title} {emoji}", 22, is_bold=True, is_multicell=True, align='C')
+    pdf.ln(10)
 
-    processed_lines = []
-    for line in markdown_text.split('\n'):
-        stripped_line = line.strip()
-        if stripped_line.startswith('## '):
-            processed_lines.append(stripped_line)
-        elif stripped_line:
-            if stripped_line.startswith('### '):
-                stripped_line = stripped_line[4:]
-            processed_lines.append(f'* {stripped_line}')
-    
     is_first_day = True
-    for line in processed_lines:
-        if line.startswith('## '):
-            if not is_first_day:
+    for line in markdown_text.split('\n'):
+        line = line.strip()
+        if not line: continue
+
+        if 'Dicas Essenciais' in line or line.startswith('## '):
+            if not is_first_day or 'Dicas Essenciais' in line:
                 pdf.add_page()
             is_first_day = False
             
+            title_text = line.replace('**', '').replace('###', '').replace('##', '').strip()
             pdf.set_font('NotoSans', 'B', 16)
-            pdf.multi_cell(0, 10, line[3:], align='C', ln=True)
-            pdf.ln(5)
+            pdf.set_fill_color(230, 230, 230)
+            pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
+            pdf.ln(6)
+        
+        elif line.startswith('### '):
+            pdf.set_font('NotoSans', 'B', 13)
+            pdf.multi_cell(0, 7, line[4:], ln=True, align='C')
+            pdf.ln(4)
 
-        elif line.startswith('* '):
+        elif line.startswith('* ') or line.startswith('- '):
             text = line[2:]
+            pdf.set_x(25) # Recuo
+            pdf.set_font('NotoSans', 'B', 11)
+            pdf.cell(5, 7, "• ")
+            
+            # Divide em partes negrito/normal
             parts = re.split(r'(\*\*.*?\*\*)', text)
-            
-            pdf.set_x(30)
-            pdf.set_font('NotoSans', 'B', 12)
-            pdf.cell(5, 8, "•")
-            
-            current_x = pdf.get_x()
-            current_y = pdf.get_y()
-            
             for part in parts:
                 if not part: continue
-                
-                font_path = FONT_PATH_REGULAR
-                if part.startswith('**') and part.endswith('**'):
-                    part = part[2:-2]
-                    font_path = FONT_PATH_BOLD
+                is_bold_part = part.startswith('**') and part.endswith('**')
+                clean_part = part[2:-2] if is_bold_part else part
+                write_line(pdf, clean_part, 11, is_bold=is_bold_part)
+            pdf.ln(8)
 
-                line_img_buffer = render_text_to_image(part, font_path, 16, text_color=(0,0,0))
-                if line_img_buffer:
-                    img = Image.open(line_img_buffer)
-                    img_width_mm = (img.width / 1.33) * 0.352778
-                    img_height_mm = 8
-                    line_img_buffer.seek(0)
-                    
-                    if current_x + img_width_mm > (pdf.w - pdf.r_margin):
-                        current_y += img_height_mm
-                        current_x = 35
+        else: 
+            pdf.set_font('NotoSans', '', 11)
+            pdf.multi_cell(0, 7, line, ln=True)
+            pdf.ln(4)
 
-                    pdf.image(line_img_buffer, x=current_x, y=current_y, h=img_height_mm)
-                    current_x += img_width_mm
-
-            pdf.set_y(current_y)
-            pdf.ln(img_height_mm + 2)
-
-    # --- CORREÇÃO FINAL APLICADA AQUI ---
-    # A saída já é em bytes, então removemos o .encode('latin-1')
     return pdf.output()
 
 # --- FUNÇÕES DE CONEXÃO E LÓGICA DO APP ---
