@@ -184,7 +184,6 @@ import markdown2
 from io import BytesIO
 from xhtml2pdf import pisa
 
-# Título da aplicação
 st.title("Seus Roteiros de Viagem 🗺️")
 
 # --- NOVA FUNÇÃO PARA GERAR PDF COM EMOJIS ---
