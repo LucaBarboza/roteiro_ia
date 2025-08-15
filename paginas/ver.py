@@ -188,7 +188,7 @@ from xhtml2pdf import pisa
 st.title("Seus Roteiros de Viagem 🗺️")
 
 # --- NOVA FUNÇÃO PARA GERAR PDF COM EMOJIS ---
-def create_final_pdf(markdown_text, title):
+def create_final_pdf(markdown_text, title, emoji):
     """
     Cria um PDF com emojis coloridos convertendo Markdown para HTML e depois para PDF.
     VERSÃO CORRIGIDA: Usa @font-face para máxima compatibilidade.
@@ -265,7 +265,7 @@ def create_final_pdf(markdown_text, title):
         </style>
     </head>
     <body>
-        <h1>{title}</h1>
+        <h1>{title} {emoji}</h1>
         {html_body}
     </body>
     </html>
@@ -351,7 +351,7 @@ if roteiros:
                 col_download, col_delete = st.columns([3, 0.8])
 
                 with col_download:
-                    pdf_bytes = create_final_pdf(roteiro['texto'], pais)
+                    pdf_bytes = create_final_pdf(roteiro['texto'], pais, emojis)
                     if pdf_bytes:
                         st.download_button(
                             label="Baixar Roteiro em PDF 📄",
