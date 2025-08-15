@@ -201,64 +201,72 @@ def create_final_pdf(markdown_text, title, emoji):
     <head>
         <meta charset="UTF-8">
         <style>
-            /* --- CSS APRIMORADO PARA UM LAYOUT PROFISSIONAL --- */
+            /* --- CSS FINAL COM AJUSTES DE DESIGN --- */
 
             body {{
                 font-family: 'Noto Sans', 'Noto Color Emoji', sans-serif;
-                margin: 1in;
-                font-size: 11pt;
-                line-height: 1.6; /* Aumenta o espaço entre linhas para melhor leitura */
-                color: #333; /* Cinza escuro é mais suave para os olhos que preto puro */
+                margin: 0.8in; /* Margens reduzidas */
+                font-size: 12pt; /* Fonte principal maior */
+                line-height: 1.6;
+                color: #333;
             }}
 
             /* --- CONTROLE DE LAYOUT E PAGINAÇÃO --- */
             h2 {{
-                /* A regra mágica: todo título de "Dia" começará em uma página nova */
-                page-break-before: always;
-                /* Evita que a página quebre logo depois de um título */
+                page-break-before: always; /* Regra geral: todo Dia começa em pág. nova */
                 page-break-after: avoid;
             }}
+            /* A mágica para o título: anula a quebra de página APENAS para o primeiro H2 */
+            h2:first-of-type {{
+                page-break-before: auto;
+            }}
             p, ul {{
-                /* Evita que uma única linha de um parágrafo fique isolada
-                   no início ou no fim de uma página (viúvas e órfãs) */
                 widows: 2;
                 orphans: 2;
             }}
 
             /* --- ESTILOS DOS ELEMENTOS --- */
             h1 {{
-                font-size: 26pt; /* Um pouco maior para mais destaque */
+                font-size: 28pt; /* Fonte ajustada */
                 font-weight: 700;
                 text-align: center;
                 color: #000;
-                margin-bottom: 25px;
+                margin-bottom: 30px;
                 page-break-after: avoid;
             }}
             h2 {{
-                font-size: 18pt;
+                font-size: 20pt; /* Fonte ajustada */
                 font-weight: 700;
                 text-align: center;
                 color: #111;
-                margin-top: 0; /* Como está no topo da pág, não precisa de margem */
-                margin-bottom: 30px; /* Mais espaço depois do título do dia */
-                padding-bottom: 10px; /* Espaço entre o texto e a linha */
-                /* Uma linha divisória elegante no lugar do fundo cinza */
-                border-bottom: 2px solid #E6E6E6;
+                margin-top: 0;
+                margin-bottom: 30px;
+                padding: 4px 12px; /* Padding para o "grifado" */
+                background-color: #E6E6E6; /* Cor do "grifado" (cinza claro) */
+                /* Para o fundo não ocupar a linha toda, e sim só o texto */
+                display: inline-block;
+                border-radius: 4px; /* Cantos levemente arredondados */
+                /* Correção para o espaçamento dos números (ex: 11, 12) */
+                letter-spacing: normal;
+            }}
+            /* Precisamos de um container para centralizar o H2, que agora é inline-block */
+            div.h2-container {{
+                text-align: center;
             }}
             h3 {{
-                font-size: 14pt;
+                font-size: 15pt; /* Fonte ajustada */
                 font-weight: 700;
-                text-align: left; /* Alinhado à esquerda para subtítulos fica mais legível */
+                text-align: left;
                 color: #111;
-                margin-top: 24px; /* Mais espaço antes de cada subtítulo */
+                margin-top: 24px;
                 margin-bottom: 8px;
             }}
             ul {{
                 padding-left: 25px;
-                list-style-type: '•  '; /* Bullet personalizado com mais espaço */
+                list-style-type: '•  ';
             }}
             li {{
-                margin-bottom: 10px; /* Mais espaço entre os itens da lista */
+                margin-bottom: 10px;
                 padding-left: 5px;
             }}
             p {{
@@ -275,6 +283,11 @@ def create_final_pdf(markdown_text, title, emoji):
     </body>
     </html>
     """
+    
+    # Pequena modificação para centralizar o H2 "grifado"
+    # O Markdown gera <h2>...</h2>. Vamos envolvê-lo em uma div para centralizar.
+    html_string = html_string.replace('<h2>', '<div class="h2-container"><h2>')
+    html_string = html_string.replace('</h2>', '</h2></div>')
 
     try:
         pdf_bytes = HTML(string=html_string).write_pdf()
