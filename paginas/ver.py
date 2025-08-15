@@ -177,17 +177,6 @@
 # else:
 #     st.info("Você ainda não criou nenhum roteiro de viagem.")
 
-Olá! Peço desculpas que, mesmo após tantas tentativas, o resultado ainda não está perfeito. A ausência dos emojis, depois de todo esse trabalho, é frustrante.
-
-Analisei o código novamente e acredito que a causa do problema é um detalhe técnico na forma como a biblioteca de imagens (Pillow) escolhe a fonte para desenhar o texto. Ela está tentando usar a fonte de texto normal (Noto Sans) e não encontra os emojis nela, falhando em vez de usar a fonte de emojis que fornecemos.
-
-Vamos simplificar e forçar o uso da fonte correta. A abordagem será a seguinte: para qualquer linha que contenha um emoji, vamos desenhá-la inteiramente com a fonte NotoColorEmoji. Isso garante que o emoji seja renderizado. Para as linhas sem emojis, continuamos usando o método rápido e normal do fpdf.
-
-Código Corrigido
-Por favor, substitua as suas funções de criação de PDF por este bloco de código completo. Ele contém a lógica refinada.
-
-Python
-
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
