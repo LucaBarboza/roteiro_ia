@@ -208,15 +208,12 @@ if roteiros:
             if not is_open:
                 col_ver, col_del = st.columns([3, 1]) # Dê mais espaço para o botão "Ver"
                 
-                with col_ver:
-                    if st.button("Ver Roteiro Completo", key=f"open_{i}", use_container_width=True):
-                        st.session_state.roteiro_aberto = pais
-                        st.rerun()
+                if st.button("Ver Roteiro Completo", key=f"open_{i}", use_container_width=True):
+                    st.session_state.roteiro_aberto = pais
+                    st.rerun()
                 
-                with col_del:
-                    # Botão Deletar para o estado FECHADO
-                    if st.button("🗑️", key=f"delete_closed_{i}", help="Deletar este roteiro"):
-                        deletar_roteiro(roteiro) # Chama a função auxiliar
+                if st.button("🗑️ Deletar", key=f"delete_closed_{i}", help="Deletar este roteiro"):
+                    deletar_roteiro(roteiro) # Chama a função auxiliar
 
             # --- ESTADO ABERTO ---
             # Se o roteiro ESTIVER aberto, mostre o conteúdo completo
@@ -232,7 +229,7 @@ if roteiros:
                 st.divider()
 
                 # Botões de ação na parte de baixo
-                col_download, col_del_open = st.columns([3, 1])
+                col_download, col2, col3, col_del_open = st.columns([2, 1, 1, 0.8])
 
                 with col_download:
                     pdf_bytes = create_final_pdf(roteiro['texto'], pais)
