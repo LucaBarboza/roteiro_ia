@@ -143,7 +143,6 @@ async def gerar_roteiro_completo(pais, dias):
     return roteiro_revisado, emojis_gerados
 
 ###################
-@st.cache_resource
 
 db = conectar_firebase()
 colecao = 'usuarios2'

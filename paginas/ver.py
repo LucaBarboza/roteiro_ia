@@ -13,8 +13,6 @@ FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
 
 st.title("Seus Roteiros")
 
-@st.cache_resource
-
 db = conectar_firebase()
 colecao = 'usuarios2'
 doc = db.collection(colecao).document(st.user.email).get()

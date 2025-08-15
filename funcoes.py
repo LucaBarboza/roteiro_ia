@@ -1,5 +1,6 @@
 # CONECTAR COM O FIREBASE
 
+@st.cache_resource
 def conectar_firebase():
     try:
         firebase_admin.get_app()
