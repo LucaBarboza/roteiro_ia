@@ -191,47 +191,46 @@ st.title("Seus Roteiros de Viagem 🗺️")
 # --- FUNÇÃO DE GERAÇÃO DE PDF ATUALIZADA PARA WEASYPRINT ---
 def create_final_pdf(markdown_text, title, emoji):
     """
-    Cria um PDF com emojis coloridos usando WeasyPrint e um CSS específico
-    para replicar o layout de referência.
+    Cria um PDF com emojis coloridos usando WeasyPrint. Inclui um
+    pré-processador de Markdown para garantir uma estrutura de lista consistente.
     """
-    # O texto original é usado, sem pré-processamento
-    html_body = markdown2.markdown(markdown_text, extras=["break-on-newline"])
+    processed_lines = []
+    for line in markdown_text.split('\n'):
+        stripped_line = line.strip()
+        if stripped_line.startswith('## '):
+            processed_lines.append(stripped_line)
+        elif stripped_line:
+            if stripped_line.startswith('### '):
+                stripped_line = stripped_line[4:]
+            processed_lines.append(f'* {stripped_line}')
+    processed_markdown = '\n'.join(processed_lines)
+    html_body = markdown2.markdown(processed_markdown, extras=["break-on-newline"])
 
     html_string = f"""
     <html>
     <head>
         <meta charset="UTF-8">
         <style>
-            /* --- CSS FINAL PARA O ESTILO DE REFERÊNCIA --- */
             @page {{
                 margin: 1in;
             }}
             body {{
                 font-family: 'Noto Serif', 'Noto Color Emoji', serif;
                 font-size: 12pt;
-                line-height: 1.4;
+                line-height: 1.5;
                 color: #000;
+                
+                /* --- CORREÇÃO PARA OS NÚMEROS --- */
+                /* Desativa o ajuste de espaçamento entre caracteres (kerning) */
+                font-kerning: none;
             }}
 
-            /* --- CONTROLE DE PAGINAÇÃO (Mantido) --- */
-            h2 {{
-                page-break-before: always;
-                page-break-after: avoid;
-            }}
-            h2:first-of-type {{
-                page-break-before: auto;
-            }}
-            p, ul {{
-                widows: 2;
-                orphans: 2;
-            }}
-
-            /* --- ESTILOS DOS ELEMENTOS PARA IMITAR O PDF (18) --- */
             h1 {{
                 font-size: 24pt;
                 font-weight: bold;
                 text-align: center;
                 margin-bottom: 25px;
+                page-break-after: avoid;
             }}
             h2 {{
                 font-size: 16pt;
@@ -239,38 +238,26 @@ def create_final_pdf(markdown_text, title, emoji):
                 text-align: center;
                 margin-top: 0;
                 margin-bottom: 20px;
+                page-break-before: always;
+                page-break-after: avoid;
             }}
-
-            /* Estilo para o 'Foco:' (que é um H3 no Markdown) */
-            h3 {{
-                font-size: 12pt; /* Mesmo tamanho do texto normal */
-                font-weight: normal; /* Sem negrito extra, o 'strong' cuidará disso se houver */
-                margin: 16px 0;
-                padding-left: 1.5em;
-                text-indent: -1.5em;
+            h2:first-of-type {{
+                page-break-before: auto;
             }}
-            /* Adiciona o bullet APENAS ao H3 (Foco:) e aos LIs (itens de lista) */
-            h3::before, li::before {{
-                content: '•  ';
-            }}
-
-            /* Parágrafos normais (sem bullet) */
-            p {{
-                 margin-bottom: 12px;
-            }}
-
-            /* Configuração da lista de bullets */
+            
             ul {{
                 padding-left: 0;
                 list-style-type: none;
-                margin: 16px 0;
             }}
             li {{
                 margin-bottom: 12px;
                 padding-left: 1.5em;
                 text-indent: -1.5em;
             }}
-
+            li::before {{
+                content: '•  ';
+                font-size: 12pt;
+            }}
             strong {{
                 font-weight: bold;
             }}
