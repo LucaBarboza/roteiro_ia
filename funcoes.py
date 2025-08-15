@@ -1,3 +1,5 @@
+import streamlit as st
+
 # CONECTAR COM O FIREBASE
 
 @st.cache_resource
