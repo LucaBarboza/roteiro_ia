@@ -43,7 +43,7 @@ if roteiros:
                 col_download, col2, col3, col_del_open = st.columns([2, 1, 1, 0.8])
 
                 with col_download:
-                    pdf_bytes = create_final_pdf(db, roteiro['texto'], pais)
+                    pdf_bytes = create_final_pdf(roteiro['texto'], pais)
                     if pdf_bytes:
                         st.download_button(
                             label="Baixar Roteiro em PDF 📄",
