@@ -39,7 +39,41 @@ def write_styled_text(pdf, text):
             pdf.write(7, part)
 
 def create_final_pdf(markdown_text, title):
-    """Creates and returns the bytes for a PDF file from markdown text."""
+    # --- INÍCIO DO CÓDIGO DE DIAGNÓSTICO ---
+    # Este bloco é temporário e vai nos mostrar o que está acontecendo no servidor
+
+    st.error("--- INÍCIO DO DIAGNÓSTICO DE ARQUIVOS ---")
+
+    # 1. Vamos confirmar o caminho que o script ACHA que é o correto
+    st.write("Caminho completo da fonte que o código está tentando usar:")
+    st.code(FONT_PATH_REGULAR, language="text")
+
+    # 2. Vamos verificar se o arquivo existe nesse caminho exato
+    if os.path.exists(FONT_PATH_REGULAR):
+        st.success("✅ BOA NOTÍCIA: O arquivo da fonte foi encontrado neste caminho!")
+    else:
+        st.error("❌ PROBLEMA CENTRAL: O arquivo da fonte NÃO foi encontrado neste caminho.")
+
+    # 3. Agora, vamos listar o que REALMENTE existe nas pastas importantes
+    try:
+        # PROJECT_ROOT é a pasta que deveria conter a pasta 'arquivos'
+        st.write(f"Conteúdo da pasta raiz do projeto (PROJECT_ROOT):")
+        st.code(str(os.listdir(PROJECT_ROOT)), language="text")
+    except Exception as e:
+        st.error(f"Não foi possível listar os arquivos na raiz do projeto: {e}")
+
+    try:
+        # Vamos tentar listar o conteúdo da pasta 'arquivos'
+        path_to_arquivos = os.path.join(PROJECT_ROOT, 'arquivos')
+        st.write(f"Conteúdo da pasta '{path_to_arquivos}':")
+        st.code(str(os.listdir(path_to_arquivos)), language="text")
+    except Exception as e:
+        st.error(f"Não foi possível listar os arquivos na pasta 'arquivos': {e}")
+
+    st.error("--- FIM DO DIAGNÓSTICO ---")
+    # --- FIM DO CÓDIGO DE DIAGNÓSTICO ---
+
+    # O resto da sua função continua aqui...
     pdf = FPDF()
     pdf.set_left_margin(20)
     pdf.set_right_margin(20)
