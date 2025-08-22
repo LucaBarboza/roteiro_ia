@@ -43,7 +43,7 @@ if roteiros:
                 col_download, col2, col3, col_del_open = st.columns([2, 1, 1, 0.8])
 
                 with col_download:
-                    pdf_bytes = create_final_pdf(roteiro['texto'], pais)
+                    pdf_bytes = create_final_pdf(db, roteiro['texto'], pais)
                     if pdf_bytes:
                         st.download_button(
                             label="Baixar Roteiro em PDF 📄",
@@ -55,6 +55,6 @@ if roteiros:
                 
                 with col_del_open:
                     if st.button("🗑️ Deletar", key=f"delete_open_{i}", help="Deletar este roteiro"):
-                        deletar_roteiro(roteiro)
+                        deletar_roteiro(db, roteiro)
 else:
     st.info("Você ainda não criou nenhum roteiro de viagem.")
