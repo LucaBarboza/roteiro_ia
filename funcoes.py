@@ -31,10 +31,10 @@ def write_styled_text(pdf, text):
     for part in parts:
         if not part: continue
         if part.startswith('**') and part.endswith('**'):
-            pdf.set_font('DejaVu', 'B', 11)
+            pdf.set_font('DejaVu', 'B', 10)
             pdf.write(7, part[2:-2])
         else:
-            pdf.set_font('DejaVu', '', 11)
+            pdf.set_font('DejaVu', '', 10)
             pdf.write(7, part)
 
 def create_final_pdf(markdown_text, title):
