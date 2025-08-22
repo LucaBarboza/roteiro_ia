@@ -86,13 +86,13 @@ def create_final_pdf(markdown_text, title):
         elif line.startswith('* ') or line.startswith('- '):
             text = line[2:]
             pdf.cell(5)
-            pdf.set_font('DejaVu', 'B', 11)
+            pdf.set_font('DejaVu', 'B', 10)
             pdf.cell(5, 7, "• ")
             write_styled_text(pdf, text)
             pdf.ln()
             pdf.ln(4)
         else: 
-            pdf.set_font('DejaVu', '', 11)
+            pdf.set_font('DejaVu', '', 10)
             pdf.multi_cell(0, 7, line, ln=True)
             pdf.ln(4)
 
