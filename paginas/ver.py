@@ -55,6 +55,6 @@ if roteiros:
                 
                 with col_del_open:
                     if st.button("🗑️ Deletar", key=f"delete_open_{i}", help="Deletar este roteiro"):
-                        deletar_roteiro(db, roteiro)
+                        deletar_roteiro(db, colecao, roteiro)
 else:
     st.info("Você ainda não criou nenhum roteiro de viagem.")
