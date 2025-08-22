@@ -31,10 +31,10 @@ def write_styled_text(pdf, text):
     for part in parts:
         if not part: continue
         if part.startswith('**') and part.endswith('**'):
-            pdf.set_font('DejaVu', 'B', 9)
+            pdf.set_font('DejaVu', 'B', 10)
             pdf.write(7, part[2:-2])
         else:
-            pdf.set_font('DejaVu', '', 9)
+            pdf.set_font('DejaVu', '', 10)
             pdf.write(7, part)
 
 def create_final_pdf(markdown_text, title):
@@ -86,13 +86,13 @@ def create_final_pdf(markdown_text, title):
         elif line.startswith('* ') or line.startswith('- '):
             text = line[2:]
             pdf.cell(5)
-            pdf.set_font('DejaVu', 'B', 9)
+            pdf.set_font('DejaVu', 'B', 10)
             pdf.cell(5, 7, "• ")
             write_styled_text(pdf, text)
             pdf.ln()
             pdf.ln(4)
         else: 
-            pdf.set_font('DejaVu', '', 9)
+            pdf.set_font('DejaVu', '', 10)
             pdf.multi_cell(0, 7, line, ln=True)
             pdf.ln(4)
 
