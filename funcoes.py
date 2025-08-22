@@ -5,13 +5,8 @@ from fpdf import FPDF
 import re
 import os
 
-# --- Define Font Paths ---
-# This ensures the script knows where to find your font files.
-# SCRIPT_DIR will be the directory containing this funcoes.py file.
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# Go one level up to the project's root directory
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-# Construct the path to the 'arquivos' folder from the project root
 FONT_PATH_REGULAR = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans.ttf')
 FONT_PATH_BOLD = os.path.join(PROJECT_ROOT, 'arquivos', 'DejaVuSans-Bold.ttf')
 
