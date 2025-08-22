@@ -177,7 +177,7 @@ with st.form("form_roteiro"):
                 dados['roteiros'] = []
     
             dados['roteiros'].append({
-            'texto': novo_roteiro,
+            'texto': novo_roteiro
             'pais': pais,
             'emojis': emojis_gerados
             })
