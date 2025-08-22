@@ -122,5 +122,3 @@ def deletar_roteiro(db, colecao, roteiro_para_deletar):
         st.rerun()
     except Exception as e:
         st.error(f"Erro ao deletar o roteiro: {e}")
-
-pg.run()
