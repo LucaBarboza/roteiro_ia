@@ -115,13 +115,13 @@ Ex:
 
 ## **🗺️ Roteiro para o {pais}**
 
-### **☀️ Dia 1: [Cidade]**
+### ** Dia 1: [Cidade]**
 - **[Resumo do dia]**
 - **Foco:** [Objetivo do dia]
-- **🏛️ [Atividade 1]**: [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
+- **[Atividade 1]**: [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
 - **... (adicione mais atividades conforme o ritmo e a logística permitirem)**
-- **🍲 Experiência Gastronômica:** Prove o [nome do prato típico].
-- **🌙 Sugestão Noturna:** [Atividade].
+- **Experiência Gastronômica:** Prove o [nome do prato típico].
+- **Sugestão Noturna:** [Atividade].
 
 *(Repita a estrutura para todos os dias)*
 
