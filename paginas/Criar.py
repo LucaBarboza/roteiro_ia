@@ -113,7 +113,7 @@ Apresente o resultado no seguinte formato:
 
 Ex:
 
-## **🗺️ Roteiro Otimizado**
+## **🗺️ Roteiro para o {pais}**
 
 ### **☀️ Dia 1: [Cidade]**
 - **[Resumo do dia]**
@@ -158,7 +158,7 @@ async def gerar_roteiro_completo(pais, dias):
         status.update(label="Fase 2: Concluída!", state="complete")
 
     with st.status("Fase 3: Refinando e finalizando a experiência...", expanded=True) as status:
-        prompt = PROMPT_REVISOR.format(plano_de_roteiro=plano_de_roteiro)
+        prompt = PROMPT_REVISOR.format(plano_de_roteiro=plano_de_roteiro, pais=pais)
         response_revisor = await model.generate_content_async(prompt)
         roteiro_revisado = response_revisor.text
         
