@@ -70,9 +70,9 @@ Apresente o resultado **sem título geral** e no seguinte formato em Markdown:
 ---
 Ex:
 
-## **🗺️ Roteiro Detalhado**
+## **🗺️ Roteiro {pais}**
 
-### **☀️ Dia 1: Chegada em [Cidade]**
+### ** Dia 1: Chegada em [Cidade]**
 - **Foco:** [Objetivo do dia]
 - **🏛️ [Atividade 1]** — [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
 - **🖼️ [Atividade 2]** — [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
@@ -113,7 +113,7 @@ Apresente o resultado no seguinte formato:
 
 Ex:
 
-## **🗺️ Roteiro para o {pais}**
+## **🗺️ Roteiro {pais}**
 
 ### ** Dia 1: [Cidade]**
 - **[Resumo do dia]**
