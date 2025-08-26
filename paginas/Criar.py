@@ -107,11 +107,9 @@ Siga este processo de auditoria:
 4.  **Enriquecimento:** Adicione dicas práticas, sugestões de pratos típicos 
 **e use emojis relevantes para enriquecer visualmente o documento e melhorar a escaneabilidade.**
 
-Apresente o resultado no seguinte formato:
+Apresente o resultado no seguinte formato (Apenas o roteiro e as dicas):
 
 ---
-
-Ex:
 
 ## **🗺️ Roteiro {pais}**
 
