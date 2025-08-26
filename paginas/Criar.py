@@ -55,9 +55,11 @@ Siga rigorosamente este processo:
 
 1.  **Mapeamento Logístico Otimizado:** Defina a ordem das cidades e transportes.
 2.  **Roteiro Diário Imersivo:** Para cada dia, agrupe atividades por bairro. 
-Crie uma lista com uma sequência lógica de atividades, cujo número pode variar. 
-**Use emojis relevantes (ex: 🏛️ para museus, 🍲 para comida, ✈️ para voos) para deixar o roteiro mais visual e amigável.
-** Evite divisões de horário, a menos que seja crucial.
+    - **# IMPORTANTE: Considere o Dia 1 como o dia da chegada, planejando atividades mais leves e flexíveis para permitir check-in e descanso.**
+    - Crie uma lista com uma sequência lógica de atividades, cujo número pode variar.
+    - **# Para a gastronomia, sugira apenas pratos típicos e não restaurantes específicos.**
+    - Use emojis relevantes (ex: 🏛️ para museus, 🍲 para comida, ✈️ para voos) para deixar o roteiro mais visual e amigável.
+    - Evite divisões de horário, a menos que seja crucial.
 
 Apresente o resultado **sem título geral** e no seguinte formato em Markdown:
 
@@ -68,23 +70,21 @@ Apresente o resultado **sem título geral** e no seguinte formato em Markdown:
     - **De [Cidade B] para [Cidade C]:** [Opção recomendada].
 
 ---
-Ex:
 
 ## **🗺️ Roteiro {pais}**
 
-### ** Dia 1: Chegada em [Cidade]**
-- **Foco:** [Objetivo do dia]
-- ** [Atividade 1]** — [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
-- ** [Atividade 2]** — [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
-- **... (adicione mais atividades conforme o ritmo e a logística permitirem)**
+### ** Dia 1: Chegada em [Cidade] e Aclimatação**
+- **Foco:** Exploração leve e primeira imersão na cultura local.
+- ** [Atividade 1, ex: Caminhada pela praça central]** — [Breve descrição e dica, ex: "Ideal para sentir o ritmo da cidade sem pressa."].
+- **... (adicione no máximo mais uma atividade leve, se aplicável)**
 - ** Experiência Gastronômica:** Prove o [nome do prato típico], conhecido por [breve descrição].
-- ** Sugestão Noturna:** [Atividade de lazer].
+- ** Sugestão Noturna:** [Atividade de lazer leve, ex: "Tomar um café local observando o movimento."].
 
-*(Repita a estrutura para todos os dias)*
+*(Repita a estrutura para os outros dias, com ritmo normal)*
 
 ---
 
-### **💡 Dicas Essenciais para o Japão**
+### **💡 Dicas Essenciais para {pais}**
 - **Transporte Local:** [Dicas sobre como usar o transporte público].
 - **Dinheiro e Pagamentos:** [Informações sobre aceitação de cartões].
 - **Etiqueta Cultural:** [Uma dica importante sobre costumes locais].
@@ -101,25 +101,31 @@ Sua tarefa é auditar e reconstruir o roteiro abaixo, gerando uma versão final 
 
 Siga este processo de auditoria:
 
-1.  **Diagnóstico Inicial:** Analise o roteiro original.
-2.  **Validação de Dados:** Pesquise tempos reais.
-3.  **Reconstrução Otimizada:** Reorganize o roteiro de forma lógica.
-4.  **Enriquecimento:** Adicione dicas práticas, sugestões de pratos típicos 
-**e use emojis relevantes para enriquecer visualmente o documento e melhorar a escaneabilidade.**
+1.  **Diagnóstico Inicial:** Analise o roteiro original, **verificando se o ritmo do Dia 1 é leve e adequado para a chegada do viajante.**
+2.  **Validação de Dados:** Pesquise tempos reais de deslocamento e visita.
+3.  **Reconstrução Otimizada:** Reorganize o roteiro de forma lógica, agrupando atividades por região.
+4.  **Enriquecimento:** Adicione dicas práticas e use emojis relevantes. **Para a gastronomia, foque em sugerir pratos típicos, não restaurantes.**
 
-Apresente o resultado no seguinte formato (Apenas o roteiro e as dicas):
+Apresente o resultado no seguinte formato **(incluindo a visão geral da logística, o roteiro otimizado e as dicas)**:
+
+---
+
+### **✈️ Visão Geral e Logística Otimizada**
+- **Ordem Sugerida:** [Cidade A] -> [Cidade B] -> [Cidade C]
+- **Transporte Entre Cidades:**
+    - **De [Cidade A] para [Cidade B]:** [Opção recomendada e revisada].
+    - **De [Cidade B] para [Cidade C]:** [Opção recomendada e revisada].
 
 ---
 
 ## **🗺️ Roteiro {pais}**
 
-### ** Dia 1: [Cidade]**
-- **[Resumo do dia]**
-- **Foco:** [Objetivo do dia]
-- **[Atividade 1]**: [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
+### ** Dia 1: Chegada em [Cidade]**
+- **Foco:** [Objetivo do dia, ex: "Recepção e exploração inicial do bairro."].
+- ** [Atividade 1]**: [Breve descrição e dica prática].
 - **... (adicione mais atividades conforme o ritmo e a logística permitirem)**
-- **Experiência Gastronômica:** Prove o [nome do prato típico].
-- **Sugestão Noturna:** [Atividade].
+- ** Experiência Gastronômica:** Prove o [nome do prato típico].
+- ** Sugestão Noturna:** [Atividade de lazer leve].
 
 *(Repita a estrutura para todos os dias)*
 
