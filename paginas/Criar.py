@@ -74,11 +74,11 @@ Ex:
 
 ### ** Dia 1: Chegada em [Cidade]**
 - **Foco:** [Objetivo do dia]
-- **🏛️ [Atividade 1]** — [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
-- **🖼️ [Atividade 2]** — [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
+- ** [Atividade 1]** — [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
+- ** [Atividade 2]** — [Breve descrição] e/ou [Dica prática] ou [Dica sobre o local/costume].
 - **... (adicione mais atividades conforme o ritmo e a logística permitirem)**
-- **🍲 Experiência Gastronômica:** Prove o [nome do prato típico], conhecido por [breve descrição].
-- **🌙 Sugestão Noturna:** [Atividade de lazer].
+- ** Experiência Gastronômica:** Prove o [nome do prato típico], conhecido por [breve descrição].
+- ** Sugestão Noturna:** [Atividade de lazer].
 
 *(Repita a estrutura para todos os dias)*
 
