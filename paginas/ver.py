@@ -1,5 +1,5 @@
 import streamlit as st
-from funcoes import deletar_roteiro, create_final_pdf, write_styled_text, conectar_firebase
+from funcoes import deletar_roteiro, conectar_firebase, html_para_pdf_bytes#, create_final_pdf, write_styled_text
 
 st.title("Seus Roteiros")
 
@@ -43,15 +43,24 @@ if roteiros:
                 col_download, col2, col3, col_del_open = st.columns([2, 1, 1, 0.8])
 
                 with col_download:
-                    pdf_bytes = create_final_pdf(roteiro['texto'], pais)
+                    # pdf_bytes = create_final_pdf(roteiro['texto'], pais)
+                    # if pdf_bytes:
+                    #     st.download_button(
+                    #         label="Baixar Roteiro em PDF 📄",
+                    #         data=pdf_bytes,
+                    #         file_name=f"roteiro_{pais.replace(' ', '_').lower()}.pdf",
+                    #         mime="application/pdf",
+                    #         use_container_width=True
+                    #     )
+                    st.components.v1.html(roteiro_html, height=600, scrolling=True)
+
+                    pdf_bytes = html_para_pdf_bytes(roteiro['html'])
                     if pdf_bytes:
                         st.download_button(
-                            label="Baixar Roteiro em PDF 📄",
+                            label="📥 Baixar Roteiro em PDF",
                             data=pdf_bytes,
-                            file_name=f"roteiro_{pais.replace(' ', '_').lower()}.pdf",
+                            file_name=f"roteiro_{pais.lower().replace(' ', '_')}.pdf",
                             mime="application/pdf",
-                            use_container_width=True
-                        )
                 
                 with col_del_open:
                     if st.button("🗑️ Deletar", key=f"delete_open_{i}", help="Deletar este roteiro"):

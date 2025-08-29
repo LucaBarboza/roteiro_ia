@@ -4,10 +4,11 @@ from firebase_admin import credentials, firestore
 from fpdf import FPDF
 import re
 import os
+from weasyprint import HTML
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-FONT_PATH_REGULAR = os.path.join(SCRIPT_DIR, 'arquivos', 'DejaVuSans.ttf')
-FONT_PATH_BOLD = os.path.join(SCRIPT_DIR, 'arquivos', 'DejaVuSans-Bold.ttf')
+# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# FONT_PATH_REGULAR = os.path.join(SCRIPT_DIR, 'arquivos', 'DejaVuSans.ttf')
+# FONT_PATH_BOLD = os.path.join(SCRIPT_DIR, 'arquivos', 'DejaVuSans-Bold.ttf')
 
 
 # --- CONECTAR COM O FIREBASE ---
@@ -23,80 +24,90 @@ def conectar_firebase():
 
 
 # --- GERADOR DE PDF ---
-def write_styled_text(pdf, text):
-    """
-    Processes and writes text with multiple styles (bold).
-    """
-    parts = re.split(r'(\*\*.*?\*\*)', text)
-    for part in parts:
-        if not part: continue
-        if part.startswith('**') and part.endswith('**'):
-            pdf.set_font('DejaVu', 'B', 10)
-            pdf.write(7, part[2:-2])
-        else:
-            pdf.set_font('DejaVu', '', 10)
-            pdf.write(7, part)
 
-def create_final_pdf(markdown_text, title):
-    """Creates and returns the bytes for a PDF file from markdown text."""
-    pdf = FPDF()
-    pdf.set_left_margin(20)
-    pdf.set_right_margin(20)
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=20)
+def html_para_pdf_bytes(html_content):
+    """Converte uma string de conteúdo HTML em bytes de um arquivo PDF."""
+    try:
+        pdf_bytes = HTML(string=html_content, base_url=".").write_pdf()
+        return pdf_bytes
+    except Exception as e:
+        st.error(f"Ocorreu um erro ao gerar o PDF: {e}")
+        return None
 
-    pdf.add_font('DejaVu', '', FONT_PATH_REGULAR, uni=True)
-    pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
+# def write_styled_text(pdf, text):
+#     """
+#     Processes and writes text with multiple styles (bold).
+#     """
+#     parts = re.split(r'(\*\*.*?\*\*)', text)
+#     for part in parts:
+#         if not part: continue
+#         if part.startswith('**') and part.endswith('**'):
+#             pdf.set_font('DejaVu', 'B', 10)
+#             pdf.write(7, part[2:-2])
+#         else:
+#             pdf.set_font('DejaVu', '', 10)
+#             pdf.write(7, part)
 
-    pdf.set_font('DejaVu', 'B', 22)
-    pdf.multi_cell(0, 12, title, align='C', ln=True)
-    pdf.ln(15)
+# def create_final_pdf(markdown_text, title):
+#     """Creates and returns the bytes for a PDF file from markdown text."""
+#     pdf = FPDF()
+#     pdf.set_left_margin(20)
+#     pdf.set_right_margin(20)
+#     pdf.add_page()
+#     pdf.set_auto_page_break(auto=True, margin=20)
 
-    is_first_day = True
-    for line in markdown_text.split('\n'):
-        line = line.strip()
-        if not line: continue
+#     pdf.add_font('DejaVu', '', FONT_PATH_REGULAR, uni=True)
+#     pdf.add_font('DejaVu', 'B', FONT_PATH_BOLD, uni=True)
 
-        if 'Dicas Essenciais' in line:
-            pdf.add_page()
-            pdf.ln(8)
-            pdf.set_font('DejaVu', 'B', 16)
-            pdf.set_fill_color(230, 230, 230)
-            title_text = line.replace('**', '').replace('###', '').replace('##', '').strip()
-            pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
-            pdf.ln(6)
+#     pdf.set_font('DejaVu', 'B', 22)
+#     pdf.multi_cell(0, 12, title, align='C', ln=True)
+#     pdf.ln(15)
+
+#     is_first_day = True
+#     for line in markdown_text.split('\n'):
+#         line = line.strip()
+#         if not line: continue
+
+#         if 'Dicas Essenciais' in line:
+#             pdf.add_page()
+#             pdf.ln(8)
+#             pdf.set_font('DejaVu', 'B', 16)
+#             pdf.set_fill_color(230, 230, 230)
+#             title_text = line.replace('**', '').replace('###', '').replace('##', '').strip()
+#             pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
+#             pdf.ln(6)
             
-        elif line.startswith('## '):
-            if not is_first_day:
-                pdf.add_page()
-            is_first_day = False
+#         elif line.startswith('## '):
+#             if not is_first_day:
+#                 pdf.add_page()
+#             is_first_day = False
             
-            pdf.ln(8)
-            pdf.set_font('DejaVu', 'B', 16)
-            pdf.set_fill_color(230, 230, 230)
-            title_text = line[3:].replace('**', '')
-            pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
-            pdf.ln(6)
+#             pdf.ln(8)
+#             pdf.set_font('DejaVu', 'B', 16)
+#             pdf.set_fill_color(230, 230, 230)
+#             title_text = line[3:].replace('**', '')
+#             pdf.multi_cell(0, 12, f" {title_text} ", ln=True, fill=True, align='C')
+#             pdf.ln(6)
 
-        elif line.startswith('### '):
-            pdf.set_font('DejaVu', 'B', 13)
-            pdf.multi_cell(0, 7, line[4:], ln=True, align='C')
-            pdf.ln(4)
+#         elif line.startswith('### '):
+#             pdf.set_font('DejaVu', 'B', 13)
+#             pdf.multi_cell(0, 7, line[4:], ln=True, align='C')
+#             pdf.ln(4)
 
-        elif line.startswith('* ') or line.startswith('- '):
-            text = line[2:]
-            pdf.cell(5)
-            pdf.set_font('DejaVu', 'B', 10)
-            pdf.cell(5, 7, "• ")
-            write_styled_text(pdf, text)
-            pdf.ln()
-            pdf.ln(4)
-        else: 
-            pdf.set_font('DejaVu', '', 10)
-            pdf.multi_cell(0, 7, line, ln=True)
-            pdf.ln(4)
+#         elif line.startswith('* ') or line.startswith('- '):
+#             text = line[2:]
+#             pdf.cell(5)
+#             pdf.set_font('DejaVu', 'B', 10)
+#             pdf.cell(5, 7, "• ")
+#             write_styled_text(pdf, text)
+#             pdf.ln()
+#             pdf.ln(4)
+#         else: 
+#             pdf.set_font('DejaVu', '', 10)
+#             pdf.multi_cell(0, 7, line, ln=True)
+#             pdf.ln(4)
 
-    return bytes(pdf.output())
+#     return bytes(pdf.output())
 
 # --- DELETAR ---
 def deletar_roteiro(db, colecao, roteiro_para_deletar):

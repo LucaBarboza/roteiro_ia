@@ -142,9 +142,25 @@ A escolha deve considerar:
 - Símbolos nacionais, fauna, flora ou elementos culturais marcantes.
 - Emojis amplamente reconhecíveis e que façam sentido para um público internacional.
 - Evitar combinações ambíguas ou que possam gerar interpretações erradas.
-- Não use bandeiras
+- Proibido use bandeiras
 
 Retorne apenas os emojis, separados por espaço, sem explicações adicionais.
+"""
+
+PROMPT_HTML = """
+Você é um "Desenvolvedor de Roteiros Digitais", um especialista em converter textos de viagem em formato Markdown para páginas HTML limpas, bem estruturadas e visualmente agradáveis.
+
+Sua única tarefa é pegar o roteiro em Markdown fornecido abaixo e convertê-lo integralmente para um código HTML5.
+
+**Roteiro em Markdown para Converter:**
+{roteiro_revisado}
+
+Siga estas diretrizes estritamente:
+
+1.  **Estrutura do Head:** No `<head>` do HTML, inclua a tag **`<meta charset="UTF-8">`** para garantir a exibição correta de todos os caracteres, incluindo emojis. Inclua também um `<title>` para o roteiro.
+2.  **Estrutura Semântica:** Use tags HTML5 apropriadas (`<h2>`, `<h3>`, `<p>`, `<ul>`, `<li>`, etc.).
+3.  **Estilo Otimizado para PDF:** Inclua uma tag `<style>` com estilos gerais e um bloco `@media print` para otimizar a impressão.
+4.  **Saída Final:** Apresente apenas o código HTML completo, começando com `<!DOCTYPE html>` e terminando com `</html>`, dentro de um único bloco de código.
 """
 
 async def gerar_roteiro_completo(pais, dias):
@@ -172,7 +188,15 @@ async def gerar_roteiro_completo(pais, dias):
         emojis_gerados = emojis_pesquisa.text.strip()
         status.update(label="Fase 3: Concluída!", state="complete")
 
-    return roteiro_revisado, emojis_gerados
+    with st.status("Fase 4: Formatando a versão final para download...", expanded=True) as status:
+        prompt = PROMPT_HTML.format(roteiro_revisado=roteiro_revisado)
+        response_html = await model.generate_content_async(prompt)
+        roteiro_html = response_html.text.strip()
+        if "```html" in roteiro_html_final:
+             roteiro_html_final = roteiro_html_final.split("```html")[1].split("```")[0]
+        status.update(label="Fase 4: Concluída!", state="complete")
+
+    return roteiro_revisado, emojis_gerados, roteiro_html
 
 ###################
 
@@ -196,13 +220,14 @@ with st.form("form_roteiro"):
         else:
             dias = (data_fim_str - data_inicio_str).days
             st.info(f"Preparando um roteiro de {dias} dias para {pais}. Isso pode levar um momento...")
-            roteiro_final, emojis_gerados = asyncio.run(gerar_roteiro_completo(pais, dias))
+            roteiro_final, emojis_gerados, roteiro_final_html = asyncio.run(gerar_roteiro_completo(pais, dias))
             st.balloons()
             st.divider()
             st.header("🎉 Seu Roteiro Personalizado está Pronto!")
             st.markdown(roteiro_final)
 
             novo_roteiro = roteiro_final
+            novo_html = roteiro_final_html
             user_ref = db.collection(colecao).document(st.user.email)
             doc = user_ref.get()
             dados = doc.to_dict() if doc.exists else {}
@@ -213,7 +238,8 @@ with st.form("form_roteiro"):
             dados['roteiros'].append({
             'texto': novo_roteiro,
             'pais': pais,
-            'emojis': emojis_gerados
+            'emojis': emojis_gerados,
+            'html': novo_html
             })
             user_ref.set(dados)
             st.success("Roteiro salvo!")

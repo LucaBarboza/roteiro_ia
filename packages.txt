@@ -1,0 +1,4 @@
+pango
+cairo
+gobject
+libffi
