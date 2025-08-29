@@ -120,12 +120,12 @@ Apresente o resultado no seguinte formato **(incluindo a visão geral da logíst
 
 ## **🗺️ Roteiro {pais}**
 
-### **Dia 1: Chegada em [Cidade]**
-- **Foco:** [Objetivo do dia, ex: "Recepção e exploração inicial do bairro."].
-- **[Atividade 1]**: [Breve descrição e dica prática].
+### **(emoji)Dia 1: Chegada em [Cidade]**
+- **(emoji)Foco:** [Objetivo do dia, ex: "Recepção e exploração inicial do bairro."].
+- **(emoji)[Atividade 1]**: [Breve descrição e dica prática].
 - **... (adicione mais atividades conforme o ritmo e a logística permitirem)**
-- **Experiência Gastronômica:** Prove o [nome do prato típico].
-- **Sugestão Noturna:** [Atividade de lazer leve].
+- **(emoji)Experiência Gastronômica:** Prove o [nome do prato típico].
+- **(emoji)Sugestão Noturna:** [Atividade de lazer leve].
 
 *(Repita a estrutura para todos os dias)*
 
