@@ -73,7 +73,7 @@ Apresente o resultado **sem título geral** e no seguinte formato em Markdown:
 
 ## **🗺️ Roteiro {pais}**
 
-### ** Dia 1: Chegada em [Cidade] e Aclimatação**
+### **Dia 1: Chegada em [Cidade] e Aclimatação**
 - **Foco:** Exploração leve e primeira imersão na cultura local.
 - ** [Atividade 1, ex: Caminhada pela praça central]** — [Breve descrição e dica, ex: "Ideal para sentir o ritmo da cidade sem pressa."].
 - **... (adicione no máximo mais uma atividade leve, se aplicável)**
@@ -120,7 +120,7 @@ Apresente o resultado no seguinte formato **(incluindo a visão geral da logíst
 
 ## **🗺️ Roteiro {pais}**
 
-### ** Dia 1: Chegada em [Cidade]**
+### **Dia 1: Chegada em [Cidade]**
 - **Foco:** [Objetivo do dia, ex: "Recepção e exploração inicial do bairro."].
 - ** [Atividade 1]**: [Breve descrição e dica prática].
 - **... (adicione mais atividades conforme o ritmo e a logística permitirem)**
