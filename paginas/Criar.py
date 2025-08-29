@@ -181,22 +181,20 @@ async def gerar_roteiro_completo(pais, dias):
     with st.status("Fase 3: Refinando e finalizando a experiência...", expanded=True) as status:
         prompt = PROMPT_REVISOR.format(plano_de_roteiro=plano_de_roteiro, pais=pais)
         response_revisor = await model.generate_content_async(prompt)
-        roteiro_revisado = response_revisor.text
+        roteiro_revisado_md = response_revisor.text # Mantemos o MD apenas para a próxima etapa
         
         prompt_emojis = PROMPT_EMOJIS.format(pais=pais)
         emojis_pesquisa = await model.generate_content_async(prompt_emojis)
         emojis_gerados = emojis_pesquisa.text.strip()
-        status.update(label="Fase 3: Concluída!", state="complete")
-
-    with st.status("Fase 4: Formatando a versão final para download...", expanded=True) as status:
-        prompt = PROMPT_HTML.format(roteiro_revisado=roteiro_revisado)
+    
+        prompt = PROMPT_HTML.format(roteiro_revisado=roteiro_revisado_md) # Usa o MD da fase 3
         response_html = await model.generate_content_async(prompt)
-        roteiro_html = response_html.text.strip()
-        if "```html" in roteiro_html:
-             roteiro_html = roteiro_html.split("```html")[1].split("```")[0]
-        status.update(label="Fase 4: Concluída!", state="complete")
-
-    return roteiro_revisado, emojis_gerados, roteiro_html
+        roteiro_html_final = response_html.text.strip()
+        if "```html" in roteiro_html_final:
+             roteiro_html_final = roteiro_html_final.split("```html")[1].split("```")[0]
+        status.update(label="Fase 3: Concluída!", state="complete")
+    
+    return roteiro_html_final, emojis_gerados
 
 ###################
 
@@ -224,10 +222,9 @@ with st.form("form_roteiro"):
             st.balloons()
             st.divider()
             st.header("🎉 Seu Roteiro Personalizado está Pronto!")
-            st.markdown(roteiro_final)
+            st.components.v1.html(roteiro_final_html, height=600, scrolling=True)
 
-            novo_roteiro = roteiro_final
-            novo_html = roteiro_final_html
+            # --- LÓGICA DE SALVAMENTO CORRIGIDA ---
             user_ref = db.collection(colecao).document(st.user.email)
             doc = user_ref.get()
             dados = doc.to_dict() if doc.exists else {}
@@ -235,11 +232,11 @@ with st.form("form_roteiro"):
             if 'roteiros' not in dados:
                 dados['roteiros'] = []
     
+            # ALTERADO: Salva um dicionário mais limpo, apenas com o HTML na chave 'texto'
             dados['roteiros'].append({
-            'texto': novo_roteiro,
+            'texto': roteiro_final_html,
             'pais': pais,
             'emojis': emojis_gerados,
-            'html': novo_html
             })
             user_ref.set(dados)
             st.success("Roteiro salvo!")
