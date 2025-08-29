@@ -52,8 +52,7 @@ if roteiros:
                     #         mime="application/pdf",
                     #         use_container_width=True
                     #     )
-                    # st.components.v1.html(roteiro['html'], height=600, scrolling=True)
-
+                    
                     pdf_bytes = html_para_pdf_bytes(roteiro['html'])
                     if pdf_bytes:
                         st.download_button(
