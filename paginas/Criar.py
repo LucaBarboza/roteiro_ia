@@ -157,11 +157,14 @@ Sua única tarefa é pegar o roteiro em Markdown fornecido e convertê-lo integr
 
 Siga estas diretrizes estritamente:
 
-1.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">` e um `<title>` para o roteiro.
+1.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">`. **# ALTERADO: Instrução mais específica para o título** O título da página deve seguir o formato `<title>Roteiro para {pais}</title>`.
+
 2.  **Estrutura Semântica:** Use tags HTML5 apropriadas (`<h2>`, `<h3>`, `<h4>`, `p`, `ul`, `li`, `strong`).
+
 3.  **Estilo Profissional (CSS):** Inclua a tag `<style>` dentro do `<head>`. O CSS deve criar uma página com excelente legibilidade e aparência. Use EXATAMENTE o estilo abaixo:
 
     ```css
+    /* ALTERADO: Sintaxe do @import corrigida para CSS válido */
     @import url('[https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap)');
 
     body {
