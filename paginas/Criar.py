@@ -192,8 +192,8 @@ async def gerar_roteiro_completo(pais, dias):
         prompt = PROMPT_HTML.format(roteiro_revisado=roteiro_revisado)
         response_html = await model.generate_content_async(prompt)
         roteiro_html = response_html.text.strip()
-        if "```html" in roteiro_html_final:
-             roteiro_html_final = roteiro_html_final.split("```html")[1].split("```")[0]
+        if "```html" in roteiro_html:
+             roteiro_html = roteiro_html.split("```html")[1].split("```")[0]
         status.update(label="Fase 4: Concluída!", state="complete")
 
     return roteiro_revisado, emojis_gerados, roteiro_html
