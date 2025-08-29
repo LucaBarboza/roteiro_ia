@@ -222,9 +222,9 @@ with st.form("form_roteiro"):
             st.balloons()
             st.divider()
             st.header("🎉 Seu Roteiro Personalizado está Pronto!")
-            st.components.v1.html(roteiro_final_html, height=600, scrolling=True)
+            st.markdown(roteiro_final)
 
-            # --- LÓGICA DE SALVAMENTO CORRIGIDA ---
+            novo_html = roteiro_final_html
             user_ref = db.collection(colecao).document(st.user.email)
             doc = user_ref.get()
             dados = doc.to_dict() if doc.exists else {}
@@ -232,11 +232,10 @@ with st.form("form_roteiro"):
             if 'roteiros' not in dados:
                 dados['roteiros'] = []
     
-            # ALTERADO: Salva um dicionário mais limpo, apenas com o HTML na chave 'texto'
             dados['roteiros'].append({
-            'texto': roteiro_final_html,
+            'texto': novo_html,
             'pais': pais,
-            'emojis': emojis_gerados,
+            'emojis': emojis_gerados
             })
             user_ref.set(dados)
             st.success("Roteiro salvo!")
