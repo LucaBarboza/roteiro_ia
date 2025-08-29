@@ -106,6 +106,9 @@ Siga este processo de auditoria:
 3.  **Reconstrução Otimizada:** Reorganize o roteiro de forma lógica, agrupando atividades por região.
 4.  **Enriquecimento:** Adicione dicas práticas e use emojis relevantes. **Para a gastronomia, foque em sugerir pratos típicos, não restaurantes.**
 
+**IMPORTANTE: Sua resposta deve começar DIRETAMENTE com a seção de Visão Geral. Não inclua nenhuma frase introdutória, saudação ou parágrafos explicativos antes do roteiro formatado.**
+
+
 Apresente o resultado no seguinte formato **(incluindo a visão geral da logística, o roteiro otimizado e as dicas)**:
 
 ---
