@@ -222,7 +222,8 @@ with st.form("form_roteiro"):
             st.balloons()
             st.divider()
             st.header("🎉 Seu Roteiro Personalizado está Pronto!")
-            st.markdown(roteiro_final)
+            st.components.v1.html(roteiro_final_html, height=600, scrolling=True)
+
 
             novo_html = roteiro_final_html
             user_ref = db.collection(colecao).document(st.user.email)
