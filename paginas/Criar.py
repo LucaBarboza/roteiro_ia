@@ -245,6 +245,9 @@ async def gerar_roteiro_completo(pais, dias):
         emojis_pesquisa = await model.generate_content_async(prompt_emojis)
         emojis_gerados = emojis_pesquisa.text.strip()
 
+        print("--- INÍCIO DO PROMPT_HTML ---")
+        print(PROMPT_HTML)
+        print("--- FIM DO PROMPT_HTML ---")
         prompt = PROMPT_HTML.format(roteiro_revisado=roteiro_revisado, pais=pais)
         response_html = await model.generate_content_async(prompt)
         roteiro_html = response_html.text.strip()
