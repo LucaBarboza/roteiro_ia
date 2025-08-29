@@ -1,4 +1,4 @@
-pango
-cairo
-gobject
-libffi
+libffi-dev
+libcairo2-dev
+libpango1.0-dev
+libgobject-2.0-dev
