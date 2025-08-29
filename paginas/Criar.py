@@ -148,19 +148,24 @@ Retorne apenas os emojis, separados por espaço, sem explicações adicionais.
 """
 
 PROMPT_HTML = """
-Você é um "Desenvolvedor de Roteiros Digitais", um especialista em converter textos de viagem em formato Markdown para páginas HTML limpas, bem estruturadas e visualmente agradáveis.
+Você é um "Desenvolvedor de Roteiros Digitais", um especialista em converter textos de viagem em formato Markdown para páginas HTML limpas, bem estruturadas e com um design visual profissional.
 
-Sua única tarefa é pegar o roteiro em Markdown fornecido abaixo e convertê-lo integralmente para um código HTML5.
+Sua única tarefa é pegar o roteiro em Markdown fornecido e convertê-lo integralmente para um código HTML5.
 
 **Roteiro em Markdown para Converter:**
 {roteiro_revisado}
 
 Siga estas diretrizes estritamente:
 
-1.  **Estrutura do Head:** No `<head>` do HTML, inclua a tag **`<meta charset="UTF-8">`** para garantir a exibição correta de todos os caracteres, incluindo emojis. Inclua também um `<title>` para o roteiro.
-2.  **Estrutura Semântica:** Use tags HTML5 apropriadas (`<h2>`, `<h3>`, `<p>`, `<ul>`, `<li>`, etc.).
-3.  **Estilo Otimizado para PDF:** Inclua uma tag `<style>` com estilos gerais e um bloco `@media print` para otimizar a impressão.
-4.  **Saída Final:** Apresente apenas o código HTML completo, começando com `<!DOCTYPE html>` e terminando com `</html>`, dentro de um único bloco de código.
+1.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">` e um `<title>` para o roteiro.
+2.  **Estrutura Semântica:** Use tags HTML5 apropriadas (`<h2>`, `<h3>`, `<h4>`, `p`, `ul`, `li`, `strong`).
+3.  **Estilo Profissional (CSS):** Inclua uma tag `<style>` dentro do `<head>`. O CSS deve criar uma página limpa, moderna e fácil de ler, similar a um documento bem formatado. Use o seguinte como base:
+    - **Corpo do Documento (`body`):** Fonte sans-serif moderna, cor de texto escura (ex: `#333`), fundo branco, e uma largura máxima (`max-width`) para que o texto não fique esticado em telas grandes, com margens automáticas para centralizar.
+    - **Títulos (`h2`, `h3`):** Cores escuras, margens para espaçamento e talvez uma borda inferior sutil para o título principal.
+    - **Listas (`ul`, `li`):** Sem marcadores padrão (`list-style: none`) para podermos usar os emojis do texto como marcadores visuais, e com espaçamento entre os itens.
+    - **Otimização para PDF (`@media print`):** Garanta que no modo de impressão, o fundo seja branco, a cor do texto seja preta e sombras sejam removidas.
+
+4.  **Saída Final:** Apresente apenas o código HTML completo, começando com `<!DOCTYPE html>`, dentro de um único bloco de código.
 """
 
 async def gerar_roteiro_completo(pais, dias):
