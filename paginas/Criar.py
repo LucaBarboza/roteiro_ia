@@ -58,7 +58,7 @@ Siga rigorosamente este processo:
     - **# IMPORTANTE: Considere o Dia 1 como o dia da chegada, planejando atividades mais leves e flexíveis para permitir check-in e descanso.**
     - Crie uma lista com uma sequência lógica de atividades, cujo número pode variar.
     - **# Para a gastronomia, sugira apenas pratos típicos e não restaurantes específicos.**
-    - Use emojis relevantes (ex: 🏛️ para museus, 🍲 para comida, ✈️ para voos) para deixar o roteiro mais visual e amigável.
+    - Tente sempre usar emojis relevantes (ex: 🏛️ para museus, 🍲 para comida, ✈️ para voos) para deixar o roteiro mais visual e amigável.
     - Evite divisões de horário, a menos que seja crucial.
 
 Apresente o resultado **sem título geral** e no seguinte formato em Markdown:
@@ -75,10 +75,10 @@ Apresente o resultado **sem título geral** e no seguinte formato em Markdown:
 
 ### **Dia 1: Chegada em [Cidade] e Aclimatação**
 - **Foco:** Exploração leve e primeira imersão na cultura local.
-- ** [Atividade 1, ex: Caminhada pela praça central]** — [Breve descrição e dica, ex: "Ideal para sentir o ritmo da cidade sem pressa."].
+- **[Atividade 1, ex: Caminhada pela praça central]** — [Breve descrição e dica, ex: "Ideal para sentir o ritmo da cidade sem pressa."].
 - **... (adicione no máximo mais uma atividade leve, se aplicável)**
-- ** Experiência Gastronômica:** Prove o [nome do prato típico], conhecido por [breve descrição].
-- ** Sugestão Noturna:** [Atividade de lazer leve, ex: "Tomar um café local observando o movimento."].
+- **Experiência Gastronômica:** Prove o [nome do prato típico], conhecido por [breve descrição].
+- **Sugestão Noturna:** [Atividade de lazer leve, ex: "Tomar um café local observando o movimento."].
 
 *(Repita a estrutura para os outros dias, com ritmo normal)*
 
