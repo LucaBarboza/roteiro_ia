@@ -61,6 +61,7 @@ if roteiros:
                             data=pdf_bytes,
                             file_name=f"roteiro_{pais.lower().replace(' ', '_')}.pdf",
                             mime="application/pdf",
+                        )
                 
                 with col_del_open:
                     if st.button("🗑️ Deletar", key=f"delete_open_{i}", help="Deletar este roteiro"):
