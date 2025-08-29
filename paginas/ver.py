@@ -52,15 +52,16 @@ if roteiros:
                     #         mime="application/pdf",
                     #         use_container_width=True
                     #     )
-                    
-                    pdf_bytes = html_para_pdf_bytes(roteiro['html'])
+
+                    pdf_bytes = html_para_pdf_bytes(roteiro_html)
+
+            # ALTERADO: O botão agora oferece o PDF diretamente
                     if pdf_bytes:
                         st.download_button(
                             label="📥 Baixar Roteiro em PDF",
                             data=pdf_bytes,
                             file_name=f"roteiro_{pais.lower().replace(' ', '_')}.pdf",
                             mime="application/pdf",
-                        )
                 
                 with col_del_open:
                     if st.button("🗑️ Deletar", key=f"delete_open_{i}", help="Deletar este roteiro"):
