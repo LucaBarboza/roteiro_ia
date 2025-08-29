@@ -159,11 +159,18 @@ Siga estas diretrizes estritamente:
 
 1.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">` e um `<title>` para o roteiro.
 2.  **Estrutura Semântica:** Use tags HTML5 apropriadas (`<h2>`, `<h3>`, `<h4>`, `p`, `ul`, `li`, `strong`).
-3.  **Estilo Profissional (CSS):** Inclua uma tag `<style>` dentro do `<head>`. O CSS deve criar uma página limpa, moderna e fácil de ler, similar a um documento bem formatado. Use o seguinte como base:
-    - **Corpo do Documento (`body`):** Fonte sans-serif moderna, cor de texto escura (ex: `#333`), fundo branco, e uma largura máxima (`max-width`) para que o texto não fique esticado em telas grandes, com margens automáticas para centralizar.
-    - **Títulos (`h2`, `h3`):** Cores escuras, margens para espaçamento e talvez uma borda inferior sutil para o título principal.
-    - **Listas (`ul`, `li`):** Sem marcadores padrão (`list-style: none`) para podermos usar os emojis do texto como marcadores visuais, e com espaçamento entre os itens.
-    - **Otimização para PDF (`@media print`):** Garanta que no modo de impressão, o fundo seja branco, a cor do texto seja preta e sombras sejam removidas.
+3.  **Estilo Profissional (CSS Responsivo):** Inclua uma tag `<style>` dentro do `<head>`. O CSS deve criar uma página limpa, moderna e fácil de ler, similar a um documento bem formatado. **É CRÍTICO que o layout seja responsivo e evite rolagem horizontal desnecessária.** Use o seguinte como base:
+    - **Corpo do Documento (`body`):**
+        - `font-family`: sans-serif moderna (ex: 'Roboto', Arial, sans-serif).
+        - `color`: Cor de texto escura (ex: `#333`).
+        - `background-color`: Fundo branco.
+        - `margin`: `20px` (para um respiro nas bordas).
+        - `line-height`: `1.6` (melhora a legibilidade).
+        - **IMPORTANTE:** `max-width: 800px;` (ou um valor similar, ajuste se necessário) e `margin: 20px auto;` para centralizar o conteúdo sem que ele fique muito largo. **Garanta que o texto se quebre automaticamente.**
+    - **Títulos (`h2`, `h3`, `h4`):** Cores escuras, margens para espaçamento (`margin-top`, `margin-bottom`). `h2` pode ter uma borda inferior sutil.
+    - **Listas (`ul`, `li`):** `list-style: none;` (para usar os emojis do texto como marcadores), `padding: 0; margin: 0;` e `margin-bottom: 10px;` para espaçamento entre os itens.
+    - **Elementos de Texto (`p`, `li`):** Garantir `word-wrap: break-word;` ou `overflow-wrap: break-word;` para que textos longos (especialmente em dicas ou nomes de pratos) não causem overflow horizontal.
+    - **Otimização para PDF (`@media print`):** Garantir `background: #fff; color: #000; box-shadow: none;` para uma impressão limpa.
 
 4.  **Saída Final:** Apresente apenas o código HTML completo, começando com `<!DOCTYPE html>`, dentro de um único bloco de código.
 """
@@ -227,7 +234,7 @@ with st.form("form_roteiro"):
             st.balloons()
             st.divider()
             st.header("🎉 Seu Roteiro Personalizado está Pronto!")
-            st.components.v1.html(roteiro_final_html, height=600, scrolling=True)
+            st.components.v1.html(roteiro_final_html)
 
 
             novo_html = roteiro_final_html
