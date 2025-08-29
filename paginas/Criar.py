@@ -147,79 +147,79 @@ A escolha deve considerar:
 Retorne apenas os emojis, separados por espaço, sem explicações adicionais.
 """
 
-PROMPT_HTML = """
-Você é um "Desenvolvedor de Roteiros Digitais", um especialista em converter textos de viagem em formato Markdown para páginas HTML limpas, bem estruturadas e com um design visual profissional, otimizado para temas escuros.
+# PROMPT_HTML = """
+# Você é um "Desenvolvedor de Roteiros Digitais", um especialista em converter textos de viagem em formato Markdown para páginas HTML limpas, bem estruturadas e com um design visual profissional, otimizado para temas escuros.
 
-Sua única tarefa é pegar o roteiro em Markdown fornecido e convertê-lo integralmente para um código HTML5.
+# Sua única tarefa é pegar o roteiro em Markdown fornecido e convertê-lo integralmente para um código HTML5.
 
-**Roteiro em Markdown para Converter:**
-{roteiro_revisado}
+# **Roteiro em Markdown para Converter:**
+# {roteiro_revisado}
 
-Siga estas diretrizes estritamente:
+# Siga estas diretrizes estritamente:
 
-1.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">` e o título da página no formato `<title>Roteiro para {pais}</title>`.
+# 1.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">` e o título da página no formato `<title>Roteiro para {pais}</title>`.
 
-2.  **Estrutura Semântica:** Use tags HTML5 apropriadas (`<h2>`, `<h3>`, `<h4>`, `p`, `ul`, `li`, `strong`).
+# 2.  **Estrutura Semântica:** Use tags HTML5 apropriadas (`<h2>`, `<h3>`, `<h4>`, `p`, `ul`, `li`, `strong`).
 
-3.  **Estilo Profissional (CSS):** Inclua a tag `<style>` dentro do `<head>`. Use EXATAMENTE o estilo abaixo:
+# 3.  **Estilo Profissional (CSS):** Inclua a tag `<style>` dentro do `<head>`. Use EXATAMENTE o estilo abaixo:
 
-    ```css
-    @import url('[https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap)');
+#     ```css
+#     @import url('[https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap)');
 
-    body {
-        font-family: 'Roboto', Arial, sans-serif;
-        background-color: #0E1117; /* Cor de fundo do tema escuro do Streamlit */
-        color: #FAFAFA; /* Cor do texto principal */
-        line-height: 1.7;
-        margin: 0;
-        padding: 40px;
-    }
-    h2, h3, h4 {
-        color: #FFFFFF;
-        font-weight: 700;
-        border-bottom: 1px solid #4A4A4A;
-        padding-bottom: 10px;
-        margin-top: 40px;
-        margin-bottom: 20px;
-    }
-    h2 {
-        font-size: 28px;
-    }
-    h3 {
-        font-size: 22px;
-        border-bottom: none;
-    }
-    ul {
-        list-style: none;
-        padding-left: 5px;
-    }
-    li {
-        padding-left: 10px;
-        margin-bottom: 15px;
-    }
-    strong, b {
-        color: #FFFFFF;
-        font-weight: 700;
-    }
-    /* Otimização para impressão em PDF */
-    @media print {
-        body {
-            background-color: #FFFFFF !important;
-            color: #000000 !important;
-            padding: 20px;
-        }
-        h2, h3, h4 {
-            color: #000000 !important;
-            border-bottom-color: #CCCCCC !important;
-        }
-        strong, b {
-            color: #000000 !important;
-        }
-    }
-    ```
+#     body {
+#         font-family: 'Roboto', Arial, sans-serif;
+#         background-color: #0E1117; /* Cor de fundo do tema escuro do Streamlit */
+#         color: #FAFAFA; /* Cor do texto principal */
+#         line-height: 1.7;
+#         margin: 0;
+#         padding: 40px;
+#     }
+#     h2, h3, h4 {
+#         color: #FFFFFF;
+#         font-weight: 700;
+#         border-bottom: 1px solid #4A4A4A;
+#         padding-bottom: 10px;
+#         margin-top: 40px;
+#         margin-bottom: 20px;
+#     }
+#     h2 {
+#         font-size: 28px;
+#     }
+#     h3 {
+#         font-size: 22px;
+#         border-bottom: none;
+#     }
+#     ul {
+#         list-style: none;
+#         padding-left: 5px;
+#     }
+#     li {
+#         padding-left: 10px;
+#         margin-bottom: 15px;
+#     }
+#     strong, b {
+#         color: #FFFFFF;
+#         font-weight: 700;
+#     }
+#     /* Otimização para impressão em PDF */
+#     @media print {
+#         body {
+#             background-color: #FFFFFF !important;
+#             color: #000000 !important;
+#             padding: 20px;
+#         }
+#         h2, h3, h4 {
+#             color: #000000 !important;
+#             border-bottom-color: #CCCCCC !important;
+#         }
+#         strong, b {
+#             color: #000000 !important;
+#         }
+#     }
+#     ```
 
-4.  **Saída Final:** Apresente apenas o código HTML completo, começando com `<!DOCTYPE html>`, dentro de um único bloco de código.
-"""
+# 4.  **Saída Final:** Apresente apenas o código HTML completo, começando com `<!DOCTYPE html>`, dentro de um único bloco de código.
+# """
 
 async def gerar_roteiro_completo(pais, dias):
     model = genai.GenerativeModel(GEMINI_MODEL)
@@ -245,17 +245,17 @@ async def gerar_roteiro_completo(pais, dias):
         emojis_pesquisa = await model.generate_content_async(prompt_emojis)
         emojis_gerados = emojis_pesquisa.text.strip()
 
-        print("--- INÍCIO DO PROMPT_HTML ---")
-        print(PROMPT_HTML)
-        print("--- FIM DO PROMPT_HTML ---")
-        prompt = PROMPT_HTML.format(roteiro_revisado=roteiro_revisado, pais=pais)
-        response_html = await model.generate_content_async(prompt)
-        roteiro_html = response_html.text.strip()
-        if "```html" in roteiro_html:
-             roteiro_html = roteiro_html.split("```html")[1].split("```")[0]
-        status.update(label="Fase 3: Concluída!", state="complete")
+        # print("--- INÍCIO DO PROMPT_HTML ---")
+        # print(PROMPT_HTML)
+        # print("--- FIM DO PROMPT_HTML ---")
+        # prompt = PROMPT_HTML.format(roteiro_revisado=roteiro_revisado, pais=pais)
+        # response_html = await model.generate_content_async(prompt)
+        # roteiro_html = response_html.text.strip()
+        # if "```html" in roteiro_html:
+        #      roteiro_html = roteiro_html.split("```html")[1].split("```")[0]
+        # status.update(label="Fase 3: Concluída!", state="complete")
 
-    return roteiro_revisado, emojis_gerados, roteiro_html
+    return roteiro_revisado, emojis_gerados#, roteiro_html
 
 ###################
 
@@ -279,14 +279,14 @@ with st.form("form_roteiro"):
         else:
             dias = (data_fim_str - data_inicio_str).days
             st.info(f"Preparando um roteiro de {dias} dias para {pais}. Isso pode levar um momento...")
-            roteiro_final, emojis_gerados, roteiro_final_html = asyncio.run(gerar_roteiro_completo(pais, dias))
+            roteiro_final, emojis_gerados = asyncio.run(gerar_roteiro_completo(pais, dias))
             st.balloons()
             st.divider()
             st.header("🎉 Seu Roteiro Personalizado está Pronto!")
             st.markdown(roteiro_final)
 
             novo_roteiro = roteiro_final
-            novo_html = roteiro_final_html
+            #novo_html = roteiro_final_html
             user_ref = db.collection(colecao).document(st.user.email)
             doc = user_ref.get()
             dados = doc.to_dict() if doc.exists else {}
@@ -297,8 +297,8 @@ with st.form("form_roteiro"):
             dados['roteiros'].append({
             'texto': novo_roteiro,
             'pais': pais,
-            'emojis': emojis_gerados,
-            'html': novo_html
+            'emojis': emojis_gerados
+            #'html': novo_html
             })
             user_ref.set(dados)
             st.success("Roteiro salvo!")
