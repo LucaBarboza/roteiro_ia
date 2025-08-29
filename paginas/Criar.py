@@ -218,7 +218,7 @@ with st.form("form_roteiro"):
         else:
             dias = (data_fim_str - data_inicio_str).days
             st.info(f"Preparando um roteiro de {dias} dias para {pais}. Isso pode levar um momento...")
-            roteiro_final, emojis_gerados, roteiro_final_html = asyncio.run(gerar_roteiro_completo(pais, dias))
+            roteiro_final_html, emojis_gerados = asyncio.run(gerar_roteiro_completo(pais, dias))
             st.balloons()
             st.divider()
             st.header("🎉 Seu Roteiro Personalizado está Pronto!")
