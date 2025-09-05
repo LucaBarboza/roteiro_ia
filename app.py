@@ -2,7 +2,7 @@ import streamlit as st
 
 st.set_page_config(
     page_title="GuIA",  # Novo Título
-    page_icon="arquivos/logo_GuIA.png", # Alterado para usar o avatar do assistente
+    page_icon="arquivos/logo.png", # Alterado para usar o avatar do assistente
     layout='wide',                       # Melhor aproveitamento do espaço
     initial_sidebar_state="expanded"
 )
