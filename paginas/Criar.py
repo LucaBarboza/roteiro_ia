@@ -169,56 +169,56 @@ Siga estas diretrizes estritamente:
     ```css
     @import url('[https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap)');
 
-    body {
+    body {{
         font-family: 'Roboto', Arial, sans-serif;
         background-color: #0E1117; /* Cor de fundo do tema escuro do Streamlit */
         color: #FAFAFA; /* Cor do texto principal */
         line-height: 1.7;
         margin: 0;
         padding: 40px;
-    }
-    h2, h3, h4 {
+    }}
+    h2, h3, h4 {{
         color: #FFFFFF;
         font-weight: 700;
         border-bottom: 1px solid #4A4A4A;
         padding-bottom: 10px;
         margin-top: 40px;
         margin-bottom: 20px;
-    }
-    h2 {
+    }}
+    h2 {{
         font-size: 28px;
-    }
-    h3 {
+    }}
+    h3 {{
         font-size: 22px;
         border-bottom: none;
-    }
-    ul {
+    }}
+    ul {{
         list-style: none;
         padding-left: 5px;
-    }
-    li {
+    }}
+    li {{
         padding-left: 10px;
         margin-bottom: 15px;
-    }
-    strong, b {
+    }}
+    strong, b {{
         color: #FFFFFF;
         font-weight: 700;
-    }
+    }}
     /* Otimização para impressão em PDF */
-    @media print {
-        body {
+    @media print {{
+        body {{
             background-color: #FFFFFF !important;
             color: #000000 !important;
             padding: 20px;
-        }
-        h2, h3, h4 {
+        }}
+        h2, h3, h4 {{
             color: #000000 !important;
             border-bottom-color: #CCCCCC !important;
-        }
-        strong, b {
+        }}
+        strong, b {{
             color: #000000 !important;
-        }
-    }
+        }}
+    }}
     ```
 
 4.  **Saída Final:** Apresente apenas o código HTML completo, começando com `<!DOCTYPE html>`, dentro de um único bloco de código.
