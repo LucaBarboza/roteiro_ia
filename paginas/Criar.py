@@ -286,7 +286,7 @@ with st.form("form_roteiro"):
             st.markdown(roteiro_final)
 
             novo_roteiro = roteiro_final
-            #novo_html = roteiro_final_html
+            novo_html = roteiro_final_html
             user_ref = db.collection(colecao).document(st.user.email)
             doc = user_ref.get()
             dados = doc.to_dict() if doc.exists else {}

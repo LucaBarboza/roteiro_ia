@@ -53,7 +53,7 @@ if roteiros:
                     #         use_container_width=True
                     #     )
 
-                    pdf_bytes = html_para_pdf_bytes(roteiro_html)
+                    pdf_bytes = html_para_pdf_bytes(roteiro['html'])
 
             # ALTERADO: O botão agora oferece o PDF diretamente
                     if pdf_bytes:
