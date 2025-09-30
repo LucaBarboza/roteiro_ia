@@ -1,4 +1,5 @@
 libffi-dev
-libcairo2-dev
-libpango1.0-dev
-libgirepository1.0-dev
+libpango1.0-0
+libcairo2
+libgdk-pixbuf2.0-0
+fonts-noto-color-emoji
