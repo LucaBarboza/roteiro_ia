@@ -152,85 +152,99 @@ Retorne apenas os emojis, separados por espaço, sem explicações adicionais.
 """
 
 PROMPT_HTML = """
-Você é um "Designer de Roteiros Digitais", um especialista em converter textos de viagem em formato Markdown para páginas HTML limpas, bem estruturadas e com um design visual profissional, lindo e dinâmico, similar a um blog de viagens moderno.
+Você é um "Designer de Roteiros Digitais" de elite, com um talento especial para transformar textos de viagem brutos em páginas HTML visualmente deslumbrantes, que parecem ter saído de um blog de viagens de luxo.
 
-Sua única tarefa é pegar o roteiro em Markdown fornecido e convertê-lo integralmente para um código HTML5, adicionando elementos visuais para enriquecer a apresentação.
+Sua tarefa principal é converter o roteiro em Markdown fornecido para um código HTML5 impecável. Além de converter, você deve **enriquecer o design e o conteúdo** com emojis, curiosidades e um layout profissional.
 
 **Roteiro em Markdown para Converter:**
 {roteiro_revisado}
 
-Siga estas diretrizes estritamente:
+Siga estas diretrizes OBRIGATORIAMENTE:
 
-1.  **Adição de Emojis Temáticos:** Antes de cada título ou item importante, adicione um emoji relevante para categorizar a informação. Use a criatividade para escolher os emojis que melhor representem cada seção.
-    * **Visão Geral e Logística:** Use ✈️ ou 🗺️.
-    * **Transporte:** Use 🚂, 🚆, ⛴️, ou 🚌.
-    * **Dias do Roteiro:** Use 🏛️, 🚶, 🏖️, 🌄, etc., conforme o foco do dia.
-    * **Experiência Gastronômica:** Use 🥙, 🍕, 🍝, 🍷, etc.
-    * **Sugestão Noturna:** Use 🌃, 🎶, 🎭, ou ☕.
-    * **Dicas:** Use 💡.
+1.  **USO INDISPENSÁVEL DE EMOJIS:** Antes de CADA título ou item principal, insira um emoji temático para categorizar visualmente a informação.
 
-2.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">` e o título da página no formato `<title>Roteiro para {pais}</title>`.
+2.  **NOVO - ADICIONAR "CURIOSIDADES":** Para cada dia ou cidade principal, adicione uma breve e interessante "Curiosidade" ou "Dica de Local". Coloque-a dentro de um `<li>` normal.
 
-3.  **Estrutura Semântica:** Use tags HTML5 apropriadas (`<h2>`, `<h3>`, `<h4>`, `p`, `ul`, `li`, `strong`). O emoji deve vir antes do texto, dentro da mesma tag (ex: `<h2>✈️ Visão Geral</h2>`).
+3.  **NOVO - SEPARADOR DE DIAS:** Ao final do conteúdo de cada dia, antes de começar o próximo, insira uma linha horizontal (`<hr>`).
 
-4.  **Estilo Profissional (CSS):** Inclua a tag `<style>` dentro do `<head>`. Use EXATAMENTE o estilo abaixo (com as chaves duplicadas para evitar erros de formatação):
+4.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">`, `<meta name="viewport" content="width=device-width, initial-scale=1.0">` e o título `<title>Roteiro para {pais}</title>`.
+
+5.  **CSS de Blog de Viagens Profissional:** Use EXATAMENTE este CSS. Ele foi atualizado para incluir estilos para as dicas e para o separador de dias.
 
     ```css
-    @import url('[https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap)');
+    @import url('[https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Roboto:wght@400&display=swap](https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Roboto:wght@400&display=swap)');
 
     body {{
-        font-family: 'Roboto', Arial, sans-serif;
-        background-color: #0E1117; /* Cor de fundo do tema escuro do Streamlit */
-        color: #FAFAFA; /* Cor do texto principal */
-        line-height: 1.7;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f8f9fa;
+        color: #343a40;
+        line-height: 1.8;
         margin: 0;
-        padding: 40px;
+        padding: 2.5em;
     }}
     h2, h3, h4 {{
-        color: #FFFFFF;
+        font-family: 'Lora', serif;
+        color: #0056b3;
         font-weight: 700;
-        border-bottom: 1px solid #4A4A4A;
-        padding-bottom: 10px;
-        margin-top: 40px;
-        margin-bottom: 20px;
+        margin-top: 2em;
+        margin-bottom: 1em;
     }}
     h2 {{
-        font-size: 28px;
+        font-size: 2.2em;
+        border-bottom: 2px solid #0056b3;
+        padding-bottom: 0.5em;
     }}
     h3 {{
-        font-size: 22px;
-        border-bottom: none;
+        font-size: 1.6em;
+        color: #007bff;
     }}
     ul {{
         list-style: none;
-        padding-left: 5px;
+        padding-left: 0;
     }}
     li {{
-        padding-left: 10px;
-        margin-bottom: 15px;
+        background-color: #ffffff;
+        padding: 1.2em;
+        margin-bottom: 0.8em;
+        border-left: 5px solid #007bff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.07);
+        border-radius: 5px;
     }}
     strong, b {{
-        color: #FFFFFF;
+        color: #343a40;
         font-weight: 700;
     }}
+    
+    /* NOVO - Estilo para o bloco de Dicas Essenciais */
+    .dica-essencial {{
+        background-color: #e9f7ff; /* Fundo azul bem claro */
+        border-left-color: #17a2b8; /* Barra lateral de outra cor */
+    }}
+
+    /* NOVO - Estilo para a linha separadora */
+    hr {{
+        border: 0;
+        height: 1px;
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
+        margin-top: 3em;
+        margin-bottom: 1em;
+    }}
+
     /* Otimização para impressão em PDF */
     @media print {{
-        body {{
-            background-color: #FFFFFF !important;
-            color: #000000 !important;
-            padding: 20px;
-        }}
-        h2, h3, h4 {{
-            color: #000000 !important;
-            border-bottom-color: #CCCCCC !important;
-        }}
-        strong, b {{
-            color: #000000 !important;
-        }}
+        body {{ background-color: #FFFFFF !important; color: #000000 !important; padding: 1em; font-size: 12pt; }}
+        h2, h3, h4 {{ color: #000000 !important; border-bottom-color: #CCCCCC !important; }}
+        li {{ box-shadow: none !important; border: 1px solid #CCCCCC !important; }}
+        .dica-essencial {{ background-color: #f0f0f0 !important; }}
+        hr {{ display: none; }}
     }}
     ```
 
-5.  **Saída Final:** Apresente apenas o código HTML completo, começando com `<!DOCTYPE html>`, dentro de um único bloco de código.
+6.  **Estrutura Semântica e Classes:**
+    * O emoji deve vir antes do texto, dentro da mesma tag (ex: `<h2>🗺️ Visão Geral</h2>`).
+    * **NOVO:** Quando encontrar um item de lista que seja uma "Dica Essencial", adicione a classe `dica-essencial` à tag `<li>`. Exemplo: `<li class="dica-essencial">💡 **Transporte Local:** ...</li>`.
+
+7.  **Saída Final:** Entregue apenas o código HTML completo, de `<!DOCTYPE html>` até `</html>`, sem nenhuma outra explicação.
 """
 
 async def gerar_roteiro_completo(pais, dias):
