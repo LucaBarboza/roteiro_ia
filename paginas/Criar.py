@@ -104,7 +104,8 @@ Siga este processo de auditoria:
 1.  **Diagnóstico Inicial:** Analise o roteiro original, **verificando se o ritmo do Dia 1 é leve e adequado para a chegada do viajante.**
 2.  **Validação de Dados:** Pesquise tempos reais de deslocamento e visita.
 3.  **Reconstrução Otimizada:** Reorganize o roteiro de forma lógica, agrupando atividades por região.
-4.  **Enriquecimento:** Adicione dicas práticas e use emojis relevantes. **Para a gastronomia, foque em sugerir pratos típicos, não restaurantes.**
+4.  **Enriquecimento:** Adicione dicas práticas e use emojis relevantes. **Para a gastronomia, sugerira pratos típicos, não restaurantes.**
+5.  **Revisão do texto:** Revise o roteiro completo, avaliando se ele não está com nenhum erro, ortográfico, de idioma, ou na formatação.
 
 **IMPORTANTE: Sua resposta deve começar DIRETAMENTE com a seção de Visão Geral. Não inclua nenhuma frase introdutória, saudação ou parágrafos explicativos antes do roteiro formatado.**
 
@@ -151,20 +152,28 @@ Retorne apenas os emojis, separados por espaço, sem explicações adicionais.
 """
 
 PROMPT_HTML = """
-Você é um "Designer de Roteiros Digitais", um especialista em converter textos de viagem em formato Markdown para páginas HTML limpas, bem estruturadas e com um design visual profissional e lindo.
+Você é um "Designer de Roteiros Digitais", um especialista em converter textos de viagem em formato Markdown para páginas HTML limpas, bem estruturadas e com um design visual profissional, lindo e dinâmico, similar a um blog de viagens moderno.
 
-Sua única tarefa é pegar o roteiro em Markdown fornecido e convertê-lo integralmente para um código HTML5.
+Sua única tarefa é pegar o roteiro em Markdown fornecido e convertê-lo integralmente para um código HTML5, adicionando elementos visuais para enriquecer a apresentação.
 
 **Roteiro em Markdown para Converter:**
 {roteiro_revisado}
 
 Siga estas diretrizes estritamente:
 
-1.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">` e o título da página no formato `<title>Roteiro para {pais}</title>`.
+1.  **Adição de Emojis Temáticos:** Antes de cada título ou item importante, adicione um emoji relevante para categorizar a informação. Use a criatividade para escolher os emojis que melhor representem cada seção.
+    * **Visão Geral e Logística:** Use ✈️ ou 🗺️.
+    * **Transporte:** Use 🚂, 🚆, ⛴️, ou 🚌.
+    * **Dias do Roteiro:** Use 🏛️, 🚶, 🏖️, 🌄, etc., conforme o foco do dia.
+    * **Experiência Gastronômica:** Use 🥙, 🍕, 🍝, 🍷, etc.
+    * **Sugestão Noturna:** Use 🌃, 🎶, 🎭, ou ☕.
+    * **Dicas:** Use 💡.
 
-2.  **Estrutura Semântica:** Use tags HTML5 apropriadas (`<h2>`, `<h3>`, `<h4>`, `p`, `ul`, `li`, `strong`).
+2.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">` e o título da página no formato `<title>Roteiro para {pais}</title>`.
 
-3.  **Estilo Profissional (CSS):** Inclua a tag `<style>` dentro do `<head>`. Use EXATAMENTE o estilo abaixo:
+3.  **Estrutura Semântica:** Use tags HTML5 apropriadas (`<h2>`, `<h3>`, `<h4>`, `p`, `ul`, `li`, `strong`). O emoji deve vir antes do texto, dentro da mesma tag (ex: `<h2>✈️ Visão Geral</h2>`).
+
+4.  **Estilo Profissional (CSS):** Inclua a tag `<style>` dentro do `<head>`. Use EXATAMENTE o estilo abaixo (com as chaves duplicadas para evitar erros de formatação):
 
     ```css
     @import url('[https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap)');
@@ -221,7 +230,7 @@ Siga estas diretrizes estritamente:
     }}
     ```
 
-4.  **Saída Final:** Apresente apenas o código HTML completo, começando com `<!DOCTYPE html>`, dentro de um único bloco de código.
+5.  **Saída Final:** Apresente apenas o código HTML completo, começando com `<!DOCTYPE html>`, dentro de um único bloco de código.
 """
 
 async def gerar_roteiro_completo(pais, dias):
