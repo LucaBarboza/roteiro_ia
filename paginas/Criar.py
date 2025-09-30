@@ -168,7 +168,7 @@ Você deve enriquecer o design e o conteúdo com emojis, curiosidades e um layou
 
 Siga estas diretrizes OBRIGATORIAMENTE:
 
-1.  **USO INDISPENSável DE EMOJIS:** Antes de CADA título ou item principal, insira um emoji temático para categorizar visualmente a informação.
+1.  **USO INDISPENSÁVEL DE EMOJIS:** Antes de CADA título ou item principal, insira um emoji temático para categorizar visualmente a informação.
 
 2.  **ADICIONAR "CURIOSIDADES":** Para cada dia ou cidade principal, adicione uma breve e interessante "Curiosidade" ou "Dica de Local". Coloque-a dentro de um `<li>` normal.
 
@@ -176,14 +176,12 @@ Siga estas diretrizes OBRIGATORIAMENTE:
 
 4.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">`, `<meta name="viewport" content="width=device-width, initial-scale=1.0">` e o título `<title>Roteiro para {pais}</title>`.
 
-5.  **CSS de Blog de Viagens Profissional:** Use EXATAMENTE este CSS. Ele foi atualizado com as novas fontes e ajustes de margem e quebra de página.
+5.  **CSS de Blog de Viagens Profissional:** Use EXATAMENTE este CSS.
 
     ```css
-    /* ALTERADO - Novas fontes importadas: Playfair Display para títulos e Lato para o corpo */
     @import url('[https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400&display=swap](https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400&display=swap)');
 
     body {{
-        /* ALTERADO - Nova fonte para o corpo do texto */
         font-family: 'Lato', sans-serif;
         background-color: #f8f9fa;
         color: #343a40;
@@ -192,7 +190,6 @@ Siga estas diretrizes OBRIGATORIAMENTE:
         padding: 2.5em;
     }}
     h2, h3, h4 {{
-        /* ALTERADO - Nova fonte para os títulos */
         font-family: 'Playfair Display', serif;
         color: #0056b3;
         font-weight: 700;
@@ -201,19 +198,20 @@ Siga estas diretrizes OBRIGATORIAMENTE:
     }}
     
     h2 {{
-        font-size: 2.5em; /* Aumentei um pouco para o título principal */
-        text-align: center; /* Centralizei o título principal */
+        font-size: 2.5em;
+        text-align: center;
         border-bottom: 2px solid #0056b3;
         padding-bottom: 0.5em;
     }}
     
-    /* ALTERADO - Quebra de página agora apenas antes dos dias (h3) */
     h3 {{
         font-size: 1.8em;
         color: #007bff;
-        /* ALTERADO - Margem do topo removida */
         margin-top: 0;
         break-before: page;
+        /* AJUSTE FINAL: Centraliza verticalmente o emoji e o texto para um alinhamento perfeito */
+        display: flex;
+        align-items: center;
     }}
 
     ul {{
@@ -254,7 +252,7 @@ Siga estas diretrizes OBRIGATORIAMENTE:
     ```
 
 6.  **Estrutura Semântica e Classes:**
-    * O emoji deve vir antes do texto, dentro da mesma tag (ex: `<h3>🗓️ Dia 1...</h3>`).
+    * **AJUSTE FINAL:** O emoji deve vir antes do texto, **separado por um espaço**, dentro da mesma tag (ex: `<h3>🗓️ Dia 1...</h3>`).
     * Quando encontrar um item de lista que seja uma "Dica Essencial", adicione a classe `dica-essencial` à tag `<li>`.
 
 7.  **Saída Final:** Entregue apenas o código HTML completo, de `<!DOCTYPE html>` até `</html>`, sem nenhuma outra explicação.
