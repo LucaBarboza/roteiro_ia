@@ -154,7 +154,7 @@ Retorne apenas os emojis, separados por espaço, sem explicações adicionais.
 PROMPT_HTML = """
 Você é um "Designer de Roteiros Digitais" de elite, com um talento especial para transformar textos de viagem brutos em páginas HTML visualmente deslumbrantes, que parecem ter saído de um blog de viagens de luxo.
 
-Sua tarefa principal é converter o roteiro em Markdown fornecido para um código HTML5 impecável. Além de converter, você deve **enriquecer o design e o conteúdo** com emojis, curiosidades e um layout profissional.
+Sua tarefa principal é converter o roteiro em Markdown fornecido para um código HTML5 impecável. Além de converter, você deve **enriquecer o design e o conteúdo** com emojis, curiosidades e um layout profissional perfeitamente paginado.
 
 **Roteiro em Markdown para Converter:**
 {roteiro_revisado}
@@ -163,13 +163,13 @@ Siga estas diretrizes OBRIGATORIAMENTE:
 
 1.  **USO INDISPENSÁVEL DE EMOJIS:** Antes de CADA título ou item principal, insira um emoji temático para categorizar visualmente a informação.
 
-2.  **NOVO - ADICIONAR "CURIOSIDADES":** Para cada dia ou cidade principal, adicione uma breve e interessante "Curiosidade" ou "Dica de Local". Coloque-a dentro de um `<li>` normal.
+2.  **ADICIONAR "CURIOSIDADES":** Para cada dia ou cidade principal, adicione uma breve e interessante "Curiosidade" ou "Dica de Local". Coloque-a dentro de um `<li>` normal.
 
-3.  **NOVO - SEPARADOR DE DIAS:** Ao final do conteúdo de cada dia, antes de começar o próximo, insira uma linha horizontal (`<hr>`).
+3.  **SEPARADOR DE DIAS:** Ao final do conteúdo de cada dia, antes de começar o próximo, insira uma linha horizontal (`<hr>`).
 
 4.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">`, `<meta name="viewport" content="width=device-width, initial-scale=1.0">` e o título `<title>Roteiro para {pais}</title>`.
 
-5.  **CSS de Blog de Viagens Profissional:** Use EXATAMENTE este CSS. Ele foi atualizado para incluir estilos para as dicas e para o separador de dias.
+5.  **CSS de Blog de Viagens Profissional:** Use EXATAMENTE este CSS. Ele foi atualizado para incluir a regra de quebra de página.
 
     ```css
     @import url('[https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Roboto:wght@400&display=swap](https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Roboto:wght@400&display=swap)');
@@ -189,6 +189,12 @@ Siga estas diretrizes OBRIGATORIAMENTE:
         margin-top: 2em;
         margin-bottom: 1em;
     }}
+
+    /* NOVO - Garante que cada seção principal e cada dia comecem em uma nova página */
+    h2, h3 {{
+        break-before: page;
+    }}
+
     h2 {{
         font-size: 2.2em;
         border-bottom: 2px solid #0056b3;
@@ -214,14 +220,10 @@ Siga estas diretrizes OBRIGATORIAMENTE:
         color: #343a40;
         font-weight: 700;
     }}
-    
-    /* NOVO - Estilo para o bloco de Dicas Essenciais */
     .dica-essencial {{
-        background-color: #e9f7ff; /* Fundo azul bem claro */
-        border-left-color: #17a2b8; /* Barra lateral de outra cor */
+        background-color: #e9f7ff;
+        border-left-color: #17a2b8;
     }}
-
-    /* NOVO - Estilo para a linha separadora */
     hr {{
         border: 0;
         height: 1px;
@@ -242,7 +244,7 @@ Siga estas diretrizes OBRIGATORIAMENTE:
 
 6.  **Estrutura Semântica e Classes:**
     * O emoji deve vir antes do texto, dentro da mesma tag (ex: `<h2>🗺️ Visão Geral</h2>`).
-    * **NOVO:** Quando encontrar um item de lista que seja uma "Dica Essencial", adicione a classe `dica-essencial` à tag `<li>`. Exemplo: `<li class="dica-essencial">💡 **Transporte Local:** ...</li>`.
+    * Quando encontrar um item de lista que seja uma "Dica Essencial", adicione a classe `dica-essencial` à tag `<li>`. Exemplo: `<li class="dica-essencial">💡 **Transporte Local:** ...</li>`.
 
 7.  **Saída Final:** Entregue apenas o código HTML completo, de `<!DOCTYPE html>` até `</html>`, sem nenhuma outra explicação.
 """
