@@ -154,14 +154,21 @@ Retorne apenas os emojis, separados por espaço, sem explicações adicionais.
 PROMPT_HTML = """
 Você é um "Designer de Roteiros Digitais" de elite, com um talento especial para transformar textos de viagem brutos em páginas HTML visualmente deslumbrantes, que parecem ter saído de um blog de viagens de luxo.
 
-Sua tarefa principal é converter o roteiro em Markdown fornecido para um código HTML5 impecável. Além de converter, você deve **enriquecer o design e o conteúdo** com emojis, curiosidades e um layout profissional perfeitamente paginado.
+Sua tarefa principal é converter o roteiro em Markdown fornecido para um código HTML5 impecável.
+
+**Estrutura do Documento:**
+1.  **Título Principal:** O documento DEVE começar com um título `<h2>` no formato "Roteiro [Nome do País]".
+2.  **Visão Geral:** Logo após o título principal, crie uma seção de "Visão Geral e Logística", mas sem usar uma tag de título. Apenas texto normal e listas.
+3.  **Roteiro Diário:** Cada dia deve começar com um título `<h3>`.
+
+Você deve enriquecer o design e o conteúdo com emojis, curiosidades e um layout profissional perfeitamente paginado.
 
 **Roteiro em Markdown para Converter:**
 {roteiro_revisado}
 
 Siga estas diretrizes OBRIGATORIAMENTE:
 
-1.  **USO INDISPENSÁVEL DE EMOJIS:** Antes de CADA título ou item principal, insira um emoji temático para categorizar visualmente a informação.
+1.  **USO INDISPENSável DE EMOJIS:** Antes de CADA título ou item principal, insira um emoji temático para categorizar visualmente a informação.
 
 2.  **ADICIONAR "CURIOSIDADES":** Para cada dia ou cidade principal, adicione uma breve e interessante "Curiosidade" ou "Dica de Local". Coloque-a dentro de um `<li>` normal.
 
@@ -169,13 +176,15 @@ Siga estas diretrizes OBRIGATORIAMENTE:
 
 4.  **Estrutura do Head:** No `<head>` do HTML, inclua `<meta charset="UTF-8">`, `<meta name="viewport" content="width=device-width, initial-scale=1.0">` e o título `<title>Roteiro para {pais}</title>`.
 
-5.  **CSS de Blog de Viagens Profissional:** Use EXATAMENTE este CSS. Ele foi atualizado para incluir a regra de quebra de página.
+5.  **CSS de Blog de Viagens Profissional:** Use EXATAMENTE este CSS. Ele foi atualizado com as novas fontes e ajustes de margem e quebra de página.
 
     ```css
-    @import url('[https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Roboto:wght@400&display=swap](https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Roboto:wght@400&display=swap)');
+    /* ALTERADO - Novas fontes importadas: Playfair Display para títulos e Lato para o corpo */
+    @import url('[https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400&display=swap](https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400&display=swap)');
 
     body {{
-        font-family: 'Roboto', sans-serif;
+        /* ALTERADO - Nova fonte para o corpo do texto */
+        font-family: 'Lato', sans-serif;
         background-color: #f8f9fa;
         color: #343a40;
         line-height: 1.8;
@@ -183,27 +192,30 @@ Siga estas diretrizes OBRIGATORIAMENTE:
         padding: 2.5em;
     }}
     h2, h3, h4 {{
-        font-family: 'Lora', serif;
+        /* ALTERADO - Nova fonte para os títulos */
+        font-family: 'Playfair Display', serif;
         color: #0056b3;
         font-weight: 700;
         margin-top: 2em;
         margin-bottom: 1em;
     }}
-
-    /* NOVO - Garante que cada seção principal e cada dia comecem em uma nova página */
-    h2, h3 {{
-        break-before: page;
-    }}
-
+    
     h2 {{
-        font-size: 2.2em;
+        font-size: 2.5em; /* Aumentei um pouco para o título principal */
+        text-align: center; /* Centralizei o título principal */
         border-bottom: 2px solid #0056b3;
         padding-bottom: 0.5em;
     }}
+    
+    /* ALTERADO - Quebra de página agora apenas antes dos dias (h3) */
     h3 {{
-        font-size: 1.6em;
+        font-size: 1.8em;
         color: #007bff;
+        /* ALTERADO - Margem do topo removida */
+        margin-top: 0;
+        break-before: page;
     }}
+
     ul {{
         list-style: none;
         padding-left: 0;
@@ -232,7 +244,6 @@ Siga estas diretrizes OBRIGATORIAMENTE:
         margin-bottom: 1em;
     }}
 
-    /* Otimização para impressão em PDF */
     @media print {{
         body {{ background-color: #FFFFFF !important; color: #000000 !important; padding: 1em; font-size: 12pt; }}
         h2, h3, h4 {{ color: #000000 !important; border-bottom-color: #CCCCCC !important; }}
@@ -243,8 +254,8 @@ Siga estas diretrizes OBRIGATORIAMENTE:
     ```
 
 6.  **Estrutura Semântica e Classes:**
-    * O emoji deve vir antes do texto, dentro da mesma tag (ex: `<h2>🗺️ Visão Geral</h2>`).
-    * Quando encontrar um item de lista que seja uma "Dica Essencial", adicione a classe `dica-essencial` à tag `<li>`. Exemplo: `<li class="dica-essencial">💡 **Transporte Local:** ...</li>`.
+    * O emoji deve vir antes do texto, dentro da mesma tag (ex: `<h3>🗓️ Dia 1...</h3>`).
+    * Quando encontrar um item de lista que seja uma "Dica Essencial", adicione a classe `dica-essencial` à tag `<li>`.
 
 7.  **Saída Final:** Entregue apenas o código HTML completo, de `<!DOCTYPE html>` até `</html>`, sem nenhuma outra explicação.
 """
