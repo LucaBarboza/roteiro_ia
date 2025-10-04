@@ -30,10 +30,10 @@ O GuIA de Viagem é um processo de geração em cadeia que utiliza três agentes
 
 ## 🛠️ Tecnologias Utilizadas
 
--   [cite_start]**Backend & Frontend:** Python, Streamlit [cite: 1]
--   [cite_start]**Inteligência Artificial:** Google Gemini AI [cite: 1]
--   [cite_start]**Banco de Dados:** Google Firebase Firestore [cite: 1]
--   [cite_start]**Geração de PDF:** WeasyPrint [cite: 1]
+-   **Backend & Frontend:** Python, Streamlit
+-   **Inteligência Artificial:** Google Gemini AI
+-   **Banco de Dados:** Google Firebase Firestore
+-   **Geração de PDF:** WeasyPrint
 -   **Autenticação:** Login com o Google
 
 ---
