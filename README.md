@@ -1,11 +1,5 @@
 # GuIA de Viagem 🧭✈️
 
-![Status](https://img.shields.io/badge/status-funcional-brightgreen)
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
-![Streamlit](https://img.shields.io/badge/Framework-Streamlit-red)
-![Firebase](https://img.shields.io/badge/Database-Firebase-orange)
-![Gemini](https://img.shields.io/badge/IA-Google%20Gemini-purple)
-
 **GuIA de Viagem** é uma aplicação web inteligente que cria roteiros de viagem personalizados usando o poder da Inteligência Artificial. Com login de usuário, salvamento em base de dados e exportação para PDF.
 
 ---
