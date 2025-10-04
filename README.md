@@ -1,6 +1,6 @@
 # GuIA de Viagem 🧭✈️
 
-[![Aplicação Online](https://img.shields.io/badge/Acessar-Live-brightgreen)](https://gerador-roteiroia.streamlit.app/)
+[![Aplicação Online](https://img.shields.io/badge/Acessar-Site-brightgreen)](https://gerador-roteiroia.streamlit.app/)
 
 **GuIA de Viagem** é uma aplicação web inteligente que cria roteiros de viagem personalizados usando o poder da Inteligência Artificial. Com login de usuário, salvamento em base de dados e exportação para PDF.
 
